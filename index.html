@@ -2933,7 +2933,7 @@ function onModel(k,ok){modelsDone++;if(ok)modelsOk++;const n=MODELS.length;$('#m
  try{if(ok&&k==='robot'){RB_SC=1/heightOf(ASSETS.robot.scene);}
   if(ok&&k==='soldier'){SO_SC=2.1/heightOf(ASSETS.soldier.scene);const old=hero;hero=makeHero();scene.remove(old.wrap);statueFromModel();}}catch(e){console.error(e);}
  updAvail();if(modelsDone===n){ready=true;setTimeout(()=>{$('#mLoad').hidden=true;},1500);}}
-MODELS.forEach(k=>loadModel(k,'models/'+k+'.js',onModel));
+MODELS.forEach(k=>loadModel(k,k+'.js',onModel));
 window.__caos={frames:(n,r)=>{r=r||1/30;for(let i=0;i<n;i++){frameN++;tsFrame(r);if(!TSP.on){if(G.slow>0){G.slow-=r;G.ts=lerp(G.ts,0.14,clamp(r*12));}else G.ts=Math.min(1,G.ts+r*(G.ts<0.5?2.4:1.4));}step(r*G.ts,r);}},ambTest,AMB,G,HERO,scene,camera,TILES2,BACK,PLANES,FARMS:()=>FARMS,step:s=>{const n=Math.round(s*30);for(let i=0;i<n;i++){frameN++;step(1/30,1/30);}},render,
  fire:(id,x,z,o)=>{const w=WEAP.find(w=>w.id===id);const y=o&&o.y!=null?o.y:topAt(x,z);AIMK=o&&o.y!=null?1:3;AIM.set(x,y,z);aimOK=true;G.lastAim.copy(AIM);markUsed(w);if(w.fire)w.fire(AIM.clone());},
  hold:(id,x,z,s,lv)=>{const wi=WEAP.findIndex(w=>w.id===id);const w=WEAP[wi];G.w=wi;if(lv)G.lv=lv;markUsed(w);const n=Math.round(s*30);AIM.set(x,topAt(x,z),z);aimOK=true;if(w.down)w.down(AIM.clone());for(let i=0;i<n;i++){frameN++;AIM.set(x,topAt(x,z),z);aimOK=true;if(id==='laser')laserStep(1/30);else if(w.step)w.step(1/30,AIM);step(1/30,1/30);}if(w.up)w.up(AIM.clone());},
