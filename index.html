@@ -4447,7 +4447,7 @@ STEP_HOOKS.push(rockStep);RESET_HOOKS.push(()=>{while(EA.rocks.length)rockGone(E
 /* ================= Poder · Água: jato que empurra e apaga fogo; solte carregado para uma onda (no mar, tsunami) ================= */
 const WJ={segs:[],core:[],charge:0,on:false,lastP:new THREE.Vector3()};
 {const g=new THREE.CylinderGeometry(1,1,1,10,1,true).translate(0,0.5,0).rotateX(Math.PI/2);
- const mo=new THREE.MeshBasicMaterial({color:0x58b8ff,transparent:true,opacity:0.5,depthWrite:false,toneMapped:false}),mc=new THREE.MeshBasicMaterial({color:0xe6f7ff,transparent:true,opacity:0.75,depthWrite:false,toneMapped:false});
+ const mo=new THREE.MeshBasicMaterial({color:0x1f8fff,transparent:true,opacity:0.72,depthWrite:false,toneMapped:false}),mc=new THREE.MeshBasicMaterial({color:0xd8f3ff,transparent:true,opacity:0.9,depthWrite:false,toneMapped:false});
  for(let i=0;i<8;i++){const a=new THREE.Mesh(g,mo),b=new THREE.Mesh(g,mc);a.visible=b.visible=false;a.frustumCulled=b.frustumCulled=false;scene.add(a);scene.add(b);WJ.segs.push(a);WJ.core.push(b);}}
 function jetOff(){WJ.segs.forEach(m=>m.visible=false);WJ.core.forEach(m=>m.visible=false);}
 const _ja=new THREE.Vector3(),_jb=new THREE.Vector3();
@@ -4457,6 +4457,7 @@ function jetDraw(sx,sy,sz,tx,ty,tz,w){const n=WJ.segs.length,L=Math.hypot(tx-sx,
 function waterDown(p){WJ.charge=0;WJ.on=true;sPop(0.3);}
 function waterStep(dt,p){WJ.on=true;WJ.charge=Math.min(1,WJ.charge+dt/2.2);const sx=HERO.x,sy=HERO.y+3.4,sz=HERO.z;if(hero)hero.wrap.rotation.y=Math.atan2(p.x-sx,p.z-sz);WJ.lastP.copy(p);
  const w=1.6+WJ.charge*1.6;jetDraw(sx,sy,sz,p.x,p.y,p.z,w);
+ for(let k=0;k<(MOB?1:3);k++){const u=R(),ly=Math.min(30,Math.hypot(p.x-sx,p.z-sz)*0.12);fireP(lerp(sx,p.x,u),lerp(sy,p.y,u)+4*u*(1-u)*ly,lerp(sz,p.z,u),{vx:rr(-2,2),vy:rr(-1,2),vz:rr(-2,2),up:-26,drag:0.4,s:rr(0.4,0.9)*(1+WJ.charge*0.5),life:rr(0.4,0.8),gl:0.2,c0:[0.85,0.95,1],c1:[0.25,0.6,1]});}
  const dx=p.x-sx,dz=p.z-sz,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d;
  /* o centro do "empurrão" fica atrás do ponto de impacto: tudo voa no sentido do jato */
  const rad=8+5*WJ.charge;applyBlast(p.x-ux*rad*0.8,p.y,p.z-uz*rad*0.8,rad,(90+160*WJ.charge)*dt,{fire:false,fling:1.6+WJ.charge*1.4});
