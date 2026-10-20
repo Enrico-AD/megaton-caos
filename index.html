@@ -3022,7 +3022,7 @@ let MV_ROOF=null;
 let MAPH=null;
 /* no mar, voando, dá para mergulhar: descendo (ou já embaixo) a água não segura; dentro de túnel ou cúpula seca a água não conta */
 function heroSupport(x,z,fy,step){let s=gh(x,z);const w=waterAt(x,z);MV.wet=0;
- if(w!=null&&w>s&&!(FLY.on&&x>SEA_X-60&&(fy<w-0.6||FLY.vy<-2))&&!(MAPH&&MAPH.inside(x,fy+1,z))){s=w;MV.wet=1;}MV_ROOF=null;
+ if(w!=null&&w>s&&!(FLY.on&&w-s>2&&(FLY.sub||fy<w-0.6||FLY.vy<-2))&&!(MAPH&&MAPH.inside(x,fy+1,z))){s=w;MV.wet=1;}MV_ROOF=null;
  for(const b of B){if(b.st!==0)continue;const sh=b.shr||1,bx=b.x+(b.px||0),bz=b.z+(b.pz||0),hw=b.w/2*sh+0.4,hd=b.d/2*sh+0.4;
   if(x<bx-hw||x>bx+hw||z<bz-hd||z>bz+hd)continue;const t=bTop(b);if(t<=fy+step&&t>s){s=t;MV.wet=0;MV_ROOF=b;}}
  /* maravilhas dos países (10s-places) */
@@ -3320,6 +3320,7 @@ function flyMove(rdt,dirx,dirz,sp){const P=FLY.P,mv=sp>0;
   /* chão, água, telhado ou ilha que estava embaixo dos pés antes de descer */
   const s=heroSupport(HERO.x,HERO.z,Math.max(fy,fy0),step);if(fy<s){fy=s;if(FLY.vy<0)FLY.vy=0;if(FLY.ky<0)FLY.ky=0;}}
  MV.fy=fy;MV.vy=0;MV.air=0;MV.climb=null;
+ {const w=waterAt(HERO.x,HERO.z);FLY.sub=w!=null&&w-gh(HERO.x,HERO.z)>2&&fy<w-(FLY.sub?0.05:0.6);}
  const hs=Math.hypot(FLY.vx,FLY.vz),vmax=base*P.sp;
  if(hs>4){const yw=Math.atan2(FLY.vx,FLY.vz);if(FLY.yaw==null)FLY.yaw=yw;let d=yw-FLY.yaw;d=Math.atan2(Math.sin(d),Math.cos(d));const k=clamp(rdt*7);FLY.yaw+=d*k;FLY.ypv=lerp(FLY.ypv,d*k/Math.max(rdt,1e-3),clamp(rdt*5));}
  else{FLY.ypv=lerp(FLY.ypv,0,clamp(rdt*4));if(FLY.yaw==null)FLY.yaw=HERO.face;}
@@ -3928,7 +3929,7 @@ function heroMapStep(dt){const x=HERO.x,y=HERO.y+1.5,z=HERO.z;if(MPH.px==null){M
  for(const D of ADOMES)if(D.ram>0)D.ram-=dt;
  const fast=(FLY.on&&FLY.P&&FLY.P.pass&&FLY.spd>70)||(HY.on&&HY.lv>=2&&HY.run>0.35);
  if(fast&&md>0.3&&md<800){const near=inBBr(x,z,60)||inBBr(MPH.px,MPH.pz,60)||(BRG.ok&&Math.abs(z-BRG.z)<BRG.hw+60);if(near){const n=Math.min(80,Math.ceil(md/2.5));for(let i=1;i<=n;i++){const t=i/n;ramAt(lerp(MPH.px,x,t),lerp(MPH.py,y,t),lerp(MPH.pz,z,t));}}}
- const inV=mapIn(x,y,z),w=x>SEA_X-60?seaY(x,z,G.t):null,under=w!=null&&y<w-0.2;
+ const inV=mapIn(x,y,z),w=x>SEA_X-60?seaY(x,z,G.t):inlandW(x,z),under=w!=null&&y<w-0.2;
  /* atravessou o vidro devagar (voando): ondinha e bolhas */
  if(inV!==MPH.inV&&md<40&&FLY.on&&!fast){ball(x,y,z,4,0xbfefff,0.3);for(let k=0;k<10;k++)mpBubble(x+rr(-2,2),y+rr(-2,2),z+rr(-2,2),1.3);sGlass(camDist(x,y,z)*2.5);}
  /* mergulho e saída da água */
@@ -3959,10 +3960,12 @@ function mapCam(){const cp=camera.position,tg=controls.target;const x=HERO.x,z=H
   if(cp.y>ys){const off=MPW.copy(cp).sub(tg),L=off.length()||1,oy=clamp(ys-tg.y,-L*0.85,L*0.97),hl=Math.sqrt(Math.max(0,L*L-oy*oy)),h0=Math.hypot(off.x,off.z)||1;off.x*=hl/h0;off.z*=hl/h0;off.y=oy;cp.copy(tg).add(off);}
   for(let i=0;i<8;i++){if(cp.y>gh(cp.x,cp.z)+2.2)break;MPW.copy(cp).sub(tg).multiplyScalar(0.82);cp.copy(tg).add(MPW);}}
  else if(controls.maxPolarAngle!==Math.PI*0.47)controls.maxPolarAngle=Math.PI*0.47;}
+/* água funda fora do mar (lago e lagoas): usada para a visão e os efeitos de mergulho */
+function inlandW(x,z){if(!maybeWet(x,z))return null;const w=waterAt(x,z);return w!=null&&w-gh(x,z)>2?w:null;}
 function mapRender(){mapCam();const cp=camera.position;
- const w=cp.x>SEA_X-40?seaY(cp.x,cp.z,G.t):null,under=w!=null&&cp.y<w-0.12&&cp.y>gh(cp.x,cp.z)-2;
+ const w=cp.x>SEA_X-40?seaY(cp.x,cp.z,G.t):inlandW(cp.x,cp.z),under=w!=null&&cp.y<w-0.12&&cp.y>gh(cp.x,cp.z)-2;
  if(under!==UW.on){UW.on=under;sky.visible=!under;scene.background=under?UW.fogC:null;UWS.visible=under;UWR.me.visible=under;FISH.me.visible=under;KELP.me.visible=under;CORAL.me.visible=under;
-  if(under){hemi.color.copy(UW.hemiUS);hemi.groundColor.copy(UW.hemiUG);if(UW.first){UW.first=false;toast('Embaixo do mar','Atlântida fica no fundo, a leste da praia. Siga o túnel de vidro ou as boias.');}}
+  if(under){hemi.color.copy(UW.hemiUS);hemi.groundColor.copy(UW.hemiUG);if(UW.first&&cp.x>SEA_X-40){UW.first=false;toast('Embaixo do mar','Atlântida fica no fundo, a leste da praia. Siga o túnel de vidro ou as boias.');}}
   else{hemi.color.copy(UW.hemiS);hemi.groundColor.copy(UW.hemiG);scene.fog.color.copy(FOG0);scene.fog.near=UW.near0;scene.fog.far=UW.far0;}}
  if(under){const inV=mapIn(cp.x,cp.y,cp.z);UW.inV=inV;scene.fog.color.copy(inV?UW.fogIn:UW.fogC);scene.background=scene.fog.color;scene.fog.near=inV?24:3;scene.fog.far=inV?(MOB?480:640):(MOB?250:330);
   const base=ERAV.sunI*(1-0.62*G.dark)*(1-0.15*G.red)*(1-0.62*(G.doom||0));sunL.intensity=base*0.5;hemi.intensity=ERAV.hemiI*0.9;
@@ -4587,7 +4590,7 @@ STEP_HOOKS.push(dt=>{if(!firing||!aimOK||!G.hand)return;const w0=WEAP[G.w];if(!w
  if(R()<dt*20)fireP(AIM.x+rr(-4,4),w+0.1,AIM.z+rr(-4,4),{vx:rr(-2,2),vy:rr(3,7),vz:rr(-2,2),up:-20,s:rr(0.3,0.7),life:0.4,gl:0.6,c0:[1,1,1],c1:[0.7,0.88,1]});
  if(frameN%10===0)ring(AIM.x,AIM.z,6+G.lv*2,0.5,0xe8f6ff,w+0.2);});
 /* ================= Ganchos de teste ================= */
-window.__caos.AIM=AIM;window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
+window.__caos.AIM=AIM;window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
 })();
 </script>
 
