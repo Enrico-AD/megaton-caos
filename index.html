@@ -391,15 +391,17 @@ stage.insertBefore(renderer.domElement,stage.firstChild);
 const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(50,1,0.3,11000);const UP=new THREE.Vector3(0,1,0);
 const SUN=new THREE.Vector3(-0.55,0.62,0.56).normalize();
 const FOG0=new THREE.Color(0xf3d2b4),FOGD=new THREE.Color(0x7d8296),FOGR=new THREE.Color(0xd9835a),FOGX=new THREE.Color(0x3a1a14);scene.fog=new THREE.Fog(FOG0.clone(),MOB?1100:1400,MOB?4200:5400);
-const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:{top:{value:new THREE.Color(0x5b8fd6)},mid:{value:new THREE.Color(0xa9cdeb)},hor:{value:new THREE.Color(0xf6d2b0)},sun:{value:SUN},uDark:{value:0},uRed:{value:0}},
+const MOON_CEIL=13500,MOON_Y=12000;let SPACE_ON=false;
+function gS(x,z){return SPACE_ON&&onMoon(x,z)?moonH(x,z):gh(x,z);}
+const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:{uSpace:{value:0},top:{value:new THREE.Color(0x5b8fd6)},mid:{value:new THREE.Color(0xa9cdeb)},hor:{value:new THREE.Color(0xf6d2b0)},sun:{value:SUN},uDark:{value:0},uRed:{value:0}},
  vertexShader:'varying vec3 vD;void main(){vD=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
- fragmentShader:'uniform vec3 top,mid,hor,sun;uniform float uDark,uRed;varying vec3 vD;void main(){float h=vD.y;vec3 c=mix(hor,mid,smoothstep(0.0,0.25,h));c=mix(c,top,smoothstep(0.25,0.8,h));float s=max(dot(vD,normalize(sun)),0.0);float lit=1.0-uDark;c+=(vec3(1.0,0.8,0.55)*pow(s,40.0)*0.6+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0)*lit;c=mix(c,hor,smoothstep(0.0,-0.2,h));c=mix(c,vec3(0.3,0.32,0.4)*(0.75+0.35*h),uDark*0.85);c=mix(c,vec3(0.98,0.45,0.22)*(1.0-0.45*max(h,0.0)),uRed*0.6);gl_FragColor=vec4(c,1.0);}'});
+ fragmentShader:'uniform vec3 top,mid,hor,sun;uniform float uDark,uRed,uSpace;varying vec3 vD;void main(){float h=vD.y;vec3 c=mix(hor,mid,smoothstep(0.0,0.25,h));c=mix(c,top,smoothstep(0.25,0.8,h));float s=max(dot(vD,normalize(sun)),0.0);float lit=1.0-uDark;c+=(vec3(1.0,0.8,0.55)*pow(s,40.0)*0.6+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0)*lit;c=mix(c,hor,smoothstep(0.0,-0.2,h));c=mix(c,vec3(0.3,0.32,0.4)*(0.75+0.35*h),uDark*0.85);c=mix(c,vec3(0.98,0.45,0.22)*(1.0-0.45*max(h,0.0)),uRed*0.6);c=mix(c,vec3(0.004,0.006,0.02)+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0,uSpace);gl_FragColor=vec4(c,1.0);}'});
 const sky=new THREE.Mesh(new THREE.SphereGeometry(9500,32,16),skyMat);scene.add(sky);
 const sunL=new THREE.DirectionalLight(0xffe7c4,1.75);sunL.castShadow=true;
 {const c=sunL.shadow.camera;c.left=-480;c.right=480;c.top=480;c.bottom=-480;c.near=50;c.far=2900;}
 sunL.shadow.bias=-0.0004;sunL.shadow.normalBias=0.6;scene.add(sunL);scene.add(sunL.target);
 const hemi=new THREE.HemisphereLight(0xbcd4ff,0x8a6e5a,0.5);scene.add(hemi);
-function sunFollow(x,z){const s=8;x=Math.round(x/s)*s;z=Math.round(z/s)*s;sunL.target.position.set(x,0,z);sunL.position.set(x+SUN.x*1300,SUN.y*1300,z+SUN.z*1300);sunL.target.updateMatrixWorld();}
+function sunFollow(x,z){const s=8;x=Math.round(x/s)*s;z=Math.round(z/s)*s;const y0=camera.position.y>MOON_Y-3000?MOON_Y:0;sunL.target.position.set(x,y0,z);sunL.position.set(x+SUN.x*1300,y0+SUN.y*1300,z+SUN.z*1300);sunL.target.updateMatrixWorld();}
 sunFollow(0,0);
 const LIGHTS=[];for(let i=0;i<6;i++){const l=new THREE.PointLight(0xffa860,0,100,1.5);scene.add(l);LIGHTS.push({l,t:9,dur:1,I:0});}let lightN=0;
 function flashLight(x,y,z,I,d,dur,col){const s=LIGHTS[lightN];lightN=(lightN+1)%LIGHTS.length;s.l.position.set(x,y,z);s.l.distance=d;s.l.color.set(col==null?0xffa860:col);s.I=I;s.t=0;s.dur=dur;}
@@ -439,7 +441,7 @@ function markT(rg,pos,fx){if(!rg)return;const a=Math.max(0,((rg[0]-1)/TS)|0),b=M
  for(let tz=c;tz<=d;tz++)for(let tx=a;tx<=b;tx++){if(pos)TPD[tz*NT+tx]=1;if(fx)TFD[tz*NT+tx]=1;}tDirty=true;if(pos){terrainVer++;G.shadowDirty=true;}}
 function setH(i,h){HF[i]=h<-90?-90:h>95?95:h;}
 /* cratera em forma de tigela com borda levantada; acumula com o que já existe */
-function dig(x,z,r,depth,rim){if(r<0.5||depth<=0)return;rim=rim==null?depth*0.28:rim;const RR=r*1.45;
+function dig(x,z,r,depth,rim){if(SPACE_ON)return;if(r<0.5||depth<=0)return;rim=rim==null?depth*0.28:rim;const RR=r*1.45;
  const f=(H,set)=>(i,u)=>{const q=u*1.45;let dh=0;if(q<1)dh-=depth*(1-q*q);dh+=rim*Math.exp(-Math.pow((q-1.03)/0.2,2));set(i,H[i]+dh);};
  const rg=terra(x,z,RR,f(HF,setH));if(rg)markT(rg,1,0);const ro=OT_READY?terraO(x,z,RR,f(HO,setHO)):null;if(ro)markO(ro,1,0);
  if(rg||ro)terrainHit(x,z,RR);}
@@ -1592,7 +1594,7 @@ function explode(x,y,z,r,pw,o){o=o||{};const P=PAL[o.pal||'fire'];const dist=cam
  burnAt(x,z,r*1.15,0.85);
  if(!o.quiet)sBoom(r,dist);G.shake=Math.max(G.shake,clamp(r/(dist*0.2+15)));flashTo(clamp(r/(dist*0.3+40))*0.5,o.pal==='void'?0xe6d0ff:null);
  applyBlast(x,y,z,r,pw,o);}
-function applyBlast(x,y,z,r,pw,o){o=o||{};let pan=0;const fl=o.fling||1;const skip=o.skip;
+function applyBlast(x,y,z,r,pw,o){if(SPACE_ON&&y>MOON_Y-2500)return;o=o||{};let pan=0;const fl=o.fling||1;const skip=o.skip;
  if(!o.noB)for(const b of B){const st=b.st;if(st!==0&&st!==3)continue;const sh=b.shr||1;const bx=b.x+(b.px||0),bz=b.z+(b.pz||0);const dx=Math.max(Math.abs(x-bx)-b.w/2*sh,0),dz=Math.max(Math.abs(z-bz)-b.d/2*sh,0);if(dx>r||dz>r)continue;
   const base=b.gy+(b.yo||0),top=base+b.H*sh;const dy=y>top?y-top:y<base-2?base-2-y:0;const d=Math.hypot(dx,dz,dy);if(d>=r)continue;const f=1-d/r;
   b.hp-=pw*f/b.res*(b.frz>0?3:1);if(o.fire!==false&&!(b.frz>0)){b.burn=Math.min(1,(b.burn||0)+f*0.5);bColor(b);}
@@ -1613,7 +1615,7 @@ function applyBlast(x,y,z,r,pw,o){o=o||{};let pan=0;const fl=o.fling||1;const sk
  for(const h of BLAST_HOOKS)h(x,y,z,r,pw,o);
  if(pan)sScream(pan,camDist(x,y,z));}
 /* onda de choque que avança em anel */
-function shockwave(x,z,o){const S={r:0};const dur=o.R/o.speed;if(o.dome!==false)dome(x,z,o.R*0.9,dur*1.05,o.col);ring(x,z,o.R,dur*1.1,o.ringCol);
+function shockwave(x,z,o){if(SPACE_ON){ring(x,z,o.R,o.R/o.speed*1.1,o.ringCol,gS(x,z)+0.6);return;}const S={r:0};const dur=o.R/o.speed;if(o.dome!==false)dome(x,z,o.R*0.9,dur*1.05,o.col);ring(x,z,o.R,dur*1.1,o.ringCol);
  act('wave',0,{upd(dt){const r0=S.r;S.r=Math.min(o.R,S.r+o.speed*dt);waveBand(x,z,r0,S.r,o);
   const n=(MOB?2:4)*(o.R>=250?2:1);for(let k=0;k<n;k++){const a=R()*TAU;const px=x+Math.cos(a)*S.r,pz=z+Math.sin(a)*S.r;if(Math.abs(px)<PS&&Math.abs(pz)<PS&&R()<0.6)smokeP(px,gh(px,pz)+2,pz,{s:rr(5,9)*(o.dust||1),life:rr(1.6,2.6),vx:Math.cos(a)*o.speed*0.22,vz:Math.sin(a)*o.speed*0.22,vy:rr(1,4),up:0.6,drag:1.4,grow:1.4,c0:o.dc0||[0.8,0.72,0.62],c1:o.dc1||[0.88,0.84,0.78]});}
   return S.r<o.R;}});}
@@ -2512,7 +2514,7 @@ function lzEarthMesh(){if(LZE.im)return LZE.im;const N=MOB?14:28;
  const geo=colGeo(g,(x,y,z,ny)=>y>0.4&&ny>0.5?[0.3,0.46,0.21]:y>0.12?[0.36,0.28,0.2]:[0.47,0.39,0.3]);
  const m=new THREE.InstancedMesh(geo,vcMat({roughness:0.95}),N);m.castShadow=!MOB;m.receiveShadow=true;m.frustumCulled=false;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
  for(let i=0;i<N;i++){m.setMatrixAt(i,ZM);LZE.pool.push({on:false,i});}scene.add(m);LZE.im=m;return m;}
-function lzSlab(cx,cz,a,r,big){lzEarthMesh();let s=LZE.pool.find(q=>!q.on);if(!s){s=LZE.pool[LZE.n%LZE.pool.length];LZE.n++;}
+function lzSlab(cx,cz,a,r,big){if(SPACE_ON)return;lzEarthMesh();let s=LZE.pool.find(q=>!q.on);if(!s){s=LZE.pool[LZE.n%LZE.pool.length];LZE.n++;}
  const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;Object.assign(s,{on:true,x,z,g:gh(x,z),t:0,T:rr(0.12,0.22),hold:rr(0.8,1.5),w:rr(6,11)*big,h:rr(12,22)*big,d:rr(4,7)*big,ry:R()*TAU,tilt:rr(0.3,0.8),a});
  for(let k=0;k<2;k++)smokeP(x+rr(-4,4),s.g+1,z+rr(-4,4),{s:rr(4,7),life:rr(1.5,3),vy:rr(3,9),up:1,grow:1.5,c0:[0.45,0.37,0.3],c1:[0.7,0.64,0.58]});
  for(let k=0;k<(MOB?2:3);k++)chunk(x+rr(-3,3),s.g+1,z+rr(-3,3),Math.cos(a)*rr(4,14),rr(14,30),Math.sin(a)*rr(4,14),rr(1,2.6),EARTHC[(R()*EARTHC.length)|0],{life:rr(8,14)});}
@@ -2784,7 +2786,9 @@ camera.position.set(150,105,250);controls.target.set(0,8,30);
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();const AIM=new THREE.Vector3();let aimOK=false,aimSky=false;
 /* o que a mira pegou: 1 alvo no ar (ilha, cidade aérea, ponte, titã), 2 prédio, 3 chão */
 let AIMK=0;
-function marchGround(o,d){if(d.y>-0.0005)return -1;let t=o.y>790?(790-o.y)/d.y:0;const tmax=Math.min((-125-o.y)/d.y,14000);let prev=t;
+/* também acerta morros e ilhas acima da altura da câmera (mira reta ou para cima) */
+function marchMoon(o,d){let t=0,prev=0;for(let it=0;it<400&&t<6000;it++){const x=o.x+d.x*t,z=o.z+d.z*t,y=o.y+d.y*t;if(!onMoon(x,z)){prev=t;t+=20;continue;}const D=y-moonH(x,z);if(D<=0){let a=prev,b=t;for(let k=0;k<10;k++){const m=(a+b)/2;if(o.y+d.y*m-moonH(o.x+d.x*m,o.z+d.z*m)>0)a=m;else b=m;}return b;}prev=t;t+=Math.max(0.8,Math.min(40,D*0.6));}return -1;}
+function marchGround(o,d){if(d.y>-0.0005){if(o.y>420||d.y>0.6)return -1;}let t=d.y<-0.0005&&o.y>790?(790-o.y)/d.y:0;const tmax=d.y<-0.0005?Math.min((-125-o.y)/d.y,14000):Math.min(d.y>0?(420-o.y)/d.y:9000,9000);let prev=t;
  for(let it=0;it<600&&t<=tmax;it++){const x=o.x+d.x*t,y=o.y+d.y*t,z=o.z+d.z*t;const D=y-gh(x,z);if(D<=0){let a=prev,b=t;for(let k=0;k<10;k++){const m=(a+b)/2;if(o.y+d.y*m-gh(o.x+d.x*m,o.z+d.z*m)>0)a=m;else b=m;}return b;}prev=t;t+=Math.max(0.8,Math.min(40,D*0.6));}
  return -1;}
 const _ab=new THREE.Vector3();
@@ -2797,7 +2801,7 @@ function aimAt(cx,cy){const r=renderer.domElement.getBoundingClientRect();ndc.se
  if(BLIMP.st===0){const P=BLIMP,fx=-Math.sin(P.ang),fz=Math.cos(P.ang);for(const k of[-22,-8,6,20])air(P.x+fx*k,P.y,P.z+fz*k,10.5);}
  for(let i=0;i<AIM_HOOKS.length;i++)AIM_HOOKS[i](air);
  const hits=ray.intersectObjects(bodyMeshes,false);for(const h of hits){const b=BI[AMK.get(h.object)][h.instanceId];if(b&&b.st===0&&!b.hidden){if(best<0||h.distance<best){best=h.distance;bk=b.fixY!=null?1:2;}break;}}
- const tg=marchGround(o,d);if(tg>=0&&(best<0||tg<best)){best=tg;bk=3;}
+ const tg=SPACE_ON?marchMoon(o,d):marchGround(o,d);if(tg>=0&&(best<0||tg<best)){best=tg;bk=3;}
  aimSky=false;if(best>=0){AIMK=bk;AIM.copy(o).addScaledVector(d,best);aimOK=Math.abs(AIM.x)<OE+600&&Math.abs(AIM.z)<OE+600;aimAssist(cx,cy);return;}aimOK=false;AIMK=0;AIM.copy(o).addScaledVector(d,420);aimSky=true;aimAssist(cx,cy);if(aimOK)aimSky=false;}
 const keys={};let firing=false,ptr=null,touches=0;
 const MOVEK=['w','a','s','d','q','e','arrowup','arrowdown','arrowleft','arrowright'];
@@ -3046,6 +3050,7 @@ function heroSupport(x,z,fy,step){let s=gh(x,z);const w=waterAt(x,z);MV.wet=0;
  /* ilhas do céu (10x2-sky): dá para pousar em cima */
  for(const I of SKYI){if(I.st!==0||Math.abs(x-I.x)>I.r||Math.abs(z-I.z)>I.r)continue;if(Math.hypot(x-I.x,z-I.z)>I.r*0.97)continue;const t=I.top;if(t<=fy+step&&t>s){s=t;MV.wet=0;MV_ROOF=null;}}
  if(MAPH)s=MAPH.sup(x,z,fy,step,s);
+ if(fy>MOON_Y-800&&onMoon(x,z)){const mh=moonH(x,z);if(mh<=fy+step+40){s=mh;MV.wet=0;MV_ROOF=null;}}
  return s;}
 /* parede que impede o herói de ocupar (x,z) com os pés em fy */
 function heroWall(x,z,fy,step){for(const b of B){if(b.st!==0)continue;const sh=b.shr||1,bx=b.x+(b.px||0),bz=b.z+(b.pz||0),hw=b.w/2*sh+HR,hd=b.d/2*sh+HR;
@@ -3132,7 +3137,7 @@ function heroMove(dt,rdt,dirx,dirz,sp){
  if(!MV.climb){const s=heroSupport(HERO.x,HERO.z,MV.fy,step);
   /* descendo ladeira (túnel, morro) com os pés no chão: acompanha o piso em vez de sair voando */
   if(MV.fy>s+0.05&&MV.air<=0&&MV.vy===0&&MV.fy-s<Math.max(0.6,Math.hypot(HERO.x-hx0,HERO.z-hz0)*0.45))MV.fy=s;
-  if(MV.fy>s+0.05){MV.vy-=78*rdt;MV.fy+=MV.vy*rdt;MV.air+=rdt;
+  if(MV.fy>s+0.05){MV.vy-=(MV.fy>MOON_Y-800?13:78)*rdt;MV.fy+=MV.vy*rdt;MV.air+=rdt;
    if(MV.fy<=s){const hit=-MV.vy;MV.fy=s;MV.vy=0;if(hit>40&&MV.air>0.35){const wk=hyWk();ring(HERO.x,HERO.z,(6+hit*0.08)*Math.sqrt(wk),0.45,0xe8d6b8,s+0.5);G.shake=Math.max(G.shake,clamp(hit/260));
      if(hit>70)applyBlast(HERO.x,s+1,HERO.z,6+hit*0.04,hit*0.6,{fire:false,fling:1.2});sStomp(camDist(HERO.x,s,HERO.z)*1.5);}MV.air=0;}}
   else{MV.vy=0;MV.air=0;/* embaixo d'água sem voar: sobe boiando até a superfície */MV.fy=s>MV.fy?lerp(MV.fy,s,clamp(rdt*(MV.wet&&s-MV.fy>2.5?1.6:22))):s;}}}
@@ -3153,7 +3158,7 @@ window.__caos.MV=MV;window.__caos.heroPlace=heroPlace;
    ▲ ▼ no celular, Espaço e C no teclado sobem e descem direto. Rápido e Luz atravessam prédios explodindo. */
 const FLY={on:false,lv:1,meter:false,k:0,run:0,spd:0,vx:0,vy:0,vz:0,kx:0,ky:0,kz:0,air:0,p0:1,mvW:false,touchT:0,first:true,firstW:true,
  rt:0,wing:0,wingV:0,lean:0,armW:0,pose:0,bank:0,yaw:null,ypv:0,elev:0,px:null,py:0,pz:0,bh:0,boomed:false,sprT:0,cloudT:0,cloudIn:false,
- up:false,dn:false,kUp:false,kDn:false,tCall:false,txT:0,ramT:0,alt:0,ceil:1500,lowT:0,tipT:0,rnd:0};
+ up:false,dn:false,kUp:false,kDn:false,tCall:false,txT:0,ramT:0,alt:0,ceil:MOON_CEIL,lowT:0,tipT:0,rnd:0};
 const FLZ={f:13,u:17,t:220,h:220,T:700,g:160,cf:11,cu:13};
 const FLV=[null,
  {nm:'Normal',sp:1.8,acc:5,pass:false,wings:0,trW:0.42,trL:0.65,trC:[0.25,0.8,2.6],tipW:0,dist:0,blur:0,ab:0,shk:0,vol:0.7},
@@ -3322,13 +3327,16 @@ function flyMove(rdt,dirx,dirz,sp){const P=FLY.P,mv=sp>0;
  const base=clamp(28+camera.position.distanceTo(controls.target)*0.32,46,210)*(keys.shift?2.2:1),S=sp*P.sp;
  let tx=0,ty=0,tz=0;if(mv){const a=c*0.95;tx=dirx*S*Math.cos(a);tz=dirz*S*Math.cos(a);ty=S*Math.sin(a);}
  if(ud)ty=ud*base*Math.max(1.1,P.sp*0.75);
+ /* no espaço tudo é mais rápido: dá para chegar à Lua voando */
+ if(MV.fy>60){const sv=Math.min(110,1+(MV.fy-60)/40);ty*=sv;}
+ if(MV.fy>1100){const sb=1+Math.min(9,(MV.fy-1100)/450);tx*=sb;tz*=sb;}
  const ah=clamp(rdt*P.acc),av=clamp(rdt*(mv||ud?P.acc:6));FLY.vx+=(tx-FLY.vx)*ah;FLY.vz+=(tz-FLY.vz)*ah;FLY.vy+=(ty-FLY.vy)*av;
  const kd=Math.exp(-rdt*2.6),dx=(FLY.vx+FLY.kx)*rdt,dz=(FLY.vz+FLY.kz)*rdt,dy=(FLY.vy+FLY.ky)*rdt;FLY.kx*=kd;FLY.ky*=kd;FLY.kz*=kd;
  /* atravessando (Rápido e Luz) não há parede: um passo só; no Normal anda em pedaços para não varar parede fina */
  const n=P.pass?1:Math.min(24,Math.max(1,Math.ceil(Math.hypot(dx,dz,dy)/2.6))),step=1.2;let fy=MV.fy;
  /* no voo normal não dá para ficar dentro de prédio nem de ilha: empurra para fora */
  if(!P.pass){heroUnstick(fy,step);for(const I of SKYI){if(I.st!==0)continue;const ex=HERO.x-I.x,ez=HERO.z-I.z,d=Math.hypot(ex,ez),hm=fy+1.6;if(hm>I.top-3||hm<I.top-I.H-I.topY)continue;const rr2=skyRadAt(I,hm)+1;if(d<rr2){const k=(rr2+0.2)/(d||1),ox=HERO.x,oz=HERO.z;HERO.x=I.x+(d?ex:1)*k;HERO.z=I.z+(d?ez:0)*k;moveCam(HERO.x-ox,0,HERO.z-oz);}}}
- for(let i=0;i<n;i++){const fy0=fy;fy=Math.min(FLY.ceil,fy+dy/n);
+ for(let i=0;i<n;i++){const fy0=fy;fy=Math.min(FLY.ceil,fy+dy/n);if(fy>MOON_Y-900&&fy0<MOON_Y+600&&onMoon(HERO.x,HERO.z)){const mh=moonH(HERO.x,HERO.z);if(fy0<mh&&fy>=mh-1){fy=mh+0.5;if(FLY.vy>0)FLY.vy=0;FLY.ky=0;}}
   const nx=clamp(HERO.x+dx/n,-HMAX,HMAX),nz=clamp(HERO.z+dz/n,-HMAX,HMAX);let fx=nx,fz=nz;
   if(!P.pass&&(heroWall(nx,nz,fy,step)||skyWall(nx,nz,fy))){if(!heroWall(nx,HERO.z,fy,step)&&!skyWall(nx,HERO.z,fy))fz=HERO.z;else if(!heroWall(HERO.x,nz,fy,step)&&!skyWall(HERO.x,nz,fy))fx=HERO.x;else{fx=HERO.x;fz=HERO.z;}}
   const ex=fx-HERO.x,ez=fz-HERO.z;HERO.x=fx;HERO.z=fz;if(ex||ez)moveCam(ex,0,ez);
@@ -3975,10 +3983,10 @@ function mapCam(){const cp=camera.position,tg=controls.target;const x=HERO.x,z=H
  if(hu){controls.maxPolarAngle=Math.PI*0.84;const ys=seaY(cp.x,cp.z,G.t)-1.2;
   if(cp.y>ys){const off=MPW.copy(cp).sub(tg),L=off.length()||1,oy=clamp(ys-tg.y,-L*0.85,L*0.97),hl=Math.sqrt(Math.max(0,L*L-oy*oy)),h0=Math.hypot(off.x,off.z)||1;off.x*=hl/h0;off.z*=hl/h0;off.y=oy;cp.copy(tg).add(off);}
   for(let i=0;i<8;i++){if(cp.y>gh(cp.x,cp.z)+2.2)break;MPW.copy(cp).sub(tg).multiplyScalar(0.82);cp.copy(tg).add(MPW);}}
- else{if(controls.maxPolarAngle!==Math.PI*0.7)controls.maxPolarAngle=Math.PI*0.7;const gy=gh(cp.x,cp.z)+1.8;if(cp.y<gy){MPW.copy(cp).sub(tg);if(MPW.y<-0.01){const k=clamp((tg.y-gy)/-MPW.y,0.12,1);MPW.multiplyScalar(k);cp.copy(tg).add(MPW);}if(cp.y<gy)cp.y=gy;}}}
+ else{if(controls.maxPolarAngle!==Math.PI*0.7)controls.maxPolarAngle=Math.PI*0.7;const gy=(cp.y>MOON_Y-900&&onMoon(cp.x,cp.z)?moonH(cp.x,cp.z):gh(cp.x,cp.z))+1.8;if(cp.y<gy){MPW.copy(cp).sub(tg);if(MPW.y<-0.01){const k=clamp((tg.y-gy)/-MPW.y,0.12,1);MPW.multiplyScalar(k);cp.copy(tg).add(MPW);}if(cp.y<gy)cp.y=gy;}}}
 /* água funda fora do mar (lago e lagoas): usada para a visão e os efeitos de mergulho */
 function inlandW(x,z){if(!maybeWet(x,z))return null;const w=waterAt(x,z);return w!=null&&w-gh(x,z)>2?w:null;}
-function mapRender(){mapCam();const cp=camera.position;
+function mapRender(){mapCam();spaceFx();const cp=camera.position;
  const w=cp.x>SEA_X-40?seaY(cp.x,cp.z,G.t):inlandW(cp.x,cp.z),under=w!=null&&cp.y<w-0.12&&cp.y>gh(cp.x,cp.z)-2;
  if(under!==UW.on){UW.on=under;sky.visible=!under;scene.background=under?UW.fogC:null;UWS.visible=under;UWR.me.visible=under;FISH.me.visible=under;KELP.me.visible=under;CORAL.me.visible=under;
   if(under){hemi.color.copy(UW.hemiUS);hemi.groundColor.copy(UW.hemiUG);if(UW.first&&cp.x>SEA_X-40){UW.first=false;toast('Embaixo do mar','Atlântida fica no fundo, a leste da praia. Siga o túnel de vidro ou as boias.');}}
@@ -4425,8 +4433,8 @@ function rockNew(x,y,z,s,o){const cap=MOB?10:18;if(EA.rocks.length>=cap){const o
  const r={m,x,y,z,vx:0,vy:0,vz:0,s,ts:s,st:'rise',t:0,ax:rr(-1,1),az:rr(-1,1),spin:0,gy:y,k:geo.userData.k,heat:0,fx:null};EA.rocks.push(r);return r;}
 function rockGone(r){if(!r)return;scene.remove(r.m);r.m.geometry.dispose();r.m.material.dispose();if(r.fx){scene.remove(r.fx);r.fx.userData.fl.material.dispose();r.fx.userData.fl2.material.dispose();r.fx.userData.fl.geometry.dispose();r.fx.userData.fl2.geometry.dispose();}const i=EA.rocks.indexOf(r);if(i>=0)EA.rocks.splice(i,1);if(EA.cur===r)EA.cur=null;}
 /* onde arrancar: na mira; com a mira no céu, no chão à sua frente */
-function earthSite(p){if(!aimSky)return p;const f=hero?hero.wrap.rotation.y:0;const x=HERO.x+Math.sin(f)*30,z=HERO.z+Math.cos(f)*30;return {x,y:gh(x,z),z};}
-function earthTear(p0){const p=earthSite(p0);const x=p.x,z=p.z,g=gh(x,z),E=EARTH_SZ[PW.earth],RR=E.r;dig(x,z,RR*1.2,RR*0.45,RR*0.22);
+function earthSite(p){if(!aimSky)return p;const f=hero?hero.wrap.rotation.y:0;const x=HERO.x+Math.sin(f)*30,z=HERO.z+Math.cos(f)*30;return {x,y:gS(x,z),z};}
+function earthTear(p0){const p=earthSite(p0);const x=p.x,z=p.z,g=gS(x,z),E=EARTH_SZ[PW.earth],RR=E.r;dig(x,z,RR*1.2,RR*0.45,RR*0.22);
  if(RR>=11){applyBlast(x,g+1,z,RR*1.1,RR*RR*22,{fire:false,fling:1.8,el:'earth'});for(let k=0;k<(RR>=28?(MOB?4:7):RR>=18?5:3);k++)lzSlab(x,z,R()*TAU,RR*1.1,clamp(RR/16,0.6,1.6));G.shake=Math.max(G.shake,clamp(RR/40));hitstop(RR>=18?0.08:0.04);
   if(RR>=40)banner('ARRANCOU UMA MONTANHA!',1.2);else if(RR>=28)banner('ARRANCOU UM MORRO!',1);}
  for(let k=0;k<(MOB?7:14);k++){const a=R()*TAU,d=rr(2,RR*0.8);chunk(x+Math.cos(a)*d,g+rr(0.5,3),z+Math.sin(a)*d,Math.cos(a)*rr(6,18),rr(14,34),Math.sin(a)*rr(6,18),rr(0.8,2.4)*(1+RR/30),EARTHC[(R()*EARTHC.length)|0],{life:rr(8,14)});}
@@ -4434,7 +4442,7 @@ function earthTear(p0){const p=earthSite(p0);const x=p.x,z=p.z,g=gh(x,z),E=EARTH
  ring(x,z,RR*2.4,0.45,0xd9c7a6);sBoom(16+RR,camDist(x,g,z));G.shake=Math.max(G.shake,clamp((0.35+RR/60)/(1+camDist(x,g,z)/250)));buzz(RR>=28?[50,30,90]:30);
  const r=rockNew(x,g-2,z,E.s);r.base=E.s;EA.D=clamp(Math.hypot(x-camera.position.x,g-camera.position.y,z-camera.position.z),30,180);return r;}
 /* a rocha segue a mira livre, na distância em que foi arrancada */
-function holdPoint(out,p){const s=EA.cur?EA.cur.s*(EA.cur.k||1):5;tkDir(p);const cp=camera.position;let x=cp.x+_tkd.x*EA.D,y=cp.y+_tkd.y*EA.D,z=cp.z+_tkd.z*EA.D;const fl=Math.max(HERO.y,gh(x,z))+8+s*1.25;if(y<fl)y=fl;out.set(x,y,z);return out;}
+function holdPoint(out,p){const s=EA.cur?EA.cur.s*(EA.cur.k||1):5;tkDir(p);const cp=camera.position;let x=cp.x+_tkd.x*EA.D,y=cp.y+_tkd.y*EA.D,z=cp.z+_tkd.z*EA.D;const fl=Math.max(HERO.y,gS(x,z))+8+s*1.25;if(y<fl)y=fl;out.set(x,y,z);return out;}
 const _hpt=new THREE.Vector3();
 function earthDown(p){EA.t0=G.t;EA.cur=earthTear(p);}
 function earthStep(dt,p){if(!EA.cur){if(!aimOK&&!aimSky)return;earthDown(p);}const r=EA.cur;if(!r)return;if(hero)hero.wrap.rotation.y=Math.atan2(p.x-HERO.x,p.z-HERO.z);
@@ -4462,7 +4470,7 @@ function rockImpact(r,hitT){const x=r.x,y=r.y,z=r.z,s=r.s,cd=camDist(x,y,z);cons
  /* o empurrão sai na direção do voo: o centro da explosão fica um pouco atrás do ponto de impacto */
  applyBlast(x-dx*s,y,z-dz*s,R0,pw,{fire:hot,fling:2.4,topple:{x:dx,z:dz},el:'earth'});if(hot){fireball(x,y,z,s*1.6);explode(x,y,z,s*2,pw*0.3,{crater:Math.min(3.5,s*0.08)});if(s>=14)shockwave(x,z,{R:s*7,speed:260,pw:pw*0.02,fling:1.5,fire:true,col:0xffa060,ringCol:0xffd0a0,dust:1.2});}
  if(hitT)titanDamage(hitT,1400*s/6*(1+r.heat),{aim:1,p:new THREE.Vector3(x,y,z),cap:s>=14?0.25:0.12,el:'earth'});
- const g=gh(x,z);if(y-g<s*2.5){dig(x,z,s*1.6,s*0.45,s*0.25);if(s>8)for(let k=0;k<2;k++)lzSlab(x,z,Math.atan2(dz,dx)+rr(-0.9,0.9),s*2,clamp(s/12,0.6,1.2));}
+ const g=gS(x,z);if(y-g<s*2.5){dig(x,z,s*1.6,s*0.45,s*0.25);if(s>8)for(let k=0;k<2;k++)lzSlab(x,z,Math.atan2(dz,dx)+rr(-0.9,0.9),s*2,clamp(s/12,0.6,1.2));}
  const nc=Math.round(clamp(s*2.2,8,26)*(MOB?0.6:1));for(let k=0;k<nc;k++){const a=R()*TAU,sp=rr(14,40);chunk(x+rr(-s,s)*0.5,y+rr(0,s),z+rr(-s,s)*0.5,Math.cos(a)*sp+dx*hv*0.25,rr(12,34),Math.sin(a)*sp+dz*hv*0.25,rr(0.8,s*0.4),EARTHC[(R()*EARTHC.length)|0],{life:rr(10,18)});}
  for(let k=0;k<(MOB?4:8);k++){const a=R()*TAU;rkSmoke(x+Math.cos(a)*s,g+2,z+Math.sin(a)*s,{s:Math.min(s,9)*rr(0.7,1.1),life:rr(1.8,3),vx:Math.cos(a)*rr(10,24),vy:rr(2,7),vz:Math.sin(a)*rr(10,24),up:1,drag:1,grow:1.5,c0:[0.5,0.42,0.33],c1:[0.76,0.7,0.64]});}
  ring(x,z,R0*2.2,0.55,0xe2cfa8);sBoom(26+s*3.2,cd);G.shake=Math.max(G.shake,clamp((0.25+s*0.06)/(1+cd/260)));hitstop(s>8?0.07:0.04);buzz(s>8?[50,30,80]:40);addChaos(2+s*0.4);
@@ -4477,13 +4485,13 @@ function rockStep(dt){for(let i=EA.rocks.length-1;i>=0;i--){const r=EA.rocks[i];
    r.m.rotation.x+=dt*0.4*r.ax;r.m.rotation.z+=dt*0.4*r.az;if(r!==EA.cur&&r.t>8)rockGone(r);}
   else if(r.st==='fly'){rockHeat(r,dt);r.vy-=62*dt;r.x+=r.vx*dt;r.y+=r.vy*dt;r.z+=r.vz*dt;r.m.rotation.x+=r.spin*dt*r.ax;r.m.rotation.z+=r.spin*dt*r.az;
    if(R()<dt*20)rkSmoke(r.x,r.y,r.z,{s:r.s*0.35,life:0.8,up:0.5,grow:1.5,c0:[0.55,0.47,0.38],c1:[0.8,0.75,0.68]});
-   if(maybeWet(r.x,r.z)){const w=waterAt(r.x,r.z);if(w!=null&&r.y<w&&w>gh(r.x,r.z)+r.s*0.8){rockSplash(r,w);r.m.position.set(r.x,r.y,r.z);continue;}}
+   if(maybeWet(r.x,r.z)){const w=waterAt(r.x,r.z);if(w!=null&&r.y<w&&w>gS(r.x,r.z)+r.s*0.8){rockSplash(r,w);r.m.position.set(r.x,r.y,r.z);continue;}}
    let hitT=null;for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-r.x,(_cp.y-T.sc*0.15)-r.y,_cp.z-r.z)<T.sc*0.32+r.s){hitT=T;break;}}
-   let hit=!!hitT||r.y<gh(r.x,r.z)+r.s*0.5;if(!hit&&r.y<300){for(const b of B){if(b.st!==0)continue;if(Math.abs(r.x-b.x)<b.w/2+r.s*0.6&&Math.abs(r.z-b.z)<b.d/2+r.s*0.6&&r.y<b.gy+b.H+r.s*0.4){hit=true;break;}}}
+   let hit=!!hitT||r.y<gS(r.x,r.z)+r.s*0.5;if(!hit&&r.y<300){for(const b of B){if(b.st!==0)continue;if(Math.abs(r.x-b.x)<b.w/2+r.s*0.6&&Math.abs(r.z-b.z)<b.d/2+r.s*0.6&&r.y<b.gy+b.H+r.s*0.4){hit=true;break;}}}
    if(hit||r.t>6){rockImpact(r,hitT);continue;}}
   else if(r.st==='sink'){r.vy+=(-7-r.vy)*clamp(dt*1.8);const k=Math.exp(-2.2*dt);r.vx*=k;r.vz*=k;r.x+=r.vx*dt;r.y+=r.vy*dt;r.z+=r.vz*dt;r.m.rotation.x+=dt*0.3*r.ax;
    if(R()<dt*(8+r.s))fireP(r.x+rr(-1,1)*r.s*0.5,r.y+r.s*0.6,r.z+rr(-1,1)*r.s*0.5,{vx:rr(-0.5,0.5),vy:rr(2,5),vz:rr(-0.5,0.5),up:16,drag:1,s:rr(0.4,1.1),life:rr(0.6,1.2),gl:0.3,c0:[0.9,0.97,1],c1:[0.7,0.88,1]});
-   if(r.y<gh(r.x,r.z)+r.s*0.5){r.y=gh(r.x,r.z)+r.s*0.5;r.st='bed';r.t=0;for(let k=0;k<5;k++)rkSmoke(r.x+rr(-r.s,r.s),r.y-r.s*0.3,r.z+rr(-r.s,r.s),{s:r.s*0.6,life:2,vy:1,up:0.5,grow:1.4,c0:[0.45,0.5,0.48],c1:[0.6,0.66,0.64]});}}
+   if(r.y<gS(r.x,r.z)+r.s*0.5){r.y=gS(r.x,r.z)+r.s*0.5;r.st='bed';r.t=0;for(let k=0;k<5;k++)rkSmoke(r.x+rr(-r.s,r.s),r.y-r.s*0.3,r.z+rr(-r.s,r.s),{s:r.s*0.6,life:2,vy:1,up:0.5,grow:1.4,c0:[0.45,0.5,0.48],c1:[0.6,0.66,0.64]});}}
   else if(r.st==='bed'){if(r.t>10){r.ts=0.01;if(r.s<0.3){rockGone(r);continue;}}}
   if(r.st!=='fly'&&r.heat>0)rockHeat(r,dt);r.m.position.set(r.x,r.y,r.z);r.m.scale.setScalar(r.s);}}
 STEP_HOOKS.push(rockStep);RESET_HOOKS.push(()=>{while(EA.rocks.length)rockGone(EA.rocks[0]);EA.cur=null;});
@@ -4633,7 +4641,7 @@ addEventListener('keydown',e=>{const t=(e.target&&e.target.tagName)||'';if(t==='
 STEP_HOOKS.push(()=>{if(frameN%6===0)pwUI();});
 
 /* ================= Telecinese: mira livre; levanta titãs, monstros, prédios, o próprio chão e tudo o que estiver perto, e arremessa longe ================= */
-const TKN={on:false,x:0,y:0,z:0,vx:0,vy:0,vz:0,list:[],t:0,D:60,big:null,rocks:[],tear:null,thr:new THREE.Vector3(),flyB:[],ax:0,ay:0,az:0};
+const TKN={wat:[],on:false,x:0,y:0,z:0,vx:0,vy:0,vz:0,list:[],t:0,D:60,big:null,rocks:[],tear:null,thr:new THREE.Vector3(),flyB:[],ax:0,ay:0,az:0};
 const _tkp=new THREE.Vector3(),_tkd=new THREE.Vector3(),_tkv=new THREE.Vector3();
 function tkMass(o){return o.kind==='tank'?7:o.veh||o.kind==='car'||o.kind==='pcar'?3:o.sx!=null?clamp(o.sx*o.sy*o.sz*0.4,0.3,6):1;}
 /* direção da mira a partir da câmera (vale também quando a mira está no céu) */
@@ -4656,12 +4664,16 @@ function tkFindTitan(p){tkDir(p);const cp=camera.position;let best=null,bt=1e9;
   const hor=Math.hypot(p.x-T.x,p.z-T.z);if((perp<T.sc*0.5||(hor<T.sc*0.4&&p.y<base+T.sc*1.2))&&t<bt){bt=t;best=T;}}return best;}
 function tkFindB(p){let best=null,bh=-1;for(const b of B){if(b.st!==0||b.hidden||b.fixY!=null||b.a==='stadium')continue;if(Math.abs(p.x-b.x)>b.w/2+1.5||Math.abs(p.z-b.z)>b.d/2+1.5)continue;if(p.y>b.gy+b.H+3||p.y<b.gy-3)continue;if(b.H>bh){bh=b.H;best=b;}}return best;}
 /* arranca um pedaço do chão no ponto e junta ao grupo */
-function tkTear(p,first){const g=gh(p.x,p.z);if(maybeWet(p.x,p.z)&&waterAt(p.x,p.z)!=null)return;const cap=MOB?7:12;if(TKN.rocks.length>=cap)return;const s=first?rr(5,8):rr(3.5,6.5);
+function tkTear(p,first){const g=gS(p.x,p.z);if(maybeWet(p.x,p.z)&&waterAt(p.x,p.z)!=null)return;const cap=MOB?7:12;if(TKN.rocks.length>=cap)return;const s=first?rr(5,8):rr(3.5,6.5);
  dig(p.x,p.z,s*1.5,s*0.6,s*0.3);applyBlast(p.x,g+1,p.z,s*1.8,s*s*30,{fire:false,fling:1.6,el:'tk'});
  for(let k=0;k<(MOB?4:8);k++){const a=R()*TAU,d=rr(1,s);chunk(p.x+Math.cos(a)*d,g+rr(0.5,2),p.z+Math.sin(a)*d,Math.cos(a)*rr(4,12),rr(10,24),Math.sin(a)*rr(4,12),rr(0.6,1.8),EARTHC[(R()*EARTHC.length)|0],{life:rr(6,10)});}
  rkSmoke(p.x,g+2,p.z,{s:s*1.2,life:2.5,vy:5,up:1,grow:1.5,c0:[0.45,0.37,0.3],c1:[0.7,0.64,0.58]});ring(p.x,p.z,s*3,0.4,0xc9a0ff);sBoom(10+s,camDist(p.x,g,p.z));
  const r=rockNew(p.x,g-1,p.z,s,{tk:true});r.st='tk';r.ph=R()*TAU;r.ox=rr(-1,1);r.oy=rr(-0.6,0.6);r.oz=rr(-1,1);TKN.rocks.push(r);TKN.tear={x:p.x,z:p.z};
  for(const o of tkGrab(p))TKN.list.push(o);}
+/* água: a telecinese arranca massas de água do mar, do lago e das lagoas */
+function tkWaterAt(p){if(!maybeWet(p.x,p.z))return null;const w=waterAt(p.x,p.z);if(w==null||w-gS(p.x,p.z)<1.2)return null;return w;}
+function tkWater(p,w){const cap=MOB?4:7;if(TKN.wat.length>=cap)return;const r=rr(4,7);const m=new THREE.Mesh(BLOBG0.clone(),WATM);m.geometry.userData.p0=m.geometry.attributes.position.array.slice();m.frustumCulled=false;scene.add(m);
+ TKN.wat.push({m,r,x:p.x,y:w,z:p.z,ph:R()*TAU,ox:rr(-1,1),oy:rr(-0.6,0.6),oz:rr(-1,1),t:0});TKN.tear={x:p.x,z:p.z};splash(p.x,w,p.z,r*0.8,24);ring(p.x,p.z,r*3,0.5,0xc9e8ff,w+0.3);sSplashM(camDist(p.x,w,p.z),0.5);}
 function tkDown(p){TKN.on=true;TKN.t=0;TKN.big=null;TKN.rocks=[];TKN.list=[];TKN.tear=null;TKN.vx=TKN.vy=TKN.vz=0;
  const D=tkDir(p);TKN.D=clamp(D,25,600);let label='';
  const T=tkFindTitan(p);
@@ -4670,17 +4682,18 @@ function tkDown(p){TKN.on=true;TKN.t=0;TKN.big=null;TKN.rocks=[];TKN.list=[];TKN
   if(b){destroyB(b);b.st=14;b.fire=0;b.tx=b.tx||0;b.tz=b.tz||0;TKN.big={k:'B',o:b,y0:b.gy};TKN.x=b.x;TKN.y=b.gy+b.H*0.5;TKN.z=b.z;
    const g=b.gy;dig(b.x,b.z,Math.max(b.w,b.d)*0.6,3,1.5);for(let k=0;k<(MOB?5:10);k++){const a=k/(MOB?5:10)*TAU;smokeP(b.x+Math.cos(a)*b.w*0.5,g+2,b.z+Math.sin(a)*b.d*0.5,{s:Math.max(b.w,b.d)*0.25,life:4,vx:Math.cos(a)*8,vy:2,vz:Math.sin(a)*8,up:1,grow:1.6,c0:[0.8,0.76,0.7],c1:[0.86,0.83,0.78]});}
    ring(b.x,b.z,Math.max(b.w,b.d)*1.3,0.6,0xc9a0ff);sBoom(20+b.H/3,camDist(b.x,g,b.z));G.shake=Math.max(G.shake,clamp(0.5/(1+camDist(b.x,g,b.z)/250)));label=b.H>60?'ARRANHA-CÉU NO AR!':'PRÉDIO ARRANCADO!';}
+  else if(!aimSky&&tkWaterAt(p)!=null){const w=tkWaterAt(p);tkWater(p,w);tkWater({x:p.x+rr(-8,8),z:p.z+rr(-8,8)},w);TKN.x=p.x;TKN.y=w+8;TKN.z=p.z;label='O MAR SUBIU!';}
   else if(!aimSky&&AIMK===3){tkTear(p,true);tkTear({x:p.x+rr(-6,6),z:p.z+rr(-6,6)});TKN.x=p.x;TKN.y=gh(p.x,p.z)+8;TKN.z=p.z;label='';}
   else{TKN.x=p.x;TKN.y=p.y;TKN.z=p.z;}}
  if(!aimSky)for(const o of tkGrab(p))if(!TKN.list.includes(o))TKN.list.push(o);
  sZap(0.3);if(!aimSky)ring(p.x,p.z,TKR[PW.tk].r,0.6,0xc9a0ff);if(label){banner(label,1.1);hitstop(0.05);}else if(TKN.list.length>=10)banner('TELECINESE x'+TKN.list.length,0.8);buzz(25);}
 /* altura mínima do grupo acima do chão, conforme o que está sendo segurado */
-function tkClear(){const B0=TKN.big;if(B0&&B0.k==='T')return B0.o.sc*0.55+14;if(B0&&B0.k==='B')return B0.o.H*0.55+10;if(TKN.rocks.length)return 14;return 8;}
+function tkClear(){const B0=TKN.big;if(TKN.wat.length&&!B0)return 16;if(B0&&B0.k==='T')return B0.o.sc*0.55+14;if(B0&&B0.k==='B')return B0.o.H*0.55+10;if(TKN.rocks.length)return 14;return 8;}
 function tkStep(dt,p){if(!TKN.on)tkDown(p);TKN.t+=dt;if(hero)hero.wrap.rotation.y=Math.atan2(p.x-HERO.x,p.z-HERO.z);
- tkDir(p);const cp=camera.position;let ax=cp.x+_tkd.x*TKN.D,ay=cp.y+_tkd.y*TKN.D,az=cp.z+_tkd.z*TKN.D;const lift=Math.min(1,TKN.t/0.9);const floor=gh(ax,az)+tkClear()*lift+(1-lift)*2;if(ay<floor)ay=floor;
+ tkDir(p);const cp=camera.position;let ax=cp.x+_tkd.x*TKN.D,ay=cp.y+_tkd.y*TKN.D,az=cp.z+_tkd.z*TKN.D;const lift=Math.min(1,TKN.t/0.9);const floor=gS(ax,az)+tkClear()*lift+(1-lift)*2;if(ay<floor)ay=floor;
  const B0=TKN.big,heavy=B0?(B0.k==='T'?2.2:1.8):1;const k=clamp(dt*6/heavy),ox=TKN.x,oy=TKN.y,oz=TKN.z;TKN.x+=(ax-TKN.x)*k;TKN.y+=(ay-TKN.y)*k;TKN.z+=(az-TKN.z)*k;
  const id=1/Math.max(dt,1e-3);TKN.vx=lerp(TKN.vx,(TKN.x-ox)*id,clamp(dt*10));TKN.vy=lerp(TKN.vy,(TKN.y-oy)*id,clamp(dt*10));TKN.vz=lerp(TKN.vz,(TKN.z-oz)*id,clamp(dt*10));
- if(B0&&B0.k==='T'){const T=B0.o;if(T.dead){T.tkh=false;T.fvy=0;TKN.big=null;}else{T.x=TKN.x;T.z=TKN.z;T.fy=Math.max(0.5,TKN.y-gh(T.x,T.z)-T.sc*0.5);T.wrap.rotation.z=Math.sin(TKN.t*1.7)*0.18;T.wrap.rotation.x=Math.sin(TKN.t*1.3)*0.14;
+ if(B0&&B0.k==='T'){const T=B0.o;if(T.dead){T.tkh=false;T.fvy=0;TKN.big=null;}else{T.x=TKN.x;T.z=TKN.z;T.fy=Math.max(0.5,TKN.y-gS(T.x,T.z)-T.sc*0.5);T.wrap.rotation.z=Math.sin(TKN.t*1.7)*0.18;T.wrap.rotation.x=Math.sin(TKN.t*1.3)*0.14;
    corePos(T,_tkp);if(R()<dt*40){const a=R()*TAU,rad=T.sc*rr(0.25,0.45);fireP(_tkp.x+Math.cos(a)*rad,_tkp.y+rr(-0.5,0.5)*T.sc,_tkp.z+Math.sin(a)*rad,{vx:-Math.sin(a)*12,vy:rr(-2,4),vz:Math.cos(a)*12,s:rr(0.8,1.6),life:0.7,drag:1,gl:3,c0:[0.9,0.75,1],c1:[0.55,0.3,1]});}
    if(frameN%3===0)bolt(HERO.x,HERO.y+3.4,HERO.z,_tkp.x,_tkp.y,_tkp.z,{n:10,w:0.6,col:[1.4,0.9,2.6],life:0.08,amp:0.08});if(frameN%5===0)flashLight(_tkp.x,_tkp.y,_tkp.z,2,T.sc*1.6,0.1,0xb37bff);}}
  else if(B0&&B0.k==='B'){const b=B0.o;b.x=TKN.x;b.z=TKN.z;b.yo=TKN.y-b.gy-b.H*0.5;b.tx=Math.sin(TKN.t*1.2)*0.06+clamp(-TKN.vz*0.004,-0.25,0.25);b.tz=Math.cos(TKN.t*1.5)*0.06+clamp(TKN.vx*0.004,-0.25,0.25);bSet(b);
@@ -4689,11 +4702,13 @@ function tkStep(dt,p){if(!TKN.on)tkDown(p);TKN.t+=dt;if(hero)hero.wrap.rotation.
   if(frameN%3===0)bolt(HERO.x,HERO.y+3.4,HERO.z,b.x,by+b.H*0.5,b.z,{n:10,w:0.6,col:[1.4,0.9,2.6],life:0.08,amp:0.08});
   if(R()<dt*30){const a=R()*TAU;fireP(b.x+Math.cos(a)*b.w*0.6,by+rr(0,b.H),b.z+Math.sin(a)*b.d*0.6,{vx:-Math.sin(a)*8,vy:rr(-1,2),vz:Math.cos(a)*8,s:rr(0.6,1.2),life:0.6,drag:1,gl:3,c0:[0.9,0.75,1],c1:[0.55,0.3,1]});}}
  /* chão: enquanto arrasta a mira pelo chão, vai arrancando mais pedaços */
- if(TKN.tear&&!aimSky&&AIMK===3&&Math.hypot(p.x-TKN.tear.x,p.z-TKN.tear.z)>9)tkTear(p);
+ if(TKN.tear&&!aimSky&&Math.hypot(p.x-TKN.tear.x,p.z-TKN.tear.z)>9){const w=tkWaterAt(p);if(w!=null)tkWater(p,w);else if(AIMK===3)tkTear(p);}
+ for(const o of TKN.wat){o.t+=dt;const n=TKN.wat.length,rad=4+Math.sqrt(n)*5,a=G.t*0.6+o.ph;const tx=TKN.x+Math.cos(a)*rad*o.ox,ty=TKN.y+o.oy*rad,tz=TKN.z+Math.sin(a)*rad*o.oz;const kk=clamp(dt*(o.t<0.5?2.5:5));o.x+=(tx-o.x)*kk;o.y+=(ty-o.y)*kk;o.z+=(tz-o.z)*kk;
+  o.m.position.set(o.x,o.y,o.z);o.m.scale.setScalar(o.r);wbShape(o.m,G.t+o.ph,false,1);if(R()<dt*8)fireP(o.x+rr(-1,1)*o.r*0.5,o.y-o.r*0.7,o.z+rr(-1,1)*o.r*0.5,{vx:0,vy:-2,vz:0,up:-26,s:rr(0.4,0.8),life:0.6,gl:0.2,c0:[0.85,0.95,1],c1:[0.3,0.6,1]});}
  for(let i=0;i<TKN.rocks.length;i++){const r=TKN.rocks[i];if(!EA.rocks.includes(r)){TKN.rocks.splice(i--,1);continue;}const n=TKN.rocks.length,rad=3+Math.sqrt(n)*4.5;const a=G.t*0.5+r.ph;
   const tx=TKN.x+Math.cos(a)*rad*r.ox,ty=TKN.y+r.oy*rad+Math.sin(G.t*1.7+r.ph)*0.8,tz=TKN.z+Math.sin(a)*rad*r.oz;const kk=clamp(dt*(r.t<0.4?3:5));r.x+=(tx-r.x)*kk;r.y+=(ty-r.y)*kk;r.z+=(tz-r.z)*kk;r.m.rotation.x+=dt*0.5*r.ax;r.m.rotation.z+=dt*0.5*r.az;}
  /* pega mais coisas que entrarem no alcance (até o limite) */
- if(frameN%15===0&&TKN.y-gh(TKN.x,TKN.z)<tkClear()+12&&TKN.list.length<TKR[PW.tk].max*(MOB?0.6:1)){const n0=TKN.list.length;for(const o of tkGrab({x:TKN.x,z:TKN.z}))TKN.list.push(o);if(TKN.list.length>n0)sPop(0.08);}
+ if(frameN%15===0&&TKN.y-gS(TKN.x,TKN.z)<tkClear()+12&&TKN.list.length<TKR[PW.tk].max*(MOB?0.6:1)){const n0=TKN.list.length;for(const o of tkGrab({x:TKN.x,z:TKN.z}))TKN.list.push(o);if(TKN.list.length>n0)sPop(0.08);}
  if(!B0){if(R()<dt*30){const a=R()*TAU,r=rr(2,TKR[PW.tk].r*0.6);fireP(TKN.x+Math.cos(a)*r,TKN.y+rr(-4,4),TKN.z+Math.sin(a)*r,{vx:-Math.sin(a)*8,vy:rr(-1,1),vz:Math.cos(a)*8,s:rr(0.3,0.7),life:0.6,drag:1,gl:3,c0:[0.9,0.75,1],c1:[0.55,0.3,1]});}
   if(frameN%3===0)bolt(HERO.x,HERO.y+3.4,HERO.z,TKN.x,TKN.y,TKN.z,{n:8,w:0.35,col:[1.4,0.9,2.6],life:0.08,amp:0.06});}
  loopSet('drone',B0?0.2:0.1);if(B0)loopSet('rumble',0.12);}
@@ -4703,7 +4718,8 @@ function tkUp(p){if(!TKN.on)return;TKN.on=false;tkDir(p);const th=TKN.thr.copy(_
  if(B0&&B0.k==='T'){const T=B0.o;if(!T.dead){const sp=125;T.tkh=false;T.tkf={vx:th.x*sp+TKN.vx*0.5,vy:th.y*sp+TKN.vy*0.5+12,vz:th.z*sp+TKN.vz*0.5,t:0};play(T,'Jump',0.1,true,0.5);big=true;}}
  else if(B0&&B0.k==='B'){const b=B0.o;const sp=clamp(150-b.H*0.4,90,150);throwB(b,th.x*sp+TKN.vx*0.5,th.y*sp+TKN.vy*0.5+8,th.z*sp+TKN.vz*0.5);b.tkT=0;TKN.flyB.push(b);big=true;}
  for(const r of TKN.rocks){if(!EA.rocks.includes(r))continue;const sp=clamp(210-r.s*4,130,210);r.st='fly';r.t=0;r.vx=th.x*sp+TKN.vx*0.5+rr(-6,6);r.vy=th.y*sp+TKN.vy*0.5+rr(-4,6);r.vz=th.z*sp+TKN.vz*0.5+rr(-6,6);r.spin=rr(3,6);r.tgt=null;}
- const n=TKN.list.length+TKN.rocks.length;TKN.list=[];TKN.rocks=[];TKN.big=null;TKN.tear=null;
+ for(const o of TKN.wat){scene.remove(o.m);o.m.geometry.dispose();const sp=170;wbShot({x:o.x,y:o.y,z:o.z,vx:th.x*sp+TKN.vx*0.5+rr(-5,5),vy:th.y*sp+TKN.vy*0.5+rr(-3,5),vz:th.z*sp+TKN.vz*0.5+rr(-5,5),g:18,r:o.r,ice:false,kind:'mass'});}
+ const n=TKN.list.length+TKN.rocks.length+TKN.wat.length;TKN.wat=[];TKN.list=[];TKN.rocks=[];TKN.big=null;TKN.tear=null;
  if(n||big){sWhistle(0.8,big?260:500);G.kick=Math.max(G.kick,big?0.35:0.2);buzz(big?[40,20,60]:30);if(big){G.shake=Math.max(G.shake,0.3);hitstop(0.04);}}}
 /* prédio arremessado: atravessa e derruba outros prédios e acerta titãs no caminho */
 function crashB(b){const g=gh(b.x,b.z),x=b.x,z=b.z,R0=Math.max(b.w,b.d);b.gy=g;b.yo=0;b.st=0;collapse(b,b.vx*0.25,b.vz*0.25,{fling:2.2,keepTilt:true});explode(x,g+2,z,R0*0.7+10,520,{crater:2.5});dome(x,z,R0*2,0.7,0xffe6c8);}
@@ -4726,7 +4742,7 @@ function tkTitan(T,dt){const g=gh(T.x,T.z);
   banner(T.dead?'NOCAUTE!':'ARREMESSO DE '+(T.mon?MON_TXT[T.mon].nm:'TITÃ')+'!',1.2);hitstop(0.12);buzz([60,30,120]);score(1200,T.x,T.sc,T.z);addChaos(40);}
  T.wrap.position.set(T.x,g+T.fy,T.z);}
 STEP_HOOKS.push(tkFlyStep);
-RESET_HOOKS.push(()=>{TKN.on=false;TKN.list=[];TKN.rocks=[];TKN.big=null;TKN.flyB=[];});
+RESET_HOOKS.push(()=>{for(const o of TKN.wat)scene.remove(o.m);TKN.wat=[];TKN.on=false;TKN.list=[];TKN.rocks=[];TKN.big=null;TKN.flyB=[];});
 
 /* ================= Fogo: toque para bola rápida; segure e ela cresce até virar um sol sobre a sua cabeça; vai reto para a mira ================= */
 const FB={list:[],ch:0,charging:false,hand:null,hx:0,hy:0,hz:0,sun:false};
@@ -4751,7 +4767,7 @@ function fireStep(dt,p){if(!FB.charging)fireDown(p);FB.ch=Math.min(FB_CH,FB.ch+d
  if(s>6&&R()<dt*(MOB?3:6)){const a=R()*TAU,e=rr(-0.8,0.8),q=Math.sqrt(1-e*e),a2=a+rr(0.4,1);bolt(hx+Math.cos(a)*q*s,hy+e*s,hz+Math.sin(a)*q*s,hx+Math.cos(a2)*q*s,hy+(e+rr(-0.3,0.3))*s,hz+Math.sin(a2)*q*s,{n:10,w:Math.max(0.6,s*0.06),col:[2.6,1.2,0.3],life:0.25,amp:0.35});}
  if(frameN%4===0)flashLight(hx,hy,hz,1+Math.min(4,s*0.15),30+s*9,0.12,0xff8a3a);loopSet('fire',Math.min(0.35,0.08+s*0.01));
  /* o calor do sol incendeia o que está logo embaixo */
- if(s>8&&frameN%20===0){applyBlast(hx,Math.max(gh(hx,hz),hy-s*1.6),hz,s*1.2,s*5,{fire:true,fling:0.25});G.shake=Math.max(G.shake,clamp(s/200));}
+ if(s>8&&frameN%20===0){applyBlast(hx,Math.max(gS(hx,hz),hy-s*1.6),hz,s*1.2,s*5,{fire:true,fling:0.25});G.shake=Math.max(G.shake,clamp(s/200));}
  if(s>=20&&!FB.sun){FB.sun=true;banner('UM SOL NA SUA MÃO',1.2);sRoar(400);buzz([30,20,60]);}}
 function fireUp(p){if(!FB.charging)return;FB.charging=false;if(FB.hand)FB.hand.visible=false;const ch=FB.ch;FB.ch=0;const s=fbSize(ch);const sx=FB.hx,sy=FB.hy,sz=FB.hz;
  const dx=p.x-sx,dy=p.y-sy,dz=p.z-sz,d=Math.hypot(dx,dy,dz)||1;const k=clamp((s-3)/(FB_MAX-3));const sp=s<3?210:lerp(160,75,k);const gv=s<3?3:1.2;const T=d/sp;
@@ -4761,7 +4777,7 @@ function fbStep(dt){for(let i=FB.list.length-1;i>=0;i--){const b=FB.list[i];b.t+
   const nt=Math.min(MOB?4:9,2+Math.round(b.s*0.3));for(let k=0;k<nt;k++){const u=R();fireP(lerp(ox,b.x,u)+rr(-1,1)*b.s*0.3,lerp(oy,b.y,u)+rr(-1,1)*b.s*0.3,lerp(oz,b.z,u)+rr(-1,1)*b.s*0.3,{vx:-b.vx*0.08+rr(-2,2),vy:rr(0,3),vz:-b.vz*0.08+rr(-2,2),s:b.s*rr(0.35,0.6),life:rr(0.25,0.5)*(1+b.s*0.03),drag:2,gl:2,c0:[1,0.8,0.35],c1:[0.9,0.2,0.02]});}
   if(R()<dt*12)smokeP(b.x,b.y,b.z,{s:b.s*0.6,life:1.2+b.s*0.05,up:1.5,grow:1.6,c0:[0.25,0.22,0.2],c1:[0.5,0.48,0.46]});
   if(frameN%3===0)flashLight(b.x,b.y,b.z,1.2+Math.min(4,b.s*0.15),40+b.s*10,0.09,0xff7a2a);
-  const w=maybeWet(b.x,b.z)?waterAt(b.x,b.z):null;let hit=b.y<gh(b.x,b.z)+b.s*0.4||b.t>7;if(w!=null&&b.y<w)hit=true;
+  const w=maybeWet(b.x,b.z)?waterAt(b.x,b.z):null;let hit=b.y<gS(b.x,b.z)+b.s*0.4||b.t>7;if(w!=null&&b.y<w)hit=true;
   if(!hit)for(const B0 of B){if(B0.st!==0)continue;if(Math.abs(b.x-B0.x)<B0.w/2+b.s*0.8&&Math.abs(b.z-B0.z)<B0.d/2+b.s*0.8&&b.y-b.s*0.8<B0.gy+B0.H){
     /* sol grande atravessa: derrete o prédio e segue */
     if(b.s>=10&&b.plow<6){meltB(B0);explode(B0.x,Math.min(b.y,B0.gy+B0.H*0.6),B0.z,12,240,{});b.plow++;b.s*=0.96;continue;}hit=true;break;}}
@@ -4966,6 +4982,33 @@ function spawnAlly(kind,p){if(allyCount()>=4){toast('Aliados demais','Você já 
 /* alvo de um monstro: o inimigo mais perto (para aliados) ou um aliado próximo (para inimigos) */
 function monTarget(T){let best=null,bd=T.ally?1e9:200;for(const E of titans){if(E===T||E.dead||E.ally===T.ally)continue;const d=Math.hypot(E.x-T.x,E.z-T.z);if(d<bd){bd=d;best=E;}}return best;}
 
+/* ================= Espaço e Lua: voe para cima sem parar; o céu escurece, aparecem estrelas e a Lua, onde dá para pousar ================= */
+const MOON={y:MOON_Y,R:2600,cr:[],mesh:null,earth:null,stars:null,k:0,first:true,land:true};
+{const r=seeded(91);for(let i=0;i<46;i++){const a=r()*TAU,d=Math.sqrt(r())*MOON.R*0.8;MOON.cr.push({x:Math.cos(a)*d,z:Math.sin(a)*d,r:20+Math.pow(r(),2.2)*260,dd:0.18+r()*0.12});}}
+function moonH(x,z){let h=6*Math.sin(x*0.004+1)*Math.cos(z*0.005)+3*Math.sin(x*0.013-z*0.011);
+ for(const c of MOON.cr){const dx=x-c.x,dz=z-c.z;if(Math.abs(dx)>c.r*1.5||Math.abs(dz)>c.r*1.5)continue;const q=Math.sqrt(dx*dx+dz*dz)/c.r;if(q<1)h+=c.r*c.dd*(q*q-1);else if(q<1.5)h+=c.r*c.dd*0.35*Math.exp(-Math.pow((q-1.05)/0.16,2));}
+ const d=Math.hypot(x,z),e=MOON.R*0.8;if(d>e)h-=Math.pow((d-e)/(MOON.R*0.2),2)*500;return MOON.y+h;}
+function onMoon(x,z){return Math.hypot(x,z)<MOON.R*0.97;}
+function moonBuild(){const seg=MOB?110:170,g=new THREE.PlaneGeometry(MOON.R*2,MOON.R*2,seg,seg);g.rotateX(-Math.PI/2);const p=g.attributes.position,col=new Float32Array(p.count*3);
+ for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),y=moonH(x,z)-MOON.y;p.setY(i,y);const j=0.62+0.12*Math.sin(x*0.05+z*0.07)+0.08*Math.sin(x*0.31-z*0.27)+(y<-20?-0.1:0);col[i*3]=j;col[i*3+1]=j*0.98;col[i*3+2]=j*0.95;}
+ g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,flatShading:true,fog:false}));m.position.y=MOON.y;m.receiveShadow=false;m.frustumCulled=false;scene.add(m);MOON.mesh=m;
+ /* a Terra no céu da Lua */
+ const cv=document.createElement('canvas');cv.width=512;cv.height=256;const x=cv.getContext('2d');x.fillStyle='#1f5fb0';x.fillRect(0,0,512,256);const r=seeded(13);
+ for(let i=0;i<70;i++){x.fillStyle=r()<0.7?'#3d8a3a':'#b89a5a';x.beginPath();x.ellipse(r()*512,40+r()*176,10+r()*40,6+r()*24,r()*3,0,TAU);x.fill();}
+ x.globalAlpha=0.75;x.fillStyle='#ffffff';for(let i=0;i<90;i++){x.beginPath();x.ellipse(r()*512,r()*256,8+r()*36,3+r()*8,r()*0.6,0,TAU);x.fill();}x.globalAlpha=1;x.fillStyle='#f4f8ff';x.fillRect(0,0,512,14);x.fillRect(0,242,512,14);
+ const tx=new THREE.CanvasTexture(cv);const e=new THREE.Mesh(new THREE.SphereGeometry(1400,48,32),new THREE.MeshStandardMaterial({map:tx,roughness:0.8,fog:false,emissive:0x0a1a33}));e.position.set(5200,MOON.y+3300,-3600);e.frustumCulled=false;scene.add(e);MOON.earth=e;
+ /* estrelas */
+ const n=MOB?900:1800,sp=new Float32Array(n*3),sr=seeded(5);for(let i=0;i<n;i++){const u=sr()*2-1,a=sr()*TAU,q=Math.sqrt(1-u*u);sp[i*3]=Math.cos(a)*q*9000;sp[i*3+1]=u*9000;sp[i*3+2]=Math.sin(a)*q*9000;}
+ const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));const st=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:MOB?2:1.6,sizeAttenuation:false,transparent:true,opacity:0,fog:false,depthWrite:false}));st.frustumCulled=false;scene.add(st);MOON.stars=st;}
+/* céu, neblina e luz conforme a altura da câmera */
+function spaceFx(){const cp=camera.position;SPACE_ON=cp.y>MOON_Y-3000;const k=clamp((cp.y-1300)/2200);MOON.k=k;if(k<=0&&!MOON.mesh)return;if(!MOON.mesh)moonBuild();
+ const near=cp.y>4000;MOON.mesh.visible=near;MOON.earth.visible=cp.y>3000;MOON.stars.visible=k>0.02;MOON.stars.position.copy(cp);MOON.stars.material.opacity=k;skyMat.uniforms.uSpace.value=k;MOON.earth.rotation.y+=0.0004;
+ if(k>0&&!UW.on){scene.fog.color.copy(FOG0).lerp(SPACEC,k);scene.fog.near=lerp(UW.near0,UW.near0*2,k);scene.fog.far=lerp(UW.far0,UW.far0*1.3,k);if(cp.y>MOON.y-3500){scene.fog.near=1e5;scene.fog.far=2e5;}}
+ else if(MOON.k0>0&&k<=0&&!UW.on){scene.fog.color.copy(FOG0);scene.fog.near=UW.near0;scene.fog.far=UW.far0;}MOON.k0=k;
+ if(k>0.5&&MOON.first&&HERO.y<MOON.y-2000){MOON.first=false;banner('ESPAÇO! CONTINUE SUBINDO ATÉ A LUA',2);}
+ if(MOON.land&&HERO.y>MOON.y-200&&onMoon(HERO.x,HERO.z)){MOON.land=false;MOON.first=false;banner('VOCÊ CHEGOU À LUA! A GRAVIDADE É BAIXA',2.4);}}
+const SPACEC=new THREE.Color(0x02030a);
+
 /* ================= Nível de procurado: 0 a 5 estrelas, clicáveis ================= */
 const WANT={lv:0,heat:0,manual:false,quiet:0,shown:-1,T:[0,30,110,220,360,520],pT:0,hT:0,aT:0,tT:0,calmT:0};
 const wantEl=document.createElement('div');wantEl.className='wanted';wantEl.setAttribute('role','group');wantEl.setAttribute('aria-label','Nível de procurado');
@@ -5007,7 +5050,7 @@ RESET_HOOKS.push(()=>{WANT.lv=0;WANT.heat=0;WANT.manual=false;WANT.quiet=0;WANT.
  '.wanted.hot .ws.on svg{animation:wBl .6s infinite alternate}@keyframes wBl{to{fill:#ff5d5d}}@media (pointer:coarse){.wanted svg{width:24px;height:24px}}';
  document.head.appendChild(st);}
 /* ================= Ganchos de teste ================= */
-window.__caos.AIM=AIM;window.__caos.pdbg={PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
+window.__caos.AIM=AIM;window.__caos.pdbg={moonH,onMoon,ISLS,dig,OE,PS,PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
 })();
 </script>
 
