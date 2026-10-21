@@ -1978,7 +1978,7 @@ function spawnTitan(kind,force,x,z){if(!force&&titans.some(t=>!t.dead&&!t.ally))
  if(kind==='slime')T=makeSlime(x,z,48,Math.round(16000*mult));else if(kind==='golem')T=makeGolem(x,z,62,Math.round(26000*mult));else{T=makeTitan(false,x,z);T.max=T.hp=Math.round(20000*mult);T.kind=kind;if(kind==='demon')demonize(T);}
  if(kind==='metal'){const TN=ERAV.txt.titans;T.name=TN[Math.min(n,TN.length)-1];}else T.name=MON_TXT[kind].full;titans.push(T);banner(kind==='metal'?ERAV.txt.titan:MON_TXT[kind].spawn,2.6);sRoar(600);return T;}
 function killTitan(T){if(T.dead)return;T.dead=true;T.alive=false;T.hp=0;T.dt=0;T.mixer.timeScale=1;play(T,'Death',0.3,true);T.beam.visible=T.beamCore.visible=false;
- if(T.ally){banner('SEU TITÃ CAIU',2);}else{hitstop(0.14);buzz([80,40,220]);G.mDown++;addChaos(250);score(Math.round(T.max/4),T.x,T.sc,T.z);banner(ERAV.txt.titanDown,2);ach('titan');}sRoar(camDist(T.x,30,T.z));}
+ if(T.ally){banner((T.name||'SEU ALIADO').toUpperCase()+' CAIU',2);}else{hitstop(0.14);buzz([80,40,220]);G.mDown++;addChaos(250);score(Math.round(T.max/4),T.x,T.sc,T.z);banner(ERAV.txt.titanDown,2);ach('titan');}sRoar(camDist(T.x,30,T.z));}
 /* todo dano em titã passa por aqui: armadura, teto por golpe, cambaleio e fúria */
 function titanDamage(T,amt,o){if(!T||T.dead||!(amt>0))return 0;o=o||{};let a=amt*(T.armor||1);a=elemHit(T,a,o);if(!(a>0))return 0;if(o.aim&&o.p)a*=titanWeak(T,o.p);const cap=T.max*(o.cap==null?0.07:o.cap)*Math.min(3,o.wk||1);if(a>cap)a=cap;if(T.state==='rise')a*=0.3;
  T.hp-=a;T.hit=Math.max(T.hit||0,0.14);T.lastHit=G.t;
@@ -2018,7 +2018,7 @@ function titanStep(T,dt,cp){if(T.tkh||T.tkf){T.mixer.update(dt);if(T.kind==='dem
  else if(T.state==='punch'){T.punchT+=dt;const p=T.ptgt;if(p&&p.e)T.wrap.rotation.y=Math.atan2(p.e.x-T.x,p.e.z-T.z);
   if(T.punchT>0.55&&!T.punched){T.punched=true;const e=p&&p.e;
    if(p.k==='b'&&e.st===0){collapse(e,Math.sin(face)*12,Math.cos(face)*12);explode(e.x,e.gy+e.H*0.5,e.z,12,200,{fire:false,crater:0});}
-   else if((p.k==='titan'||p.k==='ally')&&!e.dead){titanDamage(e,(p.k==='titan'?1500:1100)*(T.rage?1.3:1),{cap:0.09});const a=Math.atan2(e.z-T.z,e.x-T.x);e.x+=Math.cos(a)*6;e.z+=Math.sin(a)*6;const hx=(T.x+e.x)/2,hz=(T.z+e.z)/2;explode(hx,gh(hx,hz)+T.sc*0.6,hz,10,0,{crater:0,quiet:true});sPunch(0);sBoom(30,camDist(hx,0,hz));G.shake=Math.max(G.shake,0.6);if(T.ally)ach('kaiju');}
+   else if((p.k==='titan'||p.k==='ally')&&!e.dead){titanDamage(e,(p.k==='titan'?1500:1100)*(T.rage?1.3:1),{cap:0.09,el:T.ally?(T.el||'blast'):undefined});if(T.el==='ice'&&!e.dead)e.frz=Math.max(e.frz||0,1.5);const a=Math.atan2(e.z-T.z,e.x-T.x);e.x+=Math.cos(a)*6;e.z+=Math.sin(a)*6;const hx=(T.x+e.x)/2,hz=(T.z+e.z)/2;explode(hx,gh(hx,hz)+T.sc*0.6,hz,10,0,{crater:0,quiet:true});sPunch(0);sBoom(30,camDist(hx,0,hz));G.shake=Math.max(G.shake,0.6);if(T.ally)ach('kaiju');}
    else if(p.k==='c'&&e.st<2)fling(e,e.x-T.x,e.z-T.z,30,18);else if(p.k==='p'&&!e.dead)flingCar(e,e.x-T.x,e.z-T.z,26,16);}
   if(T.punchT>1.3){T.state='walk';T.punched=false;}}
  else if(T.state==='beam'){T.beamOn+=dt;T.wrap.rotation.y=face;const hp=T.head?T.head.getWorldPosition(v2):v2.set(T.x,gh(T.x,T.z)+T.sc*1.05,T.z);hp.y+=2*T.sc/58;
@@ -2026,7 +2026,7 @@ function titanStep(T,dt,cp){if(T.tkh||T.tkf){T.mixer.update(dt);if(T.kind==='dem
   else if(T.beamOn<2.6){let bx,bz;if(T.ally){const e=T.btgt&&T.btgt.e;bx=(e?e.x:T.x+Math.sin(face)*60)+Math.sin(G.t*4)*8;bz=(e?e.z:T.z+Math.cos(face)*60)+Math.cos(G.t*3)*8;}else{bx=HERO.x+Math.sin(G.t*3)*10;bz=HERO.z+Math.cos(G.t*2.4)*10;}
    const by=gh(bx,bz)+0.5;aimBeam(T.beam,hp.x,hp.y,hp.z,bx,by,bz);aimBeam(T.beamCore,hp.x,hp.y,hp.z,bx,by,bz);
    if(frameN%4===0){applyBlast(bx,by,bz,10,160,{fire:true});dig(bx,bz,5,0.8,0.3);fireP(bx,by+1,bz,{s:rr(3,6),life:0.4,vy:8,c0:T.ally?[0.8,1,1]:[1,0.95,0.6],c1:T.ally?[0.2,0.6,1]:[1,0.4,0.1]});burnAt(bx,bz,8,0.9);if(!T.ally)heroHit();
-    if(T.ally){const e=T.btgt&&T.btgt.e;if(e&&T.btgt.k==='titan'&&!e.dead)titanDamage(e,140,{cap:0.03});}}}
+    if(T.ally){const e=T.btgt&&T.btgt.e;if(e&&T.btgt.k==='titan'&&!e.dead)titanDamage(e,140,{cap:0.03,el:T.el||'laser'});}}}
   else{T.beam.visible=T.beamCore.visible=false;T.state='walk';T.beamT=T.rage?rr(3,5):rr(6,9);}}
  T.wrap.position.set(T.x,gh(T.x,T.z),T.z);}
 function titanTint(T,dt){if(T.hit>0){T.hit-=dt;T.M.Main.emissive.setRGB(0.9,0.6,0.5);}else if(T.rage)T.M.Main.emissive.setRGB(0.32+0.22*Math.sin(G.t*7),0.02,0);else T.M.Main.emissive.copy(T.emi);titanSync(T);}
@@ -2578,7 +2578,10 @@ function wMiniNuke(p){wNuke(p,0.45);}
 function wTriNuke(p){const a0=R()*TAU;let n=0;banner('NUCLEAR TRIPLA',1.4);act('trinuke',0,{upd(dt){while(n<3&&this.t>=n*0.45){const a=a0+n*TAU/3;wNuke({x:p.x+Math.cos(a)*62,y:p.y,z:p.z+Math.sin(a)*62},0.45);n++;}return n<3;}});}
 
 /* ================= Armas: o laser (6 níveis) e as nucleares ================= */
-const ICO={
+const ICO={atitan:'<rect x="10" y="4" width="12" height="9" rx="2" fill="#f2c14e"/><rect x="12.5" y="7" width="2.5" height="2.5" fill="#7ff6ff"/><rect x="17" y="7" width="2.5" height="2.5" fill="#7ff6ff"/><rect x="8" y="14" width="16" height="10" rx="2" fill="#f2c14e"/><rect x="4" y="15" width="4" height="8" rx="1.5" fill="#2d5aa8"/><rect x="24" y="15" width="4" height="8" rx="1.5" fill="#2d5aa8"/><rect x="10" y="24" width="4" height="5" fill="#2d5aa8"/><rect x="18" y="24" width="4" height="5" fill="#2d5aa8"/>',
+ afrost:'<rect x="10" y="4" width="12" height="9" rx="2" fill="#cfeeff"/><rect x="12.5" y="7" width="2.5" height="2.5" fill="#1d6fb0"/><rect x="17" y="7" width="2.5" height="2.5" fill="#1d6fb0"/><rect x="8" y="14" width="16" height="10" rx="2" fill="#9fdcff"/><path d="M16 15v8M12.5 17l7 4M19.5 17l-7 4" stroke="#fff" stroke-width="1.4"/><rect x="10" y="24" width="4" height="5" fill="#5fb4e6"/><rect x="18" y="24" width="4" height="5" fill="#5fb4e6"/>',
+ aslime:'<path d="M4 26c0-10 5-18 12-18s12 8 12 18z" fill="#3aa8ff"/><ellipse cx="12" cy="17" rx="2.6" ry="3" fill="#fff"/><ellipse cx="20" cy="17" rx="2.6" ry="3" fill="#fff"/><circle cx="12.5" cy="17.6" r="1.3" fill="#111"/><circle cx="20.5" cy="17.6" r="1.3" fill="#111"/><path d="M12 22q4 3 8 0" stroke="#0b3a66" stroke-width="1.4" fill="none"/>',
+ agolem:'<path d="M11 3l10 0 2 8-3 3h-8l-3-3z" fill="#bfefff"/><circle cx="13.5" cy="8" r="1.4" fill="#ffa32a"/><circle cx="18.5" cy="8" r="1.4" fill="#ffa32a"/><path d="M8 14h16l2 9-4 2h-12l-4-2z" fill="#9fdcf0"/><path d="M3 15l5-1 1 9-5 1z M29 15l-5-1-1 9 5 1z" fill="#7cc8e0"/><path d="M11 25h4v5h-4z M17 25h4v5h-4z" fill="#7cc8e0"/>',
  fire:'<path d="M16 3c1 5 7 7 7 14a7 7 0 0 1-14 0c0-4 2-6 4-8 0 3 1 4 3 5-1-4 0-8 0-11z" fill="#ff7a1a"/><path d="M16 14c1 2 3 3 3 6a3 3 0 0 1-6 0c0-2 2-3 3-6z" fill="#ffd166"/>',
  tk:'<path d="M10 16l3-6h6l3 6-3 5h-6z" fill="#8a6a48"/><path d="M6 27c2-3 6-4 10-4s8 1 10 4" stroke="#b48cff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M6 12a11 11 0 0 1 4-6M26 12a11 11 0 0 0-4-6M16 3v2" stroke="#d9c4ff" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
  earth:'<path d="M3 27h26" stroke="#6c7090" stroke-width="2"/><path d="M7 25c3-1 4-4 9-4s6 3 9 4" fill="#8a6a48"/><path d="M9 13c0-5 4-8 8-8s7 3 7 7-3 7-8 7-7-2-7-6z" fill="#7a5a3c"/><path d="M10 10c2-4 6-5 9-4 2 1 4 3 4 5-4-2-9-2-13-1z" fill="#4fb06a"/><path d="M5 9l3 1M4 14h3M6 18l3-1" stroke="#c9b08a" stroke-width="1.6" stroke-linecap="round"/>',
@@ -2589,7 +2592,7 @@ const ICO={
  mininuke:'<g transform="translate(6 6) scale(.62)">'+'<circle cx="16" cy="16" r="13" fill="#ffd166"/><circle cx="16" cy="16" r="2.6" fill="#2b2f45"/><path d="M13.9 12.36 L10.5 6.47 A11 11 0 0 1 21.5 6.47 L18.1 12.36 A4.2 4.2 0 0 0 13.9 12.36Z M20.2 16 L27 16 A11 11 0 0 1 21.5 25.53 L18.1 19.64 A4.2 4.2 0 0 0 20.2 16Z M13.9 19.64 L10.5 25.53 A11 11 0 0 1 5 16 L11.8 16 A4.2 4.2 0 0 0 13.9 19.64Z" fill="#2b2f45"/>'+'</g><path d="M3 29h26" stroke="#6c7090" stroke-width="2"/>',
  trinuke:['<g transform="translate(0 1) scale(.5)">','<g transform="translate(16 1) scale(.5)">','<g transform="translate(8 15) scale(.5)">'].map(t=>t+'<circle cx="16" cy="16" r="13" fill="#ffd166"/><circle cx="16" cy="16" r="2.6" fill="#2b2f45"/><path d="M13.9 12.36 L10.5 6.47 A11 11 0 0 1 21.5 6.47 L18.1 12.36 A4.2 4.2 0 0 0 13.9 12.36Z M20.2 16 L27 16 A11 11 0 0 1 21.5 25.53 L18.1 19.64 A4.2 4.2 0 0 0 20.2 16Z M13.9 19.64 L10.5 25.53 A11 11 0 0 1 5 16 L11.8 16 A4.2 4.2 0 0 0 13.9 19.64Z" fill="#2b2f45"/>'+'</g>').join('')};
 const CATC={exp:'var(--c-exp)',energy:'var(--c-energy)',sky:'var(--c-sky)',nature:'var(--c-nature)',weird:'var(--c-weird)',ally:'var(--c-ally)'};
-const GROUPS=['Armas'];
+const GROUPS=['Poderes','Aliados'];
 const WEAP=[
  {id:'laser',nm:'Laser',cat:'energy',mode:'hold',d:'Segure e arraste. Toque de novo na arma para subir o nível (até o 6, o supremo).'},
  {id:'nuke',nm:'Nuclear',cat:'exp',mode:'click',fire:wNuke,d:'Desce de paraquedas. Cogumelo, onda de choque e cratera.'},
@@ -2600,7 +2603,11 @@ const WEAP=[
  {id:'storm',free:1,nm:'Raios',cat:'weird',mode:'hold',down:stormDown,step:stormStep,up:stormUp,d:'Descargas saem da sua mão e pulam de metal em metal. Segure mais de 1,5 s e solte para a descarga máxima.'},
  {id:'fire',free:1,nm:'Fogo',cat:'exp',mode:'hold',down:fireDown,step:fireStep,up:fireUp,d:'Toque para uma bola rápida. Segure e ela cresce até virar um sol sobre a sua cabeça. Vai reta para a mira.'},
  {id:'tk',free:1,nm:'Telecinese',tile:'Telec.',cat:'energy',mode:'hold',down:tkDown,step:tkStep,up:tkUp,d:'Mire em um titã, um monstro, um prédio ou no chão e segure: tudo sobe e segue a mira, até no céu. Arraste pelo chão para ir arrancando. Solte para arremessar longe.'}];
-WEAP.forEach(w=>{w.grp=0;});
+WEAP.push({id:'atitan',nm:'Titã dourado',tile:'Titã',cat:'ally',mode:'click',fire:p=>spawnAlly('atitan',p),d:'Chame um robô gigante dourado. Ele soca e dispara contra os monstros.'},
+ {id:'afrost',nm:'Guardião de gelo',tile:'Gelo',cat:'ally',mode:'click',fire:p=>spawnAlly('afrost',p),d:'Robô de gelo: os golpes congelam. Ótimo contra o demônio.'},
+ {id:'aslime',nm:'Gosma azul',tile:'Gosma',cat:'ally',mode:'click',fire:p=>spawnAlly('aslime',p),d:'Uma gosma do bem que cai do céu e esmaga os monstros pulando em cima. Forte contra o golem.'},
+ {id:'agolem',nm:'Golem de cristal',tile:'Golem',cat:'ally',mode:'click',fire:p=>spawnAlly('agolem',p),d:'Golem de cristal que arrebenta o chão contra os monstros. Ótimo contra a gosma.'});
+WEAP.forEach(w=>{w.grp=w.cat==='ally'?1:0;});
 /* ================= Interface ================= */
 const RANKS=[[0,'Turista'],[500,'Baderneiro'],[2500,'Vândalo'],[8000,'Arruaceiro'],[20000,'Demolidor'],[50000,'Catástrofe'],[120000,'Calamidade'],[250000,'Apocalipse'],[500000,'Fim dos Tempos'],[1000000,'Deus do Caos']];
 const ACH=[['primeiro','Primeiro tombo','Derrube o primeiro prédio'],['cem','Demolição em massa','Derrube 100 prédios'],['metade','Meia cidade','Destrua metade da cidade'],['tudo','Terra arrasada','Destrua 90% da cidade'],
@@ -4888,14 +4895,14 @@ function makeSlime(x,z,sc,hp){const T=monBase('slime',x,z,sc,hp);const g=SLIMEG.
  for(const s of[-1,1]){const e=new THREE.Mesh(SPHG,EYEW),pu=new THREE.Mesh(SPHG,EYEB);e.add(pu);pu.position.set(0,0,0.55);pu.scale.setScalar(0.5);e.userData.s=s;T.wrap.add(e);(T.eyes=T.eyes||[]).push(e);}
  T.bub=[];for(let i=0;i<5;i++){const b=new THREE.Mesh(SPHG,new THREE.MeshBasicMaterial({color:0xb8ff9a,transparent:true,opacity:0.35}));T.wrap.add(b);T.bub.push({m:b,u:R(),a:R()*TAU,r:rr(0.1,0.5)});}
  T.torso=new THREE.Object3D();T.wrap.add(T.torso);T.M={Main:mat};T.emi=mat.emissive.clone();T.col0=mat.color.clone();T.fy=220;T.air=true;T.vy=-20;T.armor=0.7;return T;}
-function slimeSplit(T){const n=makeSlime(T.x+rr(-1,1)*T.sc*0.5,T.z+rr(-1,1)*T.sc*0.5,T.sc*0.78,Math.max(800,Math.round(T.hp*0.5)));T.sc*=0.78;T.hp*=0.5;T.max=Math.max(T.hp,T.max*0.6);n.max=n.hp;n.sc0=T.sc0;n.fy=T.fy+2;n.air=true;n.vy=25;n.hvx=rr(-20,20);n.hvz=rr(-20,20);n.splT=1.2;titans.push(n);
+function slimeSplit(T){const n=makeSlime(T.x+rr(-1,1)*T.sc*0.5,T.z+rr(-1,1)*T.sc*0.5,T.sc*0.78,Math.max(800,Math.round(T.hp*0.5)));T.sc*=0.78;T.hp*=0.5;T.max=Math.max(T.hp,T.max*0.6);n.max=n.hp;n.sc0=T.sc0;if(T.ally){n.ally=true;n.akind=T.akind;n.name=T.name;n.M.Main.color.copy(T.M.Main.color);n.M.Main.emissive.copy(T.M.Main.emissive);n.emi=T.emi.clone();n.col0=T.col0.clone();}n.fy=T.fy+2;n.air=true;n.vy=25;n.hvx=rr(-20,20);n.hvz=rr(-20,20);n.splT=1.2;titans.push(n);
  for(let k=0;k<(MOB?6:12);k++)chunk(T.x,gh(T.x,T.z)+T.sc*0.4,T.z,rr(-14,14),rr(8,20),rr(-14,14),rr(1,2.6),[0.3,0.85,0.28],{life:rr(4,7)});monMsg(T,'A GOSMA SE DIVIDIU!');sSplashM(camDist(T.x,0,T.z),0.8);}
-function slimeStep(T,dt,g){const rad=T.sc*0.42,dx=HERO.x-T.x,dz=HERO.z-T.z,d=Math.hypot(dx,dz)||1;let sqx=1,sqy=1;T.splT=(T.splT||0)-dt;
+function slimeStep(T,dt,g){const rad=T.sc*0.42;if(!T.tg||T.tg.dead||frameN%30===0)T.tg=monTarget(T);const tg=T.tg;let gx=tg?tg.x:HERO.x,gz=tg?tg.z:HERO.z;if(!tg&&T.ally){const f=Math.hypot(HERO.x-T.x,HERO.z-T.z);if(f<60){gx=T.x;gz=T.z;}}const dx=gx-T.x,dz=gz-T.z,d=Math.hypot(dx,dz)||1;let sqx=1,sqy=1;T.splT=(T.splT||0)-dt;
  if(T.frz>0){T.frz-=dt;T.M.Main.color.setRGB(0.7,0.9,1.05);T.M.Main.opacity=0.95;if(T.frz<=0){T.M.Main.color.copy(T.col0);T.M.Main.opacity=0.8;}}
  else if(T.stun>0||T.stg>0){T.stun-=dt;T.stg-=dt;sqy=0.85+0.1*Math.sin(G.t*12);sqx=1.08;}
- else if(!T.air){T.hopT-=dt;const k=clamp(1-T.hopT/0.5);sqy=1-0.28*k;sqx=1+0.18*k;if(T.hopT<=0){T.air=true;T.vy=26+T.sc*0.3;const hs=Math.min(38,d/1.8);T.hvx=dx/d*hs;T.hvz=dz/d*hs;sSplashM(camDist(T.x,g,T.z),0.4);}}
+ else if(!T.air){T.hopT-=dt;const k=clamp(1-T.hopT/0.5);sqy=1-0.28*k;sqx=1+0.18*k;if(T.hopT<=0&&d>3){T.air=true;T.vy=26+T.sc*0.3;const hs=Math.min(38,d/1.8);T.hvx=dx/d*hs;T.hvz=dz/d*hs;sSplashM(camDist(T.x,g,T.z),0.4);}}
  if(T.air&&!(T.frz>0)){T.vy-=40*dt;T.x+=T.hvx*dt;T.z+=T.hvz*dt;T.fy+=T.vy*dt;sqy=1+clamp(Math.abs(T.vy)/90,0,0.35);sqx=1/Math.sqrt(sqy);
-  if(T.fy<=0&&T.vy<0){const imp=Math.min(3,-T.vy/30);T.fy=0;T.air=false;T.hopT=rr(0.7,1.4);applyBlast(T.x,g+1,T.z,rad*1.7,rad*rad*12*imp,{fire:false,fling:1.8,skip:T});ring(T.x,T.z,rad*3,0.5,0x9bff8a);
+  if(T.fy<=0&&T.vy<0){const imp=Math.min(3,-T.vy/30);T.fy=0;T.air=false;T.hopT=rr(0.7,1.4);applyBlast(T.x,g+1,T.z,rad*1.7,rad*rad*12*imp,{fire:false,fling:1.8,skip:T});if(tg&&!tg.dead&&Math.hypot(tg.x-T.x,tg.z-T.z)<rad*1.4+tg.sc*0.35){titanDamage(tg,T.ally?2200:1400,{el:'blast',cap:0.1});tg.stg=Math.max(tg.stg||0,0.5);if(T.ally)banner('A GOSMA AZUL ESMAGOU!',0.8);}ring(T.x,T.z,rad*3,0.5,0x9bff8a);
    for(let k=0;k<(MOB?4:9);k++){const a=R()*TAU;chunk(T.x+Math.cos(a)*rad,g+1,T.z+Math.sin(a)*rad,Math.cos(a)*rr(8,20),rr(6,16),Math.sin(a)*rr(8,20),rr(0.8,2)*(T.sc/40),[0.32,0.86,0.3],{life:rr(4,8)});}
    const w=maybeWet(T.x,T.z)?waterAt(T.x,T.z):null;if(w!=null&&w>g+1)splash(T.x,w,T.z,rad,30);sStomp(camDist(T.x,g,T.z)*0.7);G.shake=Math.max(G.shake,clamp(imp*0.5/(1+camDist(T.x,g,T.z)/250)));}}
  if(T.frz>0&&T.air){T.vy-=40*dt;T.fy=Math.max(0,T.fy+T.vy*dt);if(T.fy<=0)T.air=false;}
@@ -4913,18 +4920,19 @@ function makeGolem(x,z,sc,hp){const T=monBase('golem',x,z,sc,hp);const mat=GOLEM
  T.arms=[];for(const s of[-1,1]){const piv=new THREE.Group();piv.position.set(s*0.33*sc,0.74*sc,0);const up=part(0.09,0.17,0.09);up.position.y=-0.16*sc;const fist=part(0.12,0.12,0.12);fist.position.y=-0.4*sc;piv.add(up,fist);T.wrap.add(piv);T.arms.push(piv);}
  T.legs=[];for(const s of[-1,1]){const piv=new THREE.Group();piv.position.set(s*0.13*sc,0.42*sc,0);const lg=part(0.11,0.22,0.11);lg.position.y=-0.2*sc;piv.add(lg);T.wrap.add(piv);T.legs.push(piv);}
  T.torso=new THREE.Object3D();T.torso.position.y=0.62*sc;T.wrap.add(T.torso);T.state='rise';T.riseT=0;T.armor=0.55;return T;}
-function golemStep(T,dt,g){const sc=T.sc,dx=HERO.x-T.x,dz=HERO.z-T.z,d=Math.hypot(dx,dz)||1;let yo=0;
+function golemStep(T,dt,g){const sc=T.sc;if(!T.tg||T.tg.dead||frameN%30===0)T.tg=monTarget(T);const tg=T.tg;let gx=tg?tg.x:HERO.x,gz=tg?tg.z:HERO.z;const dx=gx-T.x,dz=gz-T.z,d=Math.hypot(dx,dz)||1;const idle=!tg&&T.ally&&d<70;let yo=0;
  if(T.state==='rise'){T.riseT+=dt;const k=clamp(T.riseT/2.2);yo=-sc*1.1*(1-easeOut(k));if(R()<dt*30)smokeP(T.x+rr(-1,1)*sc*0.4,g+2,T.z+rr(-1,1)*sc*0.4,{s:rr(4,8),life:3,vy:rr(2,6),up:1,c0:[0.6,0.55,0.5],c1:[0.8,0.77,0.72]});G.shake=Math.max(G.shake,clamp(0.4/(1+camDist(T.x,0,T.z)/200)));if(k>=1)T.state='walk';}
  else if(T.frz>0){T.frz-=dt;}
  else if(T.stun>0||T.stg>0){T.stun-=dt;T.stg-=dt;}
  else if(T.state==='slam'){T.slT+=dt;const k=T.slT;const up=k<0.7?easeOut(k/0.7):k<0.9?1-(k-0.7)/0.2:0;for(const a of T.arms)a.rotation.x=-2.6*up;
-  if(k>=0.9&&!T.slHit){T.slHit=true;const f=T.wrap.rotation.y,fx=T.x+Math.sin(f)*sc*0.45,fz=T.z+Math.cos(f)*sc*0.45;shockwave(fx,fz,{R:sc*2.6,speed:240,pw:600,fling:1.6,fire:false,col:0xc8b89a,ringCol:0xe0d4bc,dust:1.2});explode(fx,gh(fx,fz)+2,fz,sc*0.35,500,{crater:2});sStomp(camDist(fx,0,fz)*0.5);G.shake=Math.max(G.shake,clamp(1/(1+camDist(fx,0,fz)/250)));}
+  if(k>=0.9&&!T.slHit){T.slHit=true;const f=T.wrap.rotation.y,fx=T.x+Math.sin(f)*sc*0.45,fz=T.z+Math.cos(f)*sc*0.45;shockwave(fx,fz,{R:sc*2.6,speed:240,pw:600,fling:1.6,fire:false,col:0xc8b89a,ringCol:0xe0d4bc,dust:0.5,dome:false});explode(fx,gh(fx,fz)+2,fz,sc*0.35,500,{crater:2});if(tg&&!tg.dead&&Math.hypot(tg.x-fx,tg.z-fz)<sc*0.9+tg.sc*0.3){titanDamage(tg,T.ally?3200:1800,{el:'earth',cap:0.12});tg.stun=Math.max(tg.stun||0,1.2);if(T.ally)banner('O GOLEM DE CRISTAL ESMAGOU!',0.8);}sStomp(camDist(fx,0,fz)*0.5);G.shake=Math.max(G.shake,clamp(1/(1+camDist(fx,0,fz)/250)));}
   if(k>1.4){T.state='walk';T.atkT=rr(5,8);}}
- else{const sp=(7+sc*0.06)*(1-0.5*(T.mud||0));T.x+=dx/d*sp*dt;T.z+=dz/d*sp*dt;T.ph+=dt*sp/(sc*0.18);const sw=Math.sin(T.ph);T.legs[0].rotation.x=sw*0.5;T.legs[1].rotation.x=-sw*0.5;T.arms[0].rotation.x=-sw*0.4;T.arms[1].rotation.x=sw*0.4;yo=Math.abs(Math.cos(T.ph))*sc*0.015;
+ else if(idle){for(const a of T.arms)a.rotation.x*=0.9;for(const l of T.legs)l.rotation.x*=0.9;}
+ else{const sp=(7+sc*0.06)*(1-0.5*(T.mud||0))*(T.ally?1.6:1);T.x+=dx/d*sp*dt;T.z+=dz/d*sp*dt;T.ph+=dt*sp/(sc*0.18);const sw=Math.sin(T.ph);T.legs[0].rotation.x=sw*0.5;T.legs[1].rotation.x=-sw*0.5;T.arms[0].rotation.x=-sw*0.4;T.arms[1].rotation.x=sw*0.4;yo=Math.abs(Math.cos(T.ph))*sc*0.015;
   if(Math.floor(T.ph/Math.PI)!==T.stepN){T.stepN=Math.floor(T.ph/Math.PI);const s=T.stepN%2?1:-1,f=T.wrap.rotation.y,fx=T.x+Math.cos(f)*s*sc*0.13,fz=T.z-Math.sin(f)*s*sc*0.13;applyBlast(fx,gh(fx,fz)+1,fz,sc*0.3,sc*12,{fire:false,fling:1.2,skip:T});sStomp(camDist(fx,0,fz));G.shake=Math.max(G.shake,clamp(0.25/(1+camDist(fx,0,fz)/200)));}
-  T.atkT-=dt;if(T.atkT<=0&&d<sc*2.2){T.state='slam';T.slT=0;T.slHit=false;sRoar(camDist(T.x,30,T.z));}}
+  T.atkT-=dt;if(T.atkT<=0&&d<sc*(tg?1.3:2.2)){T.state='slam';T.slT=0;T.slHit=false;sRoar(camDist(T.x,30,T.z));}}
  if(T.mud>0){T.mud=Math.max(0,T.mud-dt*0.02);T.M.Main.color.setRGB(1-T.mud*0.45,1-T.mud*0.55,1-T.mud*0.7);if(R()<dt*6*T.mud)chunk(T.x+rr(-1,1)*sc*0.2,gh(T.x,T.z)+sc*rr(0.3,0.8),T.z+rr(-1,1)*sc*0.2,rr(-2,2),rr(-2,0),rr(-2,2),rr(0.6,1.4),[0.35,0.27,0.18],{life:5});}
- T.M.Main.emissive.setRGB(T.hit>0?0.6:0.16+0.06*Math.sin(G.t*3),T.hit>0?0.4:0.05,0);if(T.hit>0)T.hit-=dt;
+ if(T.crystal)T.M.Main.emissive.setRGB(0.05,0.28+0.1*Math.sin(G.t*3),0.45+0.12*Math.sin(G.t*3));else T.M.Main.emissive.setRGB(T.hit>0?0.6:0.16+0.06*Math.sin(G.t*3),T.hit>0?0.4:0.05,0);if(T.hit>0)T.hit-=dt;
  T.wrap.rotation.y=Math.atan2(dx,dz);T.wrap.position.set(T.x,g+T.fy+yo,T.z);}
 /* demônio: o titã com corpo de lava, chifres e aura de fogo */
 const DHORNG=new THREE.ConeGeometry(1,4,8).translate(0,2,0),HORNM=new THREE.MeshStandardMaterial({color:0x1a0c08,roughness:0.5,emissive:0x220400});
@@ -4942,15 +4950,19 @@ function monStep(T,dt,cp){const g=gh(T.x,T.z);
   if(T.dt>3)monRemove(T);return;}
  if(T.kind==='slime')slimeStep(T,dt,g);else golemStep(T,dt,g);
  if(T.kind==='slime')T.wrap.position.set(T.x,g+T.fy,T.z);}
-/* invocar pelo menu: aparece a uns 230 m de você */
-function summonMon(kind){if(titans.filter(t=>!t.dead&&!t.ally).length>=6){toast('Monstros demais','Derrote alguns antes de chamar mais.');return;}if((kind==='metal'||kind==='demon')&&!ASSETS.robot)return;
- const a=R()*TAU;let x=HERO.x+Math.cos(a)*230,z=HERO.z+Math.sin(a)*230;x=clamp(x,-OE+80,OE-80);z=clamp(z,-OE+80,OE-80);spawnTitan(kind,true,x,z);}
 STEP_HOOKS.push(dt=>{if(frameN%2)return;for(const T of titans){if(T.kind==='metal'&&T.rust>0.2&&!T.dead&&R()<0.3*T.rust){corePos(T,_cp);chunk(_cp.x+rr(-1,1)*T.sc*0.2,_cp.y+rr(-0.3,0.3)*T.sc,_cp.z+rr(-1,1)*T.sc*0.2,rr(-2,2),rr(-1,1),rr(-2,2),rr(0.3,0.8),[0.55,0.27,0.1],{life:4});}}});
 
-/* menu: invocar monstros */
-{const d=document.createElement('div');d.className='opt';d.id='optMon';d.innerHTML='<span>Invocar monstro</span><div class="seg" id="monSeg"><button type="button" data-k="metal">Metal</button><button type="button" data-k="slime">Gosma</button><button type="button" data-k="demon">Demônio</button><button type="button" data-k="golem">Golem</button></div>';
- const gy=document.getElementById('optgySeg')||(document.getElementById('gySeg')||{}).parentNode;const after=gy&&gy.closest?gy.closest('.opt'):null;if(after)after.after(d);
- d.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;summonMon(b.dataset.k);if(G.paused)setPaused(false);});}
+/* ================= Aliados: monstros do bem que você chama e que lutam contra os monstros ================= */
+const ALLY_TXT={atitan:'Titã dourado',afrost:'Guardião de gelo',aslime:'Gosma azul',agolem:'Golem de cristal'};
+function allyCount(){return titans.filter(t=>t.ally&&!t.dead).length;}
+function spawnAlly(kind,p){if(allyCount()>=4){toast('Aliados demais','Você já tem 4 aliados em campo.');return;}if((kind==='atitan'||kind==='afrost')&&!ASSETS.robot){toast('Ainda carregando','O titã aparece assim que o modelo terminar de carregar.');return;}
+ const x=clamp(p.x,-OE+60,OE-60),z=clamp(p.z,-OE+60,OE-60);let T;
+ if(kind==='atitan'||kind==='afrost'){T=makeTitan(true,x,z);T.kind='ally';if(kind==='afrost'){T.el='ice';T.M.Main.color.set(0xcfeeff);T.M.Main.emissive.set(0x0a3a5a);if(T.M.Grey)T.M.Grey.color.set(0x5fb4e6);T.emi=T.M.Main.emissive.clone();T.col0=T.M.Main.color.clone();if(T.beam&&T.beam.material&&T.beam.material.color)T.beam.material.color.set(0x9fe6ff);titanSync(T);}}
+ else if(kind==='aslime'){T=makeSlime(x,z,40,14000);T.ally=true;T.kind='slime';const m=T.M.Main;m.color.set(0x3aa8ff);m.emissive.set(0x06305a);T.emi=m.emissive.clone();T.col0=m.color.clone();for(const q of T.bub)q.m.material.color.set(0xc8f0ff);}
+ else{T=makeGolem(x,z,54,24000);T.ally=true;T.kind='golem';T.crystal=true;T.M.Main.color.setRGB(0.5,0.95,1.35);T.M.Main.roughness=0.35;T.M.Main.metalness=0.3;T.col0=T.M.Main.color.clone();}
+ T.name=ALLY_TXT[kind];T.akind=kind;titans.push(T);banner(ALLY_TXT[kind].toUpperCase()+' CHEGOU!',1.4);sRoar(camDist(x,30,z));buzz([30,20,60]);return T;}
+/* alvo de um monstro: o inimigo mais perto (para aliados) ou um aliado próximo (para inimigos) */
+function monTarget(T){let best=null,bd=T.ally?1e9:200;for(const E of titans){if(E===T||E.dead||E.ally===T.ally)continue;const d=Math.hypot(E.x-T.x,E.z-T.z);if(d<bd){bd=d;best=E;}}return best;}
 
 /* ================= Nível de procurado: 0 a 5 estrelas, clicáveis ================= */
 const WANT={lv:0,heat:0,manual:false,quiet:0,shown:-1,T:[0,30,110,220,360,520],pT:0,hT:0,aT:0,tT:0,calmT:0};
@@ -4993,7 +5005,7 @@ RESET_HOOKS.push(()=>{WANT.lv=0;WANT.heat=0;WANT.manual=false;WANT.quiet=0;WANT.
  '.wanted.hot .ws.on svg{animation:wBl .6s infinite alternate}@keyframes wBl{to{fill:#ff5d5d}}@media (pointer:coarse){.wanted svg{width:24px;height:24px}}';
  document.head.appendChild(st);}
 /* ================= Ganchos de teste ================= */
-window.__caos.AIM=AIM;window.__caos.pdbg={PW,TKN,EA,WB,FB,summonMon,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
+window.__caos.AIM=AIM;window.__caos.pdbg={PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
 })();
 </script>
 
