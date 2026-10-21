@@ -2022,10 +2022,11 @@ function spawnTitan(kind,force,x,z){if(!force&&titans.some(t=>!t.dead&&!t.ally))
  if(x==null){x=SEA_X+170;z=rr(-300,300);}const mult=Math.min(2,1+0.25*(n-1));let T;
  if(kind==='slime')T=makeSlime(x,z,86,Math.round(36000*mult));else if(kind==='golem')T=makeGolem(x,z,108,Math.round(56000*mult));else{T=makeTitan(false,x,z);T.max=T.hp=Math.round((kind==='demon'?50000:45000)*mult);if(kind==='demon'){T.sc=112;T.root.scale.setScalar(RB_SC*112);}T.kind=kind;if(kind==='demon')demonize(T);}
  if(kind==='metal'){const TN=ERAV.txt.titans;T.name=TN[Math.min(n,TN.length)-1];}else T.name=MON_TXT[kind].full;titans.push(T);banner(kind==='metal'?ERAV.txt.titan:MON_TXT[kind].spawn,2.6);sRoar(600);return T;}
-function killTitan(T){if(T.dead)return;T.dead=true;T.alive=false;T.hp=0;T.dt=0;T.mixer.timeScale=1;play(T,'Death',0.3,true);T.beam.visible=T.beamCore.visible=false;
+function killTitan(T){if(T.dead)return;T.dead=true;T.alive=false;T.hp=0;T.dt=0;if(!T.ally){G.slow=Math.max(G.slow||0,1.1);flashTo(0.35,0xffffff);const kg=gS(T.x,T.z);shockwave(T.x,T.z,{R:T.sc*3,speed:300,pw:500,fling:1.8,fire:false,col:0xffe0a0,ringCol:0xffffff,dust:0.6});buzz([80,40,160]);G.kills=(G.kills||0)+1;banner((T.mon?MON_TXT[T.mon].nm:'TITÃ')+' DERROTADO! ('+G.kills+')',1.8);}T.mixer.timeScale=1;play(T,'Death',0.3,true);T.beam.visible=T.beamCore.visible=false;
  if(T.ally){banner((T.name||'SEU ALIADO').toUpperCase()+' CAIU',2);}else{hitstop(0.14);buzz([80,40,220]);G.mDown++;addChaos(250);score(Math.round(T.max/4),T.x,T.sc,T.z);banner(ERAV.txt.titanDown,2);ach('titan');}sRoar(camDist(T.x,30,T.z));}
 /* todo dano em titã passa por aqui: armadura, teto por golpe, cambaleio e fúria */
-function titanDamage(T,amt,o){if(!T||T.dead||!(amt>0))return 0;o=o||{};let a=amt*(T.armor||1);a=elemHit(T,a,o);if(!(a>0))return 0;if(o.aim&&o.p)a*=titanWeak(T,o.p);const cap=T.max*(o.cap==null?0.07:o.cap)*Math.min(3,o.wk||1);if(a>cap)a=cap;if(T.state==='rise')a*=0.3;
+const HERO_EL={fire:1,earth:1,water:1,ice:1,storm:1,tk:1,laser:1};
+function titanDamage(T,amt,o){if(!T||T.dead||!(amt>0))return 0;o=o||{};let a=amt*(T.armor||1);if(!T.ally&&HERO_EL[o.el]&&!o.mon){a*=1.8;o.cap=(o.cap==null?0.07:o.cap)*1.5;}a=elemHit(T,a,o);if(!(a>0))return 0;if(o.aim&&o.p)a*=titanWeak(T,o.p);const cap=T.max*(o.cap==null?0.07:o.cap)*Math.min(3,o.wk||1);if(a>cap)a=cap;if(T.state==='rise')a*=0.3;
  T.hp-=a;T.hit=Math.max(T.hit||0,0.14);T.lastHit=G.t;
  if(!T.ally&&!T.rage&&T.hp>0&&T.hp<T.max*0.4){T.rage=true;T.beamT=Math.min(T.beamT,1.5);if(T.eyeM)T.eyeM.color.set(0xff2a1a);banner(ERAV.txt.rage,1.8);sRoar(camDist(T.x,30,T.z));}
  if(a>T.max*0.04&&T.hp>0&&!(T.stg>0)&&(T.state==='walk'||T.state==='beam')&&!(T.stun>0)){T.stg=0.75;T.beam.visible=T.beamCore.visible=false;T.state='walk';play(T,'No',0.12,true,1.4);}
@@ -2941,7 +2942,7 @@ function applyQuality(){const pr=[TOUCH?0.7:0.85,TOUCH?1:1.25,TOUCH?1.4:1.75][Q]
 if(window.ResizeObserver)new ResizeObserver(resize).observe(stage);else window.addEventListener('resize',resize);
 
 /* ================= Laço ================= */
-const fwd=new THREE.Vector3(),rgt=new THREE.Vector3();let last=0;const HMAX=OE-160;
+const fwd=new THREE.Vector3(),rgt=new THREE.Vector3();let last=0;let HMAX=OE-160;
 function stepHero(dt,rdt){
  camera.getWorldDirection(fwd);fwd.y=0;fwd.normalize();rgt.crossVectors(fwd,UP);let mvx=0,mvz=0,amp=0;
  if(G.started&&!G.paused){if(keys.w||keys.arrowup){mvx+=fwd.x;mvz+=fwd.z;}if(keys.s||keys.arrowdown){mvx-=fwd.x;mvz-=fwd.z;}if(keys.d||keys.arrowright){mvx+=rgt.x;mvz+=rgt.z;}if(keys.a||keys.arrowleft){mvx-=rgt.x;mvz-=rgt.z;}if(mvx||mvz)amp=1;
@@ -2962,8 +2963,8 @@ function stepPhasesOld(dt){
  if(G.phase>=1){G.policeT-=dt;if(G.policeT<=0){G.policeT=rr(15,22);spawnPolice();}G.heliT-=dt;if(G.heliT<=0){G.heliT=rr(45,70);spawnHeli(false);}}
  if(G.phase===1&&G.chaos>=160){G.phase=2;spawnTank();spawnTank();spawnHeli(true);banner(ERAV.txt.army,2.2);sHorde();G.armyT=rr(26,34);}
  if(G.phase>=2){G.armyT-=dt;if(G.armyT<=0){G.armyT=rr(26,40);if(R()<0.6)spawnTank();else spawnHeli(true);}}
- if(G.phase===2&&G.chaos>=330&&ASSETS.robot){G.phase=3;spawnTitan();G.titanT=60;}
- if(G.phase===3){G.titanT-=dt;if(G.titanT<=0&&!titans.some(t=>!t.dead&&!t.ally)){G.titanT=rr(50,70);spawnTitan();}}}
+ if(G.phase===2&&G.chaos>=200&&ASSETS.robot){G.phase=3;spawnTitan();G.titanT=60;}
+ if(G.phase===3){G.titanT-=dt;if(G.titanT<=0&&titans.filter(t=>!t.dead&&!t.ally).length<(MOB?2:3)&&HERO.y<1500){G.titanT=rr(20,30);const T=spawnTitan(null,true);if(T&&R()<0.5){const a=R()*TAU;T.x=clamp(HERO.x+Math.cos(a)*420,-OE+100,OE-100);T.z=clamp(HERO.z+Math.sin(a)*420,-OE+100,OE-100);}}}}
 function step(dt,rdt){G.t+=dt;G.rdt=rdt;GU.uTime.value=G.t;updClouds(dt);
  stepHero(dt,rdt);
  /* armas de segurar e repetição */
@@ -3395,8 +3396,9 @@ function flyMove(rdt,dirx,dirz,sp){const P=FLY.P,mv=sp>0;
  let tx=0,ty=0,tz=0;if(mv){const a=c*0.95;tx=dirx*S*Math.cos(a);tz=dirz*S*Math.cos(a);ty=S*Math.sin(a);}
  if(ud)ty=ud*base*Math.max(1.1,P.sp*0.75);
  /* no espaço tudo é mais rápido: dá para chegar à Lua voando */
- if(MV.fy>60){const sv=Math.min(110,1+(MV.fy-60)/40);ty*=sv;}
- if(MV.fy>1100){const sb=1+Math.min(9,(MV.fy-1100)/450);tx*=sb;tz*=sb;}
+ if(MV.fy>60&&ud){const sv=Math.min(110,1+(MV.fy-60)/40);ty*=sv;}
+ HMAX=MV.fy>1500?16000:OE-160;
+ if(MV.fy>1100){const sb=1+Math.min(24,(MV.fy-1100)/300);tx*=sb;tz*=sb;}
  const ah=clamp(rdt*P.acc),av=clamp(rdt*(mv||ud?P.acc:6));FLY.vx+=(tx-FLY.vx)*ah;FLY.vz+=(tz-FLY.vz)*ah;FLY.vy+=(ty-FLY.vy)*av;
  const kd=Math.exp(-rdt*2.6),dx=(FLY.vx+FLY.kx)*rdt,dz=(FLY.vz+FLY.kz)*rdt,dy=(FLY.vy+FLY.ky)*rdt;FLY.kx*=kd;FLY.ky*=kd;FLY.kz*=kd;
  /* atravessando (Rápido e Luz) não há parede: um passo só; no Normal anda em pedaços para não varar parede fina */
@@ -4533,7 +4535,7 @@ function rockHeat(r,dt){const sp=Math.hypot(r.vx,r.vy,r.vz);const want=r.st==='f
   if(frameN%4===0)flashLight(r.x,r.y,r.z,1+h*2.5,40+r.s*6,0.1,0xff7a2a);}
  else if(r.fx)r.fx.visible=false;}
 function rockImpact(r,hitT){const x=r.x,y=r.y,z=r.z,s=r.s,cd=camDist(x,y,z);const hv=Math.hypot(r.vx,r.vz)||1;const dx=r.vx/hv,dz=r.vz/hv;
- const R0=s*3.4,pw=s*s*90,hot=r.heat>0.3;
+ const R0=s*4.2,pw=s*s*140,hot=r.heat>0.3;
  /* o empurrão sai na direção do voo: o centro da explosão fica um pouco atrás do ponto de impacto */
  applyBlast(x-dx*s,y,z-dz*s,R0,pw,{fire:hot,fling:2.4,topple:{x:dx,z:dz},el:'earth'});if(hot){fireball(x,y,z,s*1.6);explode(x,y,z,s*2,pw*0.3,{crater:Math.min(3.5,s*0.08)});if(s>=14)shockwave(x,z,{R:s*7,speed:260,pw:pw*0.02,fling:1.5,fire:true,col:0xffa060,ringCol:0xffd0a0,dust:1.2});}
  if(hitT)titanDamage(hitT,1400*s/6*(1+r.heat),{aim:1,p:new THREE.Vector3(x,y,z),cap:s>=14?0.25:0.12,el:'earth'});
@@ -4862,7 +4864,7 @@ function fbStep(dt){for(let i=FB.list.length-1;i>=0;i--){const b=FB.list[i];b.t+
   if(!hit)for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-b.x,_cp.y-T.sc*0.1-b.y,_cp.z-b.z)<T.sc*0.3+b.s*0.6){titanDamage(T,600+b.s*b.s*45,{aim:1,p:new THREE.Vector3(b.x,b.y,b.z),cap:b.s>=10?0.35:0.12,el:'fire'});hit=true;break;}}
   if(hit){fbBoom(b,w);fbFree(b.g);FB.list.splice(i,1);}}}
 function fbFree(g){scene.remove(g);for(const m of[g.userData.fl,g.userData.fl2]){m.material.dispose();m.geometry.dispose();}}
-function fbBoom(b,w){const s=b.s,r=6+s*3.2,pw=350+s*s*70,cd=camDist(b.x,b.y,b.z);
+function fbBoom(b,w){const s=b.s,r=8+s*3.8,pw=500+s*s*95,cd=camDist(b.x,b.y,b.z);
  if(w!=null&&b.y<w+1){/* na água: vapor */for(let k=0;k<Math.min(16,6+s);k++)smokeP(b.x+rr(-r,r)*0.4,w+1,b.z+rr(-r,r)*0.4,{s:r*0.5,life:2+s*0.05,vy:rr(5,10)+s*0.3,up:2,grow:1.6,c0:[0.92,0.94,0.96],c1:[0.98,0.98,1]});splash(b.x,w,b.z,r*0.4,20+s);if(s>=10){ring(b.x,b.z,r*2,0.8,0xffffff,w+0.5);G.shake=Math.max(G.shake,clamp(s/60/(1+cd/400)));}return;}
  explode(b.x,b.y,b.z,r,pw,{crater:s>2?Math.min(3.5,0.6+s*0.12):0});if(s>1.8){fireball(b.x,b.y,b.z,r*1.1);hitstop(Math.min(0.14,0.03+s*0.004));}applyBlast(b.x,b.y,b.z,r*1.3,pw,{fire:true,fling:1.6});
  if(s>=10){shockwave(b.x,b.z,{R:(MOB?3:3.8)*r,speed:280,pw:pw*0.35,fling:1.7,fire:true,col:0xffa040,ringCol:0xffd090,dust:1.2});flashTo(Math.min(0.6,s/60),0xffd8a0);sBoom(60+s,cd);}
@@ -5123,12 +5125,12 @@ function spaceFx(){const cp=camera.position;SPACE_ON=cp.y>2500;const k=clamp((cp
  if(k>0&&!UW.on){scene.fog.color.copy(FOG0).lerp(SPACEC,k);scene.fog.near=lerp(UW.near0,UW.near0*2,k);scene.fog.far=lerp(UW.far0,UW.far0*1.3,k);if(cp.y>MOON.y-3500){scene.fog.near=1e5;scene.fog.far=2e5;}}
  else if(MOON.k0>0&&k<=0&&!UW.on){scene.fog.color.copy(FOG0);scene.fog.near=UW.near0;scene.fog.far=UW.far0;}MOON.k0=k;
  if(k>0.5&&MOON.first&&HERO.y<MOON.y-2000){MOON.first=false;banner('ESPAÇO! CONTINUE SUBINDO ATÉ A LUA',2);}
- if(MOON.land&&HERO.y>MOON.y-200&&onMoon(HERO.x,HERO.z)){MOON.land=false;MOON.first=false;banner('VOCÊ CHEGOU À LUA! A GRAVIDADE É BAIXA',2.4);}}
+ if(MOON.land&&HERO.y>MOON.y-200&&onMoon(HERO.x,HERO.z)){MOON.land=false;MOON.first=false;banner('VOCÊ CHEGOU À LUA! MARTE É A BOLA VERMELHA: VOE NA DIREÇÃO DELA',3);}}
 const SPACEC=new THREE.Color(0x02030a);
 STEP_HOOKS.push(()=>{seaMat.uniforms.uDim.value=1-0.6*Math.max(G.dark||0,DAYN.n*0.85);});
 
 /* ================= Espaço 2: estação orbital, base lunar, naves e Marte ================= */
-const MARS={x:30000,y:12000,z:0,R:2800,cr:[],mesh:null,far:null,first:true};
+const MARS={x:9500,y:12000,z:0,R:2800,cr:[],mesh:null,far:null,first:true};
 {const r=seeded(311);for(let i=0;i<30;i++){const a=r()*TAU,d=Math.sqrt(r())*MARS.R*0.8;MARS.cr.push({x:Math.cos(a)*d,z:Math.sin(a)*d,r:30+Math.pow(r(),2)*200,dd:0.15+r()*0.1});}}
 /* Marte: cânion largo, vulcão gigante, crateras e dunas */
 function marsH(x,z){const lx=x-MARS.x,lz=z-MARS.z;let h=10*Math.sin(lx*0.006)*Math.cos(lz*0.005)+4*Math.sin(lx*0.03+lz*0.02);
