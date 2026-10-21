@@ -1153,7 +1153,7 @@ function colGeo(geo,fn){const g=geo.index?geo.toNonIndexed():geo;g.computeVertex
 /* ================= Efeitos estilizados ================= */
 const PUFFG=new THREE.IcosahedronGeometry(1,1);
 const fireMesh=new THREE.InstancedMesh(PUFFG,new THREE.MeshBasicMaterial({toneMapped:false}),LIM.fire);
-const smokeMesh=new THREE.InstancedMesh(PUFFG,glowify(flatStd({roughness:1}),2.4),LIM.smoke);smokeMesh.castShadow=!(TOUCH||MOB);
+const smokeMesh=new THREE.InstancedMesh(PUFFG,glowify(flatStd({roughness:1}),2.4),LIM.smoke);smokeMesh.castShadow=false;/* fumaça translúcida: 70% de opacidade, dá para ver através */smokeMesh.material.transparent=true;smokeMesh.material.opacity=0.7;smokeMesh.material.depthWrite=false;smokeMesh.renderOrder=2;
 [fireMesh,smokeMesh].forEach(m=>{m.frustumCulled=false;scene.add(m);hideInst(m,m.count);m.setColorAt(0,tmpC.set(0xffffff));m.instanceColor.needsUpdate=true;});
 const FIRE=new Array(LIM.fire).fill(null),SMOKE=new Array(LIM.smoke).fill(null);let fN=0,sN=0;
 /* tempo parado: o que nasce já sai um pouco do lugar e fica pairando (FRZ); raios do herói vivem no tempo real (BOLT_RT) */
