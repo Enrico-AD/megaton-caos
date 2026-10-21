@@ -1075,6 +1075,27 @@ const WATERS=[];
 {const m=new THREE.Mesh(new THREE.CircleGeometry(1,64).rotateX(-Math.PI/2),lakeMat);m.scale.set(LAKE.rx*1.04,1,LAKE.rz*1.04);m.position.set(LAKE.x,LAKE.y,LAKE.z);m.receiveShadow=true;scene.add(m);WATERS.push({m,x:LAKE.x,z:LAKE.z,rx:LAKE.rx,rz:LAKE.rz,y:LAKE.y,lake:true});}
 for(const P of OUT_PONDS){const y=worldH(P.x,P.z)+3.2;const m=new THREE.Mesh(new THREE.CircleGeometry(P.r,28).rotateX(-Math.PI/2),lakeMat);m.position.set(P.x,y,P.z);m.receiveShadow=true;scene.add(m);WATERS.push({m,x:P.x,z:P.z,rx:P.r,rz:P.r,y});}
 OT_READY=true;
+/* ================= Nova Atlântida: distrito neon sobre o mar, com plataformas, canais, pontes, hologramas e carros anfíbios ================= */
+const NA={x:ATL.x+40,z:ATL.z,P:150,C:46,n:3};
+{const NEON=[[0.3,2.2,2.6],[2.4,0.5,2.2],[2.6,1.6,0.3],[0.6,2.4,0.9],[1.6,0.6,2.6]],DK=[0.12,0.13,0.18],MT=[0.55,0.6,0.7];
+ /* torre fina com faixas neon verticais e anéis por andar */
+ {const b=[],d=[];const H=96;gpart(b,BX(1,H,1),0,H/2,0,W1);for(const s of[-1,1]){gpart(d,BX(0.04,H-6,0.03),s*0.3,H/2,0.51,NEON[0]);gpart(d,BX(0.04,H-6,0.03),s*0.3,H/2,-0.51,NEON[1]);gpart(d,BX(0.03,H-6,0.04),0.51,H/2,s*0.3,NEON[0]);gpart(d,BX(0.03,H-6,0.04),-0.51,H/2,s*0.3,NEON[1]);}
+  for(let y=8;y<H;y+=12)gpart(d,BX(1.03,0.4,1.03),0,y,0,DK);gpart(d,CY(0.12,0.3,14,8),0,H+7,0,MT);gpart(d,new THREE.SphereGeometry(0.22,8,6),0,H+14.5,0,NEON[2]);ARCH.neonA={body:merge(b),det:merge(d),H:H+15,pal:[[0.18,0.2,0.3],[0.22,0.2,0.34],[0.15,0.24,0.32]],bodyMat:{roughness:0.18,metalness:0.6}};}
+ /* blocos empilhados e deslocados, bordas em neon */
+ {const b=[],d=[];let y=0;const L=[[1,18,1,0,0],[0.85,16,0.85,0.12,-0.08],[0.7,16,0.75,-0.1,0.1],[0.55,14,0.55,0.08,0.05],[0.4,12,0.4,-0.05,-0.05]];L.forEach(([w,h,dd,ox,oz],i)=>{gpart(b,BX(w,h,dd),ox,y+h/2,oz,W1);const c=NEON[i%NEON.length];for(const sx of[-1,1])for(const sz of[-1,1])gpart(d,BX(0.035,h,0.035),ox+sx*w/2,y+h/2,oz+sz*dd/2,c);gpart(d,BX(w+0.02,0.3,dd+0.02),ox,y+h-0.15,oz,c);y+=h;});
+  ARCH.neonB={body:merge(b),det:merge(d),H:y,pal:[[0.2,0.22,0.3],[0.28,0.24,0.36],[0.16,0.2,0.26]],bodyMat:{roughness:0.25,metalness:0.5}};}
+ /* torre redonda com anéis de luz flutuando em volta */
+ {const b=[],d=[];const H=120;gpart(b,CY(0.42,0.5,H,18),0,H/2,0,W1);for(let y=20;y<H;y+=24)gpart(d,new THREE.TorusGeometry(0.62,0.025,6,28).rotateX(Math.PI/2),0,y,0,NEON[(y/24|0)%NEON.length]);for(let k=0;k<6;k++){const a=k/6*TAU;gpart(d,BX(0.03,H-10,0.03),Math.cos(a)*0.46,H/2,Math.sin(a)*0.46,NEON[0]);}
+  gpart(d,new THREE.ConeGeometry(0.42,16,18),0,H+8,0,MT);ARCH.neonC={body:merge(b),det:merge(d),H:H+16,pal:[[0.85,0.88,0.95],[0.75,0.82,0.9]],bodyMat:{roughness:0.15,metalness:0.7}};}
+ /* plataforma (convés) e ponte, com borda iluminada */
+ {const b=[],d=[];gpart(b,BX(1,4,1),0,2,0,W1);gpart(d,BX(1.005,0.25,1.005),0,4,0,NEON[0]);gpart(d,BX(1.01,0.3,1.01),0,0.4,0,DK);ARCH.npl={body:merge(b),det:merge(d),H:4,pal:[[0.32,0.34,0.4],[0.28,0.3,0.36]],bodyMat:{roughness:0.6}};}
+ {const b=[],d=[];gpart(b,BX(1,1.2,1),0,3.4,0,W1);for(const s of[-1,1])gpart(d,BX(1,0.25,0.04),0,4.6,s*0.48,NEON[1]);for(let k=-0.4;k<=0.41;k+=0.4)gpart(d,BX(0.04,3,0.6),k,1.5,0,DK);ARCH.nbr={body:merge(b),det:merge(d),H:5,pal:[[0.5,0.55,0.62]],bodyMat:{roughness:0.4,metalness:0.4}};}
+ const r=seeded(777),S=NA.P+NA.C,o=-(NA.n-1)/2*S;NA.plats=[];
+ for(let i=0;i<NA.n;i++)for(let j=0;j<NA.n;j++){const cx=NA.x+o+i*S,cz=NA.z+o+j*S;NA.plats.push({x:cx,z:cz});B.push({a:'npl',x:cx,z:cz,w:NA.P,d:NA.P,sy:1,reg:'atl',fixY:-1});
+  const slots=[[-0.28,-0.28],[0.28,-0.28],[-0.28,0.28],[0.28,0.28],[0,0]];for(const [sx,sz] of slots){if(r()<0.15)continue;const t=['neonA','neonB','neonC'][(r()*3)|0];const w=t==='neonC'?rr(24,32):rr(26,40);B.push({a:t,x:cx+sx*NA.P+rr(-6,6),z:cz+sz*NA.P+rr(-6,6),w,d:t==='neonC'?w:w*rr(0.8,1.1),sy:rr(0.7,1.35),reg:'atl',fixY:3});}
+  if(i<NA.n-1)B.push({a:'nbr',x:cx+S/2,z:cz,w:NA.C+12,d:14,sy:1,reg:'atl',fixY:-1});if(j<NA.n-1)B.push({a:'nbr',x:cx,z:cz+S/2,w:14,d:NA.C+12,sy:1,reg:'atl',fixY:-1});}
+ REGS.atl={x:NA.x,y:60,z:NA.z,r:S*NA.n*0.75+120};}
+
 /* ================= Montagem: malhas dos prédios (cidade e regiões), árvores e postes ================= */
 B.forEach((b,i)=>{b.idx=i;b.x0=b.x;b.z0=b.z;b.mk=b.reg?b.a+'@'+b.reg:b.a;b.gb=b.fixY!=null?b.fixY:b.reg?ghO(b.x,b.z):0;});
 const BC=B.filter(b=>!b.reg).length;
@@ -2088,6 +2109,23 @@ for(const k in PT){PT[k].list=[];}
  let bn=0;const bmax=MOB?36:100;for(const g of SPECIAL.gas){for(let k=0;k<5&&bn<bmax;k++,bn++)add('barrel',g.x+16+(k%3)*1.1,g.z-16+((k/3)|0)*1.1,0);}
  for(const b of B){if(bn>=bmax)break;if((b.a==='warehouse'||b.a==='factory')&&r()<0.7){for(let k=0;k<4&&bn<bmax;k++,bn++)add('barrel',b.x-b.w/2-2+(k%2)*1.1,b.z+b.d/2-2-((k/2)|0)*1.1,0);}}})();
 for(const k in PT){const T=PT[k];const n=Math.max(1,T.list.length);T.m=new THREE.InstancedMesh(T.g,vcMat({roughness:k==='container'?0.6:0.5,metalness:T.metal?0.25:0}),n);T.m.castShadow=true;T.m.receiveShadow=true;T.m.frustumCulled=false;scene.add(T.m);T.m.setColorAt(0,tmpC.set(0xffffff));if(!T.list.length)T.m.setMatrixAt(0,ZM);T.dirty=true;}
+/* Nova Atlântida: hologramas, letreiro, luz neon e carros anfíbios que andam pelos canais (dá para pegar com telecinese e explodir) */
+const NAH={list:[],cars:[]};
+(function(){const cv=document.createElement('canvas');cv.width=512;cv.height=128;const x=cv.getContext('2d');x.fillStyle='rgba(0,0,0,0)';x.fillRect(0,0,512,128);x.font='bold 76px sans-serif';x.textAlign='center';x.shadowColor='#4ff';x.shadowBlur=24;x.fillStyle='#bff';x.fillText('ATLÂNTIDA',256,92);
+ const tx=new THREE.CanvasTexture(cv),sm=new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,toneMapped:false});const sign=new THREE.Mesh(new THREE.PlaneGeometry(220,55),sm);sign.position.set(NA.x,190,NA.z);scene.add(sign);NAH.list.push({m:sign,k:'sign'});
+ const hm=c=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0.55,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,wireframe:true});
+ for(const p of NA.plats){if(Math.random()<0.4)continue;const k=Math.random();const g=k<0.33?new THREE.IcosahedronGeometry(14,1):k<0.66?new THREE.TorusKnotGeometry(10,2.4,64,8):new THREE.OctahedronGeometry(15,0);const m=new THREE.Mesh(g,hm([0x55f6ff,0xff5ae8,0xffc23a][(Math.random()*3)|0]));m.position.set(p.x+rr(-30,30),rr(140,175),p.z+rr(-30,30));scene.add(m);NAH.list.push({m,k:'holo',ph:Math.random()*TAU,y0:m.position.y});
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(1.5,6,m.position.y-6,10,1,true),hm(0x55f6ff));beam.material.wireframe=false;beam.material.opacity=0.12;beam.position.set(m.position.x,(m.position.y-6)/2+3,m.position.z);scene.add(beam);NAH.list.push({m:beam,k:'beam'});}
+ for(let i=0;i<(MOB?3:6);i++){const p=NA.plats[(Math.random()*NA.plats.length)|0];const L=new THREE.PointLight([0xff4ae0,0x4af6ff,0xffb03a][i%3],2.2,260,2);L.position.set(p.x,40,p.z);scene.add(L);NAH.list.push({m:L,k:'light'});}})();
+/* carro anfíbio: entra nos objetos soltos (a telecinese pega, explosões jogam longe) */
+PT.hover={g:(function(){const a=[];gpart(a,BX(5,1.2,2.4),0,0,0,W1);gpart(a,BX(2.8,0.9,2.1),-0.3,0.95,0,[0.12,0.16,0.24]);gpart(a,BX(5.1,0.18,2.5),0,-0.65,0,[0.3,2.2,2.6]);for(const z of[-1.3,1.3])gpart(a,CY(0.35,0.35,0.6,8).rotateX(Math.PI/2),-1.8,-0.2,z,[2.4,0.6,2.2]);return merge(a);})(),hx:2.5,hy:0.6,hz:1.2,mass:2.2,metal:true,cols:[[0.85,0.88,0.95],[0.2,0.22,0.3],[0.9,0.3,0.6],[0.3,0.8,0.9]],list:[]};
+{const T=PT.hover;const n=MOB?8:16,S=NA.P+NA.C,o=-(NA.n-1)/2*S;for(let i=0;i<n;i++){const lane=i%(NA.n+1),vert=i%2===0;const off=o-S/2+lane*S;const p={prop:true,t:'hover',x:vert?NA.x+off:NA.x,z:vert?NA.z:NA.z+off,y:1.5,ry:0,rx:0,rz:0,vx:0,vy:0,vz:0,wx:0,wy:0,wz:0,st:0,gone:false,ctl:null,col:pick(T.cols),stack:0,frz:0,sc:1,hov:{vert,off,u:Math.random()*2-1,sp:rr(0.06,0.12)*(Math.random()<0.5?1:-1)}};p.i=T.list.length;T.list.push(p);PROPS.push(p);NAH.cars.push(p);}
+ T.m=new THREE.InstancedMesh(T.g,glowify(vcMat({roughness:0.4,metalness:0.4}),1.4),n);T.m.castShadow=true;T.m.frustumCulled=false;scene.add(T.m);for(const p of T.list)propSet(p);}
+function naStep(dt){const cp=camera.position,near=Math.hypot(cp.x-NA.x,cp.z-NA.z)<2600&&cp.y<2500;for(const h of NAH.list){h.m.visible=near;if(!near)continue;if(h.k==='holo'){h.m.rotation.y+=dt*0.6;h.m.rotation.x+=dt*0.25;h.m.position.y=h.y0+Math.sin(G.t*0.8+h.ph)*4;}else if(h.k==='sign'){h.m.lookAt(cp.x,h.m.position.y,cp.z);}}
+ const S=NA.P+NA.C,half=(NA.n*S)/2+20;for(const p of NAH.cars){if(p.st!==0||p.ctl||p.gone)continue;const h=p.hov;h.u+=h.sp*dt;if(h.u>1)h.u-=2;if(h.u<-1)h.u+=2;const a=h.u*half;const x=h.vert?NA.x+h.off:NA.x+a,z=h.vert?NA.z+a:NA.z+h.off;
+  const w=seaY(x,z,G.t);p.x=x;p.z=z;p.y=w+1.4+Math.sin(G.t*3+h.off)*0.2;p.ry=h.vert?(h.sp>0?0:Math.PI)+Math.PI/2:(h.sp>0?0:Math.PI);p.rz=Math.sin(G.t*2+h.off)*0.05;if(near)propSet(p);if(near&&R()<dt*10)splash(x-Math.cos(p.ry)*2.5,w,z+Math.sin(p.ry)*2.5,1.2,4);}}
+STEP_HOOKS.push(naStep);
+
 function restH(o){const T=PT[o.t];const sx=Math.abs(Math.sin(o.rz)),sz=Math.abs(Math.sin(o.rx));return sz>0.7?T.hz:sx>0.7?T.hx:T.hy;}
 function propSet(o){const T=PT[o.t];if(o.gone||o.st===4){T.m.setMatrixAt(o.i,ZM);T.dirty=true;return;}dummy.position.set(o.x,o.y,o.z);dummy.rotation.set(o.rx,o.ry,o.rz);dummy.scale.setScalar(o.sc||1);dummy.updateMatrix();T.m.setMatrixAt(o.i,dummy.matrix);
  const c=o.frz>0?ICY:o.burnt?[0.2,0.19,0.19]:o.col;T.m.setColorAt(o.i,tmpC.setRGB(c[0],c[1],c[2]));T.cdirty=true;T.dirty=true;}
@@ -4683,7 +4721,7 @@ function tkGrab(p){const R0=TKR[PW.tk].r,max=(MOB?0.6:1)*TKR[PW.tk].max;const L=
 function tkFindTitan(p){tkDir(p);const cp=camera.position;let best=null,bt=1e9;
  for(const T of titans){if(T.dead||T.ally)continue;corePos(T,_tkp);_tkv.copy(_tkp).sub(cp);const t=_tkv.dot(_tkd);if(t<=0)continue;const perp=Math.sqrt(Math.max(0,_tkv.lengthSq()-t*t));const base=gh(T.x,T.z)+(T.fy||0);
   const hor=Math.hypot(p.x-T.x,p.z-T.z);if((perp<T.sc*0.5||(hor<T.sc*0.4&&p.y<base+T.sc*1.2))&&t<bt){bt=t;best=T;}}return best;}
-function tkFindB(p){let best=null,bh=-1;for(const b of B){if(b.st!==0||b.hidden||b.fixY!=null||b.a==='stadium')continue;if(Math.abs(p.x-b.x)>b.w/2+1.5||Math.abs(p.z-b.z)>b.d/2+1.5)continue;if(p.y>b.gy+b.H+3||p.y<b.gy-3)continue;if(b.H>bh){bh=b.H;best=b;}}return best;}
+function tkFindB(p){let best=null,bh=-1;for(const b of B){if(b.st!==0||b.hidden||(b.fixY!=null&&b.reg!=='atl')||b.a==='stadium')continue;if(Math.abs(p.x-b.x)>b.w/2+1.5||Math.abs(p.z-b.z)>b.d/2+1.5)continue;if(p.y>b.gy+b.H+3||p.y<b.gy-3)continue;if(b.H>bh){bh=b.H;best=b;}}return best;}
 /* arranca um pedaço do chão no ponto e junta ao grupo */
 function tkTear(p,first){const g=gS(p.x,p.z);if(maybeWet(p.x,p.z)&&waterAt(p.x,p.z)!=null)return;const cap=MOB?7:12;if(TKN.rocks.length>=cap)return;const s=first?rr(5,8):rr(3.5,6.5);
  dig(p.x,p.z,s*1.5,s*0.6,s*0.3);applyBlast(p.x,g+1,p.z,s*1.8,s*s*30,{fire:false,fling:1.6,el:'tk'});
