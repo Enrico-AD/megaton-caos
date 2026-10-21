@@ -393,9 +393,9 @@ const SUN=new THREE.Vector3(-0.55,0.62,0.56).normalize();
 const FOG0=new THREE.Color(0xf3d2b4),FOGD=new THREE.Color(0x7d8296),FOGR=new THREE.Color(0xd9835a),FOGX=new THREE.Color(0x3a1a14);scene.fog=new THREE.Fog(FOG0.clone(),MOB?1100:1400,MOB?4200:5400);
 const MOON_CEIL=13500,MOON_Y=12000;let SPACE_ON=false;
 function gS(x,z){if(SPACE_ON){if(onMoon(x,z))return moonH(x,z);if(onMars(x,z))return marsH(x,z);}return gh(x,z);}
-const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:{uSpace:{value:0},uMars:{value:0},top:{value:new THREE.Color(0x5b8fd6)},mid:{value:new THREE.Color(0xa9cdeb)},hor:{value:new THREE.Color(0xf6d2b0)},sun:{value:SUN},uDark:{value:0},uRed:{value:0}},
+const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:{uNight:{value:0},uSpace:{value:0},uMars:{value:0},top:{value:new THREE.Color(0x5b8fd6)},mid:{value:new THREE.Color(0xa9cdeb)},hor:{value:new THREE.Color(0xf6d2b0)},sun:{value:SUN},uDark:{value:0},uRed:{value:0}},
  vertexShader:'varying vec3 vD;void main(){vD=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
- fragmentShader:'uniform vec3 top,mid,hor,sun;uniform float uDark,uRed,uSpace,uMars;varying vec3 vD;void main(){float h=vD.y;vec3 c=mix(hor,mid,smoothstep(0.0,0.25,h));c=mix(c,top,smoothstep(0.25,0.8,h));float s=max(dot(vD,normalize(sun)),0.0);float lit=1.0-uDark;c+=(vec3(1.0,0.8,0.55)*pow(s,40.0)*0.6+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0)*lit;c=mix(c,hor,smoothstep(0.0,-0.2,h));c=mix(c,vec3(0.3,0.32,0.4)*(0.75+0.35*h),uDark*0.85);c=mix(c,vec3(0.98,0.45,0.22)*(1.0-0.45*max(h,0.0)),uRed*0.6);c=mix(c,vec3(0.004,0.006,0.02)+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0,uSpace);c=mix(c,mix(vec3(0.9,0.62,0.45),vec3(0.42,0.24,0.2),clamp(h*1.4,0.0,1.0)),uMars);gl_FragColor=vec4(c,1.0);}'});
+ fragmentShader:'uniform vec3 top,mid,hor,sun;uniform float uDark,uRed,uSpace,uMars,uNight;varying vec3 vD;void main(){float h=vD.y;vec3 c=mix(hor,mid,smoothstep(0.0,0.25,h));c=mix(c,top,smoothstep(0.25,0.8,h));float s=max(dot(vD,normalize(sun)),0.0);float lit=1.0-uDark;c+=(vec3(1.0,0.8,0.55)*pow(s,40.0)*0.6+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0)*lit;c=mix(c,hor,smoothstep(0.0,-0.2,h));c=mix(c,vec3(0.3,0.32,0.4)*(0.75+0.35*h),uDark*0.85);c=mix(c,vec3(0.98,0.45,0.22)*(1.0-0.45*max(h,0.0)),uRed*0.6);c=mix(c,vec3(0.004,0.006,0.02)+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0,uSpace);vec3 nc=mix(vec3(0.05,0.07,0.16),vec3(0.01,0.02,0.06),clamp(h*1.5,0.0,1.0));vec2 sg=floor(vD.xz/(vD.y+1.15)*260.0);float stv=step(0.9975,fract(sin(dot(sg,vec2(12.9898,78.233)))*43758.5453))*smoothstep(0.02,0.2,h);nc+=vec3(stv)*0.9+vec3(0.9,0.95,1.0)*pow(max(dot(vD,normalize(vec3(0.3,0.5,-0.8))),0.0),2000.0)*3.0;c=mix(c,nc,uNight);c=mix(c,mix(vec3(0.9,0.62,0.45),vec3(0.42,0.24,0.2),clamp(h*1.4,0.0,1.0)),uMars);gl_FragColor=vec4(c,1.0);}'});
 const sky=new THREE.Mesh(new THREE.SphereGeometry(9500,32,16),skyMat);scene.add(sky);
 const sunL=new THREE.DirectionalLight(0xffe7c4,1.75);sunL.castShadow=true;
 {const c=sunL.shadow.camera;c.left=-480;c.right=480;c.top=480;c.bottom=-480;c.near=50;c.far=2900;}
@@ -2887,6 +2887,13 @@ function bindJoy(el,J){if(!el)return;const knob=el.querySelector('i');let cx=0,c
  el.addEventListener('contextmenu',e=>e.preventDefault());}
 bindJoy($('#joyL'),JOY.L);bindJoy($('#joyR'),JOY.R);
 /* zona morta + curva: perto do centro gira devagar (mira fina), na borda gira rápido */
+/* ciclo de dia e noite: 8 minutos por dia; de noite o céu fica estrelado, o sol apaga e as luzes neon e das janelas aparecem */
+const DAYN={t:0,len:480,n:0,was:0,FN:new THREE.Color(0x0d1630)};
+function nightApply(dt){if(!G.started)return;DAYN.t+=dt;const ph=(DAYN.t/DAYN.len)%1,c=0.5-0.5*Math.cos(ph*TAU);const n=c<0.55?0:c>0.8?1:(c-0.55)/0.25;DAYN.n=n*n*(3-2*n);const k=DAYN.n;
+ skyMat.uniforms.uNight.value=k*(1-(MOON.k||0));sunL.intensity*=1-0.82*k;hemi.intensity*=1-0.5*k;scene.fog.color.lerp(DAYN.FN,k*0.85);
+ if(k>0.6&&!DAYN.was){DAYN.was=1;banner('ANOITECEU',1.2);}else if(k<0.2&&DAYN.was){DAYN.was=0;banner('AMANHECEU',1.2);}}
+/* sensibilidade do toque (menu de pausa), salva no aparelho */
+const SENS={v:[0.6,1,1.5,2.2],n:['Baixa','Normal','Alta','Máxima'],i:(()=>{const s=store.get('sens');return s==null?2:clamp(s|0,0,3);})()};
 function joyAxis(J,dz,pw){const m=Math.hypot(J.x,J.y);if(!J.on||m<dz)return null;const t=Math.pow(Math.min(1,(m-dz)/(0.92-dz)),pw);return {x:J.x/m*t,y:J.y/m*t,t};}
 const SPH=new THREE.Spherical();
 function orbitCam(dTh,dPh){const off=v1.copy(camera.position).sub(controls.target);SPH.setFromVector3(off);SPH.theta+=dTh;SPH.phi=clamp(SPH.phi+dPh,0.14,controls.maxPolarAngle-0.005);SPH.makeSafe();off.setFromSpherical(SPH);camera.position.copy(controls.target).add(off);}
@@ -2896,7 +2903,7 @@ const TP=new Map();let pinch=null;
 function tpPair(){const it=TP.values();const a=it.next().value,b=it.next().value;return {d:Math.max(8,Math.hypot(a.x-b.x,a.y-b.y)),mx:(a.x+b.x)/2,my:(a.y+b.y)/2};}
 renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;TP.set(e.pointerId,{x:e.clientX,y:e.clientY});pinch=TP.size>=2?tpPair():null;});
 renderer.domElement.addEventListener('pointermove',e=>{const p=TP.get(e.pointerId);if(!p)return;p.x=e.clientX;p.y=e.clientY;if(TP.size<2)return;const q=tpPair();
- if(pinch&&G.started&&!G.paused){zoomCam(pinch.d/q.d);const h=Math.max(1,stage.clientHeight);orbitCam(-(q.mx-pinch.mx)/h*Math.PI*1.2,-(q.my-pinch.my)/h*Math.PI*0.8);controls.autoRotate=false;}pinch=q;});
+ if(pinch&&G.started&&!G.paused){zoomCam(pinch.d/q.d);const h=Math.max(1,stage.clientHeight);orbitCam(-(q.mx-pinch.mx)/h*Math.PI*1.2*SENS.v[SENS.i],-(q.my-pinch.my)/h*Math.PI*0.8*SENS.v[SENS.i]);controls.autoRotate=false;}pinch=q;});
 ['pointerup','pointercancel'].forEach(ev=>renderer.domElement.addEventListener(ev,e=>{if(TP.delete(e.pointerId))pinch=TP.size>=2?tpPair():null;}));
 /* altura do arsenal → os joysticks ficam logo acima dele (no celular em pé) */
 {const dk=$('#dock');const setDH=()=>stage.style.setProperty('--dockH',Math.round(dk.offsetHeight)+'px');setDH();if(window.ResizeObserver)new ResizeObserver(setDH).observe(dk);else window.addEventListener('resize',setDH);}
@@ -2939,7 +2946,8 @@ function stepHero(dt,rdt){
  camera.getWorldDirection(fwd);fwd.y=0;fwd.normalize();rgt.crossVectors(fwd,UP);let mvx=0,mvz=0,amp=0;
  if(G.started&&!G.paused){if(keys.w||keys.arrowup){mvx+=fwd.x;mvz+=fwd.z;}if(keys.s||keys.arrowdown){mvx-=fwd.x;mvz-=fwd.z;}if(keys.d||keys.arrowright){mvx+=rgt.x;mvz+=rgt.z;}if(keys.a||keys.arrowleft){mvx-=rgt.x;mvz-=rgt.z;}if(mvx||mvz)amp=1;
   const jl=joyAxis(JOY.L,0.14,1);if(jl){mvx+=fwd.x*-jl.y+rgt.x*jl.x;mvz+=fwd.z*-jl.y+rgt.z*jl.x;amp=Math.max(amp,0.25+0.75*jl.t);}
-  const jr=joyAxis(JOY.R,0.12,1.6);if(jr){orbitCam(-jr.x*2.6*rdt,-jr.y*1.6*rdt);controls.autoRotate=false;}}
+  /* câmera pelo joystick direito: zona morta menor, curva mais rápida, sensibilidade do menu e aceleração quando o dedo fica na borda */
+  const jr=joyAxis(JOY.R,0.07,1.2);if(jr){JOY.R.edge=jr.t>0.85?(JOY.R.edge||0)+rdt:0;const boost=1+Math.min(0.8,Math.max(0,(JOY.R.edge||0)-0.3)*1.6);const sv=SENS.v[SENS.i]*boost;orbitCam(-jr.x*3.4*sv*rdt,-jr.y*2.2*sv*rdt);controls.autoRotate=false;}else JOY.R.edge=0;}
  const ml=Math.hypot(mvx,mvz);HY.mv=ml>1e-4&&amp>0;
  let sp=0;if(HY.mv){const cd=camera.position.distanceTo(controls.target);sp=clamp(28+cd*0.32,46,210)*(keys.shift?2.2:1)*amp*(1+HY.run*HY.spk);HERO.face=Math.atan2(mvx,mvz);}
  if(keys.q||keys.e){const a=(keys.q?1:-1)*rdt*1.3;const off=v1.copy(camera.position).sub(controls.target);off.applyAxisAngle(UP,a);camera.position.copy(controls.target).add(off);}
@@ -2979,7 +2987,7 @@ function step(dt,rdt){G.t+=dt;G.rdt=rdt;GU.uTime.value=G.t;updClouds(dt);
  G.doom=lerp(G.doom||0,G.doomW||0,clamp(rdt*1.1));G.doomW=0;
  skyMat.uniforms.uDark.value=G.dark;skyMat.uniforms.uRed.value=G.red;sunL.intensity=ERAV.sunI*(1-0.62*G.dark)*(1-0.15*G.red)*(1-0.62*G.doom);hemi.intensity=ERAV.hemiI*(1-0.35*G.dark)*(1-0.55*G.doom);
  sunL.color.setRGB(ERAV.sun.r,Math.max(0,ERAV.sun.g-0.45*G.doom),Math.max(0,ERAV.sun.b-0.58*G.doom));
- scene.fog.color.copy(FOG0).lerp(FOGD,G.dark*0.8).lerp(FOGR,G.red*0.5).lerp(FOGX,G.doom*0.75);
+ scene.fog.color.copy(FOG0).lerp(FOGD,G.dark*0.8).lerp(FOGR,G.red*0.5).lerp(FOGX,G.doom*0.75);nightApply(rdt);
  G.dust=Math.min(140,(G.dust||0)+rdt*45);G.shake=Math.max(0,G.shake-rdt*1.6);G.rumble=Math.max(0,G.rumble-rdt);G.flash=Math.max(0,G.flash-rdt*1.6);G.kick=Math.max(0,G.kick-rdt*1.4);
  if(bannerT>0){bannerT-=rdt;if(bannerT<=0)$('#banner').classList.remove('on');}
  stepPops(rdt);controls.update();}
@@ -5117,7 +5125,7 @@ function spaceFx(){const cp=camera.position;SPACE_ON=cp.y>2500;const k=clamp((cp
  if(k>0.5&&MOON.first&&HERO.y<MOON.y-2000){MOON.first=false;banner('ESPAÇO! CONTINUE SUBINDO ATÉ A LUA',2);}
  if(MOON.land&&HERO.y>MOON.y-200&&onMoon(HERO.x,HERO.z)){MOON.land=false;MOON.first=false;banner('VOCÊ CHEGOU À LUA! A GRAVIDADE É BAIXA',2.4);}}
 const SPACEC=new THREE.Color(0x02030a);
-STEP_HOOKS.push(()=>{seaMat.uniforms.uDim.value=1-0.55*(G.dark||0);});
+STEP_HOOKS.push(()=>{seaMat.uniforms.uDim.value=1-0.6*Math.max(G.dark||0,DAYN.n*0.85);});
 
 /* ================= Espaço 2: estação orbital, base lunar, naves e Marte ================= */
 const MARS={x:30000,y:12000,z:0,R:2800,cr:[],mesh:null,far:null,first:true};
@@ -5170,6 +5178,11 @@ function space2Step(dt){const cp=camera.position;if(cp.y<1800&&!STA.g)return;if(
  if(STA.first==null&&Math.hypot(HERO.x-STA.x,HERO.z-STA.z)<STA.r&&Math.abs(HERO.y-STA.y)<10){STA.first=false;banner('ESTAÇÃO ORBITAL',1.8);}}
 STEP_HOOKS.push(space2Step);
 
+/* menu: sensibilidade da câmera no celular */
+{const d=document.createElement('div');d.className='opt';d.innerHTML='<span>Sensibilidade (toque)</span><div class="seg" id="sensSeg">'+SENS.n.map((t,k)=>'<button type="button" data-k="'+k+'">'+t+'</button>').join('')+'</div>';
+ const ref=document.getElementById('gySeg');const row=ref&&ref.closest?ref.closest('.opt'):null;if(row)row.after(d);
+ const sync=()=>d.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.k===SENS.i?'true':'false'));sync();
+ d.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;SENS.i=+b.dataset.k;store.set('sens',SENS.i);sync();});}
 /* ================= Nível de procurado: 0 a 5 estrelas, clicáveis ================= */
 const WANT={lv:0,heat:0,manual:false,quiet:0,shown:-1,T:[0,30,110,220,360,520],pT:0,hT:0,aT:0,tT:0,calmT:0};
 const wantEl=document.createElement('div');wantEl.className='wanted';wantEl.setAttribute('role','group');wantEl.setAttribute('aria-label','Nível de procurado');
@@ -5211,7 +5224,7 @@ RESET_HOOKS.push(()=>{WANT.lv=0;WANT.heat=0;WANT.manual=false;WANT.quiet=0;WANT.
  '.wanted.hot .ws.on svg{animation:wBl .6s infinite alternate}@keyframes wBl{to{fill:#ff5d5d}}@media (pointer:coarse){.wanted svg{width:24px;height:24px}}';
  document.head.appendChild(st);}
 /* ================= Ganchos de teste ================= */
-window.__caos.AIM=AIM;window.__caos.pdbg={moonH,onMoon,ISLS,dig,OE,PS,PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
+window.__caos.AIM=AIM;window.__caos.pdbg={DAYN,moonH,onMoon,ISLS,dig,OE,PS,PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
 })();
 </script>
 
