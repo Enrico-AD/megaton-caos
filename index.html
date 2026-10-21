@@ -1159,16 +1159,17 @@ const FIRE=new Array(LIM.fire).fill(null),SMOKE=new Array(LIM.smoke).fill(null);
 /* tempo parado: o que nasce já sai um pouco do lugar e fica pairando (FRZ); raios do herói vivem no tempo real (BOLT_RT) */
 const FRZ={on:false,pre:0.14,body:0.24};let BOLT_RT=false;
 function fireP(x,y,z,o){const p=Object.assign({x,y,z,vx:0,vy:0,vz:0,s:2,life:0.6,drag:2,up:0,c0:[1,0.95,0.6],c1:[1,0.35,0.05]},o);p.max=p.life;if(FRZ.on){const t=FRZ.pre;p.x+=p.vx*t;p.y+=p.vy*t;p.z+=p.vz*t;}FIRE[fN]=p;fN=(fN+1)%LIM.fire;return p;}
-function smokeP(x,y,z,o){const p=Object.assign({x,y,z,vx:0,vy:0,vz:0,s:4,life:4,drag:1.2,up:2,c0:[0.35,0.32,0.3],c1:[0.62,0.6,0.58],grow:1.6,rx:R()*6,ry:R()*6,hot:0},o);p.max=p.life;if(FRZ.on){const t=FRZ.pre;p.x+=p.vx*t;p.y+=p.vy*t;p.z+=p.vz*t;}SMOKE[sN]=p;sN=(sN+1)%LIM.smoke;return p;}
+/* poeira e fumaça menores e mais curtas, para não tapar a visão */
+function smokeP(x,y,z,o){const p=Object.assign({x,y,z,vx:0,vy:0,vz:0,s:4,life:4,drag:1.2,up:2,c0:[0.35,0.32,0.3],c1:[0.62,0.6,0.58],grow:1.6,rx:R()*6,ry:R()*6,hot:0},o);p.s=Math.min(p.s*0.62,26);p.life*=0.7;p.grow=Math.min(p.grow,1.45);p.max=p.life;if(FRZ.on){const t=FRZ.pre;p.x+=p.vx*t;p.y+=p.vy*t;p.z+=p.vz*t;}SMOKE[sN]=p;sN=(sN+1)%LIM.smoke;return p;}
 function stepPuffs(dt){let n=0;
  for(let i=0;i<LIM.fire;i++){const p=FIRE[i];if(!p)continue;p.life-=dt;if(p.life<=0){FIRE[i]=null;continue;}
   const f=Math.exp(-p.drag*dt);p.vx*=f;p.vy=p.vy*f+p.up*dt;p.vz*=f;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;const k=1-p.life/p.max;const sc=p.s*(k<0.15?k/0.15:1-Math.pow((k-0.15)/0.85,1.6)*0.9);
   dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(k*3,k*2,0);dummy.scale.setScalar(Math.max(0.001,sc));dummy.updateMatrix();fireMesh.setMatrixAt(n,dummy.matrix);const e=1+(p.gl==null?2.2:p.gl)*(1-k);
   fireMesh.setColorAt(n++,tmpC.setRGB(lerp(p.c0[0],p.c1[0],k)*e,lerp(p.c0[1],p.c1[1],k)*e,lerp(p.c0[2],p.c1[2],k)*e));}
  fireMesh.count=n;fireMesh.instanceMatrix.needsUpdate=true;fireMesh.instanceColor.needsUpdate=true;n=0;
- for(let i=0;i<LIM.smoke;i++){const p=SMOKE[i];if(!p)continue;p.life-=dt;if(p.life<=0){SMOKE[i]=null;continue;}
+ const CPX=camera.position.x,CPY=camera.position.y,CPZ=camera.position.z;for(let i=0;i<LIM.smoke;i++){const p=SMOKE[i];if(!p)continue;p.life-=dt;if(p.life<=0){SMOKE[i]=null;continue;}
   const f=Math.exp(-p.drag*dt);p.vx*=f;p.vy=p.vy*f+p.up*dt;p.vz*=f;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;const fl=gh(p.x,p.z)+p.s*0.3;if(p.y<fl)p.y=fl;const k=1-p.life/p.max;
-  const sc=p.s*(k<0.12?0.4+0.6*k/0.12:1+(k-0.12)*p.grow)*(k>0.75?1-(k-0.75)/0.25:1);
+  let sc=p.s*(k<0.12?0.4+0.6*k/0.12:1+(k-0.12)*p.grow)*(k>0.75?1-(k-0.75)/0.25:1);{const cdx=p.x-CPX,cdy=p.y-CPY,cdz=p.z-CPZ,cd=Math.sqrt(cdx*cdx+cdy*cdy+cdz*cdz);const lim=cd*0.4-3;if(sc>lim)sc=Math.max(0.001,lim);}
   dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(p.rx+k,p.ry,0);dummy.scale.setScalar(Math.max(0.001,sc));dummy.updateMatrix();smokeMesh.setMatrixAt(n,dummy.matrix);
   const hot=p.hot?Math.max(0,1-k*4)*p.hot:0;smokeMesh.setColorAt(n++,tmpC.setRGB(lerp(p.c0[0],p.c1[0],k)+hot*1.4,lerp(p.c0[1],p.c1[1],k)+hot*0.55,lerp(p.c0[2],p.c1[2],k)+hot*0.1));}
  smokeMesh.count=n;smokeMesh.instanceMatrix.needsUpdate=true;smokeMesh.instanceColor.needsUpdate=true;}
@@ -4405,6 +4406,7 @@ syncMine();
 /* ================= Poder · Terra: arranca um bloco do chão, ele cresce enquanto você segura, e você arremessa ================= */
 const EARTH_SZ=[{n:'Rocha',r:6,s:5},{n:'Pedregulho',r:12,s:10},{n:'Laje',r:20,s:16},{n:'Morro',r:30,s:25},{n:'Montanha',r:44,s:36}];
 /* cada pedaço arrancado tem forma própria: pedregulho, ponta, laje, bloco cortado ou lasca */
+function rkSmoke(x,y,z,o){if(R()<0.55)return;o.s=Math.min((o.s||4)*0.45,7);o.life=(o.life||3)*0.55;if(o.grow)o.grow=Math.min(o.grow,1.3);return smokeP(x,y,z,o);}
 const RK_TOPS=[[0.32,0.48,0.22],[0.36,0.5,0.24],[0.26,0.27,0.29],[0.44,0.36,0.26]];
 function rockGeo(){const kinds=['boulder','spire','slab','block','shard','lump'];const kind=kinds[(R()*kinds.length)|0];const g=new THREE.IcosahedronGeometry(1,2),p=g.attributes.position;
  const f1=rr(3,6),f2=rr(2.5,5),f3=rr(8,13),ph=R()*10,amp=rr(0.25,0.5);let sx=1,sy=0.9,sz=1,tp=0,cut=9;
@@ -4428,7 +4430,7 @@ function earthTear(p0){const p=earthSite(p0);const x=p.x,z=p.z,g=gh(x,z),E=EARTH
  if(RR>=11){applyBlast(x,g+1,z,RR*1.1,RR*RR*22,{fire:false,fling:1.8,el:'earth'});for(let k=0;k<(RR>=28?(MOB?4:7):RR>=18?5:3);k++)lzSlab(x,z,R()*TAU,RR*1.1,clamp(RR/16,0.6,1.6));G.shake=Math.max(G.shake,clamp(RR/40));hitstop(RR>=18?0.08:0.04);
   if(RR>=40)banner('ARRANCOU UMA MONTANHA!',1.2);else if(RR>=28)banner('ARRANCOU UM MORRO!',1);}
  for(let k=0;k<(MOB?7:14);k++){const a=R()*TAU,d=rr(2,RR*0.8);chunk(x+Math.cos(a)*d,g+rr(0.5,3),z+Math.sin(a)*d,Math.cos(a)*rr(6,18),rr(14,34),Math.sin(a)*rr(6,18),rr(0.8,2.4)*(1+RR/30),EARTHC[(R()*EARTHC.length)|0],{life:rr(8,14)});}
- for(let k=0;k<(RR>=28?6:3);k++)smokeP(x+rr(-RR,RR)*0.5,g+2,z+rr(-RR,RR)*0.5,{s:rr(5,8)*(1+RR/25),life:rr(2,3.5),vy:rr(3,8),up:1,grow:1.5,c0:[0.45,0.37,0.3],c1:[0.7,0.64,0.58]});
+ for(let k=0;k<(RR>=28?6:3);k++)rkSmoke(x+rr(-RR,RR)*0.5,g+2,z+rr(-RR,RR)*0.5,{s:rr(5,8)*(1+RR/25),life:rr(2,3.5),vy:rr(3,8),up:1,grow:1.5,c0:[0.45,0.37,0.3],c1:[0.7,0.64,0.58]});
  ring(x,z,RR*2.4,0.45,0xd9c7a6);sBoom(16+RR,camDist(x,g,z));G.shake=Math.max(G.shake,clamp((0.35+RR/60)/(1+camDist(x,g,z)/250)));buzz(RR>=28?[50,30,90]:30);
  const r=rockNew(x,g-2,z,E.s);r.base=E.s;EA.D=clamp(Math.hypot(x-camera.position.x,g-camera.position.y,z-camera.position.z),30,180);return r;}
 /* a rocha segue a mira livre, na distância em que foi arrancada */
@@ -4440,19 +4442,19 @@ function earthStep(dt,p){if(!EA.cur){if(!aimOK&&!aimSky)return;earthDown(p);}con
  /* puxa pedaços soltos por perto: cada um engorda a rocha */
  if(frameN%3===0){let n=0;for(let i=0;i<CH.length&&n<3;i++){const c=CH[i];if(!c||c.ctl)continue;const dx=c.x-r.x,dz=c.z-r.z;if(dx*dx+dz*dz>(55+r.s)*(55+r.s))continue;if(Math.abs(c.y-r.y)>60+r.s)continue;c.vx+=(r.x-c.x)*0.9;c.vy+=(r.y-c.y)*0.9+8;c.vz+=(r.z-c.z)*0.9;c.rest=false;if(Math.hypot(c.x-r.x,c.y-r.y,c.z-r.z)<r.s*1.4){c.life=0;r.ts=Math.min(r.base*1.8,r.ts+0.18);}n++;}}
  if(R()<dt*(8+r.s*0.3))chunk(r.x+rr(-r.s,r.s)*0.6,r.y-r.s*0.6,r.z+rr(-r.s,r.s)*0.6,rr(-2,2),rr(-2,1),rr(-2,2),rr(0.4,1.1)*(1+r.s/20),EARTHC[(R()*EARTHC.length)|0],{life:rr(4,7)});
- if(r.s>=20&&R()<dt*3)smokeP(r.x,r.y-r.s*0.7,r.z,{s:r.s*0.4,life:2,vy:-3,up:-0.5,grow:1.4,c0:[0.55,0.47,0.38],c1:[0.78,0.72,0.66]});
+ if(r.s>=20&&R()<dt*3)rkSmoke(r.x,r.y-r.s*0.7,r.z,{s:r.s*0.4,life:2,vy:-3,up:-0.5,grow:1.4,c0:[0.55,0.47,0.38],c1:[0.78,0.72,0.66]});
  loopSet('rumble',0.12+0.08*Math.min(1,held/2)+Math.min(0.15,r.s/200));}
 function earthUp(p){const r=EA.cur;EA.cur=null;if(!r)return;const g=62;
  if(aimSky){tkDir(p);const sp=clamp(200-r.s*2.2,110,200);r.vx=_tkd.x*sp;r.vy=_tkd.y*sp+10;r.vz=_tkd.z*sp;}
  else{const tx=p.x,ty=p.y,tz=p.z;const d=Math.hypot(tx-r.x,tz-r.z);/* arco alto: desce rápido como um meteoro */const T=clamp(1.1+d/240+r.s/30,0.9,3.8);r.vx=(tx-r.x)/T;r.vz=(tz-r.z)/T;r.vy=(ty-r.y)/T+0.5*g*T;r.tgt={x:tx,y:ty,z:tz};}
  r.st='fly';r.t=0;r.spin=rr(2,5)/(1+r.s/15);sWhistle(1.2,Math.max(150,700-r.s*30));G.kick=Math.max(G.kick,0.15+Math.min(0.3,r.s/80));buzz(20);
- for(let k=0;k<6;k++)smokeP(r.x,r.y,r.z,{s:r.s*0.5,life:1,vx:-r.vx*0.08,vy:-2,vz:-r.vz*0.08,up:0.5,grow:1.6,c0:[0.55,0.47,0.38],c1:[0.78,0.72,0.66]});}
+ for(let k=0;k<6;k++)rkSmoke(r.x,r.y,r.z,{s:r.s*0.5,life:1,vx:-r.vx*0.08,vy:-2,vz:-r.vz*0.08,up:0.5,grow:1.6,c0:[0.55,0.47,0.38],c1:[0.78,0.72,0.66]});}
 /* reentrada: quanto mais rápido o pedaço, mais a frente esquenta e pega fogo, como um cometa */
 function rockHeat(r,dt){const sp=Math.hypot(r.vx,r.vy,r.vz);const want=r.st==='fly'?clamp((sp-45)/55):0;r.heat+=(want-r.heat)*clamp(dt*(want>r.heat?1.6:3));const h=r.heat;
  r.m.material.emissive.setRGB(1.1*h,0.38*h*h,0.05*h);
  if(h>0.05){if(!r.fx)r.fx=rkFlame();const fx=r.fx;fx.visible=true;const s=r.s*(r.k||1)*1.25;fx.position.set(r.x,r.y,r.z);fx.scale.setScalar(s);fx.userData.fl.material.opacity=0.65*h;fx.userData.fl2.material.opacity=0.35*h;fbAnim(fx,G.t+r.ax*7,r.vx*1.8,r.vy*1.8,r.vz*1.8);
   const n=Math.min(MOB?3:6,1+Math.round(h*r.s*0.25));for(let k=0;k<n;k++)if(R()<dt*30){const u=R();fireP(r.x+rr(-1,1)*r.s*0.6-r.vx*dt*u,r.y+rr(-1,1)*r.s*0.6-r.vy*dt*u,r.z+rr(-1,1)*r.s*0.6-r.vz*dt*u,{vx:-r.vx*0.15+rr(-3,3),vy:-r.vy*0.15+rr(0,3),vz:-r.vz*0.15+rr(-3,3),s:r.s*rr(0.25,0.5),life:rr(0.3,0.6),drag:1.5,gl:2.4,c0:[1,0.85,0.45],c1:[1,0.3,0.04]});}
-  if(R()<dt*14*h)smokeP(r.x-r.vx*0.05,r.y-r.vy*0.05,r.z-r.vz*0.05,{s:r.s*0.6,life:2+r.s*0.03,up:0.5,grow:1.7,hot:h*0.6,c0:[0.16,0.14,0.13],c1:[0.42,0.4,0.38]});
+  if(R()<dt*14*h)rkSmoke(r.x-r.vx*0.05,r.y-r.vy*0.05,r.z-r.vz*0.05,{s:r.s*0.6,life:2+r.s*0.03,up:0.5,grow:1.7,hot:h*0.6,c0:[0.16,0.14,0.13],c1:[0.42,0.4,0.38]});
   if(frameN%4===0)flashLight(r.x,r.y,r.z,1+h*2.5,40+r.s*6,0.1,0xff7a2a);}
  else if(r.fx)r.fx.visible=false;}
 function rockImpact(r,hitT){const x=r.x,y=r.y,z=r.z,s=r.s,cd=camDist(x,y,z);const hv=Math.hypot(r.vx,r.vz)||1;const dx=r.vx/hv,dz=r.vz/hv;
@@ -4462,11 +4464,11 @@ function rockImpact(r,hitT){const x=r.x,y=r.y,z=r.z,s=r.s,cd=camDist(x,y,z);cons
  if(hitT)titanDamage(hitT,1400*s/6*(1+r.heat),{aim:1,p:new THREE.Vector3(x,y,z),cap:s>=14?0.25:0.12,el:'earth'});
  const g=gh(x,z);if(y-g<s*2.5){dig(x,z,s*1.6,s*0.45,s*0.25);if(s>8)for(let k=0;k<2;k++)lzSlab(x,z,Math.atan2(dz,dx)+rr(-0.9,0.9),s*2,clamp(s/12,0.6,1.2));}
  const nc=Math.round(clamp(s*2.2,8,26)*(MOB?0.6:1));for(let k=0;k<nc;k++){const a=R()*TAU,sp=rr(14,40);chunk(x+rr(-s,s)*0.5,y+rr(0,s),z+rr(-s,s)*0.5,Math.cos(a)*sp+dx*hv*0.25,rr(12,34),Math.sin(a)*sp+dz*hv*0.25,rr(0.8,s*0.4),EARTHC[(R()*EARTHC.length)|0],{life:rr(10,18)});}
- for(let k=0;k<(MOB?4:8);k++){const a=R()*TAU;smokeP(x+Math.cos(a)*s,g+2,z+Math.sin(a)*s,{s:Math.min(s,9)*rr(0.7,1.1),life:rr(1.8,3),vx:Math.cos(a)*rr(10,24),vy:rr(2,7),vz:Math.sin(a)*rr(10,24),up:1,drag:1,grow:1.5,c0:[0.5,0.42,0.33],c1:[0.76,0.7,0.64]});}
+ for(let k=0;k<(MOB?4:8);k++){const a=R()*TAU;rkSmoke(x+Math.cos(a)*s,g+2,z+Math.sin(a)*s,{s:Math.min(s,9)*rr(0.7,1.1),life:rr(1.8,3),vx:Math.cos(a)*rr(10,24),vy:rr(2,7),vz:Math.sin(a)*rr(10,24),up:1,drag:1,grow:1.5,c0:[0.5,0.42,0.33],c1:[0.76,0.7,0.64]});}
  ring(x,z,R0*2.2,0.55,0xe2cfa8);sBoom(26+s*3.2,cd);G.shake=Math.max(G.shake,clamp((0.25+s*0.06)/(1+cd/260)));hitstop(s>8?0.07:0.04);buzz(s>8?[50,30,80]:40);addChaos(2+s*0.4);
  if(s>=11)banner(hitT?'ESMAGADO!':hot?'COMETA!':'METEORO DE TERRA',0.9);rockGone(r);}
 function rockSplash(r,w){const s=r.s,sp=Math.hypot(r.vx,r.vy,r.vz);r.y=w;splash(r.x,w,r.z,s*1.3,sp*0.6);
- for(let k=0;k<(MOB?4:8);k++){const a=k/(MOB?4:8)*TAU;smokeP(r.x+Math.cos(a)*s,w+1,r.z+Math.sin(a)*s,{s:s*rr(0.6,0.9),life:rr(1,1.8),vx:Math.cos(a)*rr(10,22),vy:rr(6,14),vz:Math.sin(a)*rr(10,22),up:-10,drag:1.4,grow:1.4,c0:[0.95,0.98,1],c1:[0.85,0.92,0.98]});}
+ for(let k=0;k<(MOB?4:8);k++){const a=k/(MOB?4:8)*TAU;rkSmoke(r.x+Math.cos(a)*s,w+1,r.z+Math.sin(a)*s,{s:s*rr(0.6,0.9),life:rr(1,1.8),vx:Math.cos(a)*rr(10,22),vy:rr(6,14),vz:Math.sin(a)*rr(10,22),up:-10,drag:1.4,grow:1.4,c0:[0.95,0.98,1],c1:[0.85,0.92,0.98]});}
  applyBlast(r.x,w,r.z,s*4,s*s*14,{fire:false,fling:1.5,noB:true});G.shake=Math.max(G.shake,clamp((0.2+s*0.04)/(1+camDist(r.x,w,r.z)/260)));buzz(s>8?[40,30,60]:30);
  if(s>=10)banner('MERGULHO!',0.8);r.st='sink';r.t=0;r.vx*=0.3;r.vz*=0.3;r.vy=Math.max(-14,r.vy*0.2);}
 function rockStep(dt){for(let i=EA.rocks.length-1;i>=0;i--){const r=EA.rocks[i];r.t+=dt;r.s+=(r.ts-r.s)*clamp(dt*3);
@@ -4474,14 +4476,14 @@ function rockStep(dt){for(let i=EA.rocks.length-1;i>=0;i--){const r=EA.rocks[i];
    const k=r.st==='rise'?clamp(dt*4):clamp(dt*5);r.x+=(_hpt.x-r.x)*k;r.y+=(_hpt.y+Math.sin(G.t*2.3+i)*0.8-r.y)*k;r.z+=(_hpt.z-r.z)*k;if(r.st==='rise'&&r.t>0.35)r.st='hold';
    r.m.rotation.x+=dt*0.4*r.ax;r.m.rotation.z+=dt*0.4*r.az;if(r!==EA.cur&&r.t>8)rockGone(r);}
   else if(r.st==='fly'){rockHeat(r,dt);r.vy-=62*dt;r.x+=r.vx*dt;r.y+=r.vy*dt;r.z+=r.vz*dt;r.m.rotation.x+=r.spin*dt*r.ax;r.m.rotation.z+=r.spin*dt*r.az;
-   if(R()<dt*20)smokeP(r.x,r.y,r.z,{s:r.s*0.35,life:0.8,up:0.5,grow:1.5,c0:[0.55,0.47,0.38],c1:[0.8,0.75,0.68]});
+   if(R()<dt*20)rkSmoke(r.x,r.y,r.z,{s:r.s*0.35,life:0.8,up:0.5,grow:1.5,c0:[0.55,0.47,0.38],c1:[0.8,0.75,0.68]});
    if(maybeWet(r.x,r.z)){const w=waterAt(r.x,r.z);if(w!=null&&r.y<w&&w>gh(r.x,r.z)+r.s*0.8){rockSplash(r,w);r.m.position.set(r.x,r.y,r.z);continue;}}
    let hitT=null;for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-r.x,(_cp.y-T.sc*0.15)-r.y,_cp.z-r.z)<T.sc*0.32+r.s){hitT=T;break;}}
    let hit=!!hitT||r.y<gh(r.x,r.z)+r.s*0.5;if(!hit&&r.y<300){for(const b of B){if(b.st!==0)continue;if(Math.abs(r.x-b.x)<b.w/2+r.s*0.6&&Math.abs(r.z-b.z)<b.d/2+r.s*0.6&&r.y<b.gy+b.H+r.s*0.4){hit=true;break;}}}
    if(hit||r.t>6){rockImpact(r,hitT);continue;}}
   else if(r.st==='sink'){r.vy+=(-7-r.vy)*clamp(dt*1.8);const k=Math.exp(-2.2*dt);r.vx*=k;r.vz*=k;r.x+=r.vx*dt;r.y+=r.vy*dt;r.z+=r.vz*dt;r.m.rotation.x+=dt*0.3*r.ax;
    if(R()<dt*(8+r.s))fireP(r.x+rr(-1,1)*r.s*0.5,r.y+r.s*0.6,r.z+rr(-1,1)*r.s*0.5,{vx:rr(-0.5,0.5),vy:rr(2,5),vz:rr(-0.5,0.5),up:16,drag:1,s:rr(0.4,1.1),life:rr(0.6,1.2),gl:0.3,c0:[0.9,0.97,1],c1:[0.7,0.88,1]});
-   if(r.y<gh(r.x,r.z)+r.s*0.5){r.y=gh(r.x,r.z)+r.s*0.5;r.st='bed';r.t=0;for(let k=0;k<5;k++)smokeP(r.x+rr(-r.s,r.s),r.y-r.s*0.3,r.z+rr(-r.s,r.s),{s:r.s*0.6,life:2,vy:1,up:0.5,grow:1.4,c0:[0.45,0.5,0.48],c1:[0.6,0.66,0.64]});}}
+   if(r.y<gh(r.x,r.z)+r.s*0.5){r.y=gh(r.x,r.z)+r.s*0.5;r.st='bed';r.t=0;for(let k=0;k<5;k++)rkSmoke(r.x+rr(-r.s,r.s),r.y-r.s*0.3,r.z+rr(-r.s,r.s),{s:r.s*0.6,life:2,vy:1,up:0.5,grow:1.4,c0:[0.45,0.5,0.48],c1:[0.6,0.66,0.64]});}}
   else if(r.st==='bed'){if(r.t>10){r.ts=0.01;if(r.s<0.3){rockGone(r);continue;}}}
   if(r.st!=='fly'&&r.heat>0)rockHeat(r,dt);r.m.position.set(r.x,r.y,r.z);r.m.scale.setScalar(r.s);}}
 STEP_HOOKS.push(rockStep);RESET_HOOKS.push(()=>{while(EA.rocks.length)rockGone(EA.rocks[0]);EA.cur=null;});
@@ -4657,7 +4659,7 @@ function tkFindB(p){let best=null,bh=-1;for(const b of B){if(b.st!==0||b.hidden|
 function tkTear(p,first){const g=gh(p.x,p.z);if(maybeWet(p.x,p.z)&&waterAt(p.x,p.z)!=null)return;const cap=MOB?7:12;if(TKN.rocks.length>=cap)return;const s=first?rr(5,8):rr(3.5,6.5);
  dig(p.x,p.z,s*1.5,s*0.6,s*0.3);applyBlast(p.x,g+1,p.z,s*1.8,s*s*30,{fire:false,fling:1.6,el:'tk'});
  for(let k=0;k<(MOB?4:8);k++){const a=R()*TAU,d=rr(1,s);chunk(p.x+Math.cos(a)*d,g+rr(0.5,2),p.z+Math.sin(a)*d,Math.cos(a)*rr(4,12),rr(10,24),Math.sin(a)*rr(4,12),rr(0.6,1.8),EARTHC[(R()*EARTHC.length)|0],{life:rr(6,10)});}
- smokeP(p.x,g+2,p.z,{s:s*1.2,life:2.5,vy:5,up:1,grow:1.5,c0:[0.45,0.37,0.3],c1:[0.7,0.64,0.58]});ring(p.x,p.z,s*3,0.4,0xc9a0ff);sBoom(10+s,camDist(p.x,g,p.z));
+ rkSmoke(p.x,g+2,p.z,{s:s*1.2,life:2.5,vy:5,up:1,grow:1.5,c0:[0.45,0.37,0.3],c1:[0.7,0.64,0.58]});ring(p.x,p.z,s*3,0.4,0xc9a0ff);sBoom(10+s,camDist(p.x,g,p.z));
  const r=rockNew(p.x,g-1,p.z,s,{tk:true});r.st='tk';r.ph=R()*TAU;r.ox=rr(-1,1);r.oy=rr(-0.6,0.6);r.oz=rr(-1,1);TKN.rocks.push(r);TKN.tear={x:p.x,z:p.z};
  for(const o of tkGrab(p))TKN.list.push(o);}
 function tkDown(p){TKN.on=true;TKN.t=0;TKN.big=null;TKN.rocks=[];TKN.list=[];TKN.tear=null;TKN.vx=TKN.vy=TKN.vz=0;
