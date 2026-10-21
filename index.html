@@ -393,8 +393,7 @@ stage.insertBefore(renderer.domElement,stage.firstChild);
 const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(50,1,0.3,11000);const UP=new THREE.Vector3(0,1,0);
 const SUN=new THREE.Vector3(-0.55,0.62,0.56).normalize();
 const FOG0=new THREE.Color(0xf3d2b4),FOGD=new THREE.Color(0x7d8296),FOGR=new THREE.Color(0xd9835a),FOGX=new THREE.Color(0x3a1a14);scene.fog=new THREE.Fog(FOG0.clone(),MOB?1100:1400,MOB?4200:5400);
-const MOON_CEIL=13500,MOON_Y=12000;let SPACE_ON=false;
-function gS(x,z){if(SPACE_ON){if(onMoon(x,z))return moonH(x,z);if(onMars(x,z))return marsH(x,z);}return gh(x,z);}
+function gS(x,z){return gh(x,z);}
 const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:{uNight:{value:0},uSpace:{value:0},uMars:{value:0},top:{value:new THREE.Color(0x5b8fd6)},mid:{value:new THREE.Color(0xa9cdeb)},hor:{value:new THREE.Color(0xf6d2b0)},sun:{value:SUN},uDark:{value:0},uRed:{value:0}},
  vertexShader:'varying vec3 vD;void main(){vD=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
  fragmentShader:'uniform vec3 top,mid,hor,sun;uniform float uDark,uRed,uSpace,uMars,uNight;varying vec3 vD;void main(){float h=vD.y;vec3 c=mix(hor,mid,smoothstep(0.0,0.25,h));c=mix(c,top,smoothstep(0.25,0.8,h));float s=max(dot(vD,normalize(sun)),0.0);float lit=1.0-uDark;c+=(vec3(1.0,0.8,0.55)*pow(s,40.0)*0.6+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0)*lit;c=mix(c,hor,smoothstep(0.0,-0.2,h));c=mix(c,vec3(0.3,0.32,0.4)*(0.75+0.35*h),uDark*0.85);c=mix(c,vec3(0.98,0.45,0.22)*(1.0-0.45*max(h,0.0)),uRed*0.6);c=mix(c,vec3(0.004,0.006,0.02)+vec3(1.0,0.9,0.7)*pow(s,900.0)*2.0,uSpace);vec3 nc=mix(vec3(0.05,0.07,0.16),vec3(0.01,0.02,0.06),clamp(h*1.5,0.0,1.0));vec2 sg=floor(vD.xz/(vD.y+1.15)*260.0);float stv=step(0.9975,fract(sin(dot(sg,vec2(12.9898,78.233)))*43758.5453))*smoothstep(0.02,0.2,h);nc+=vec3(stv)*0.9+vec3(0.9,0.95,1.0)*pow(max(dot(vD,normalize(vec3(0.3,0.5,-0.8))),0.0),2000.0)*3.0;c=mix(c,nc,uNight);c=mix(c,mix(vec3(0.9,0.62,0.45),vec3(0.42,0.24,0.2),clamp(h*1.4,0.0,1.0)),uMars);gl_FragColor=vec4(c,1.0);}'});
@@ -403,7 +402,7 @@ const sunL=new THREE.DirectionalLight(0xffe7c4,1.75);sunL.castShadow=true;
 {const c=sunL.shadow.camera;c.left=-480;c.right=480;c.top=480;c.bottom=-480;c.near=50;c.far=2900;}
 sunL.shadow.bias=-0.0004;sunL.shadow.normalBias=0.6;scene.add(sunL);scene.add(sunL.target);
 const hemi=new THREE.HemisphereLight(0xbcd4ff,0x8a6e5a,0.5);scene.add(hemi);
-function sunFollow(x,z){const s=8;x=Math.round(x/s)*s;z=Math.round(z/s)*s;const y0=camera.position.y>MOON_Y-3000?MOON_Y:0;sunL.target.position.set(x,y0,z);sunL.position.set(x+SUN.x*1300,y0+SUN.y*1300,z+SUN.z*1300);sunL.target.updateMatrixWorld();}
+function sunFollow(x,z){const s=8;x=Math.round(x/s)*s;z=Math.round(z/s)*s;const y0=0;sunL.target.position.set(x,y0,z);sunL.position.set(x+SUN.x*1300,y0+SUN.y*1300,z+SUN.z*1300);sunL.target.updateMatrixWorld();}
 sunFollow(0,0);
 const LIGHTS=[];for(let i=0;i<6;i++){const l=new THREE.PointLight(0xffa860,0,100,1.5);scene.add(l);LIGHTS.push({l,t:9,dur:1,I:0});}let lightN=0;
 function flashLight(x,y,z,I,d,dur,col){const s=LIGHTS[lightN];lightN=(lightN+1)%LIGHTS.length;s.l.position.set(x,y,z);s.l.distance=d;s.l.color.set(col==null?0xffa860:col);s.I=I;s.t=0;s.dur=dur;}
@@ -443,7 +442,7 @@ function markT(rg,pos,fx){if(!rg)return;const a=Math.max(0,((rg[0]-1)/TS)|0),b=M
  for(let tz=c;tz<=d;tz++)for(let tx=a;tx<=b;tx++){if(pos)TPD[tz*NT+tx]=1;if(fx)TFD[tz*NT+tx]=1;}tDirty=true;if(pos){terrainVer++;G.shadowDirty=true;}}
 function setH(i,h){HF[i]=h<-90?-90:h>95?95:h;}
 /* cratera em forma de tigela com borda levantada; acumula com o que já existe */
-function dig(x,z,r,depth,rim){if(SPACE_ON)return;if(r<0.5||depth<=0)return;rim=rim==null?depth*0.28:rim;const RR=r*1.45;
+function dig(x,z,r,depth,rim){if(r<0.5||depth<=0)return;rim=rim==null?depth*0.28:rim;const RR=r*1.45;
  const f=(H,set)=>(i,u)=>{const q=u*1.45;let dh=0;if(q<1)dh-=depth*(1-q*q);dh+=rim*Math.exp(-Math.pow((q-1.03)/0.2,2));set(i,H[i]+dh);};
  const rg=terra(x,z,RR,f(HF,setH));if(rg)markT(rg,1,0);const ro=OT_READY?terraO(x,z,RR,f(HO,setHO)):null;if(ro)markO(ro,1,0);
  if(rg||ro)terrainHit(x,z,RR);}
@@ -1638,7 +1637,7 @@ function explode(x,y,z,r,pw,o){o=o||{};const P=PAL[o.pal||'fire'];const dist=cam
  burnAt(x,z,r*1.15,0.85);
  if(!o.quiet)sBoom(r,dist);G.shake=Math.max(G.shake,clamp(r/(dist*0.2+15)));flashTo(clamp(r/(dist*0.3+40))*0.5,o.pal==='void'?0xe6d0ff:null);
  applyBlast(x,y,z,r,pw,o);}
-function applyBlast(x,y,z,r,pw,o){if(SPACE_ON&&y>2000)return;o=o||{};let pan=0;const fl=o.fling||1;const skip=o.skip;
+function applyBlast(x,y,z,r,pw,o){o=o||{};let pan=0;const fl=o.fling||1;const skip=o.skip;
  if(!o.noB)for(const b of B){const st=b.st;if(st!==0&&st!==3)continue;const sh=b.shr||1;const bx=b.x+(b.px||0),bz=b.z+(b.pz||0);const dx=Math.max(Math.abs(x-bx)-b.w/2*sh,0),dz=Math.max(Math.abs(z-bz)-b.d/2*sh,0);if(dx>r||dz>r)continue;
   const base=b.gy+(b.yo||0),top=base+b.H*sh;const dy=y>top?y-top:y<base-2?base-2-y:0;const d=Math.hypot(dx,dz,dy);if(d>=r)continue;const f=1-d/r;
   b.hp-=pw*f/b.res*(b.frz>0?3:1);if(o.fire!==false&&!(b.frz>0)){b.burn=Math.min(1,(b.burn||0)+f*0.5);bColor(b);}
@@ -1659,7 +1658,7 @@ function applyBlast(x,y,z,r,pw,o){if(SPACE_ON&&y>2000)return;o=o||{};let pan=0;c
  for(const h of BLAST_HOOKS)h(x,y,z,r,pw,o);
  if(pan)sScream(pan,camDist(x,y,z));}
 /* onda de choque que avança em anel */
-function shockwave(x,z,o){if(SPACE_ON){ring(x,z,o.R,o.R/o.speed*1.1,o.ringCol,gS(x,z)+0.6);return;}const S={r:0};const dur=o.R/o.speed;if(o.dome!==false)dome(x,z,o.R*0.9,dur*1.05,o.col);ring(x,z,o.R,dur*1.1,o.ringCol);
+function shockwave(x,z,o){const S={r:0};const dur=o.R/o.speed;if(o.dome!==false)dome(x,z,o.R*0.9,dur*1.05,o.col);ring(x,z,o.R,dur*1.1,o.ringCol);
  act('wave',0,{upd(dt){const r0=S.r;S.r=Math.min(o.R,S.r+o.speed*dt);waveBand(x,z,r0,S.r,o);
   const n=(MOB?2:4)*(o.R>=250?2:1);for(let k=0;k<n;k++){const a=R()*TAU;const px=x+Math.cos(a)*S.r,pz=z+Math.sin(a)*S.r;if(Math.abs(px)<PS&&Math.abs(pz)<PS&&R()<0.6)smokeP(px,gh(px,pz)+2,pz,{s:rr(5,9)*(o.dust||1),life:rr(1.6,2.6),vx:Math.cos(a)*o.speed*0.22,vz:Math.sin(a)*o.speed*0.22,vy:rr(1,4),up:0.6,drag:1.4,grow:1.4,c0:o.dc0||[0.8,0.72,0.62],c1:o.dc1||[0.88,0.84,0.78]});}
   return S.r<o.R;}});}
@@ -2576,7 +2575,7 @@ function lzEarthMesh(){if(LZE.im)return LZE.im;const N=MOB?14:28;
  const geo=colGeo(g,(x,y,z,ny)=>y>0.4&&ny>0.5?[0.3,0.46,0.21]:y>0.12?[0.36,0.28,0.2]:[0.47,0.39,0.3]);
  const m=new THREE.InstancedMesh(geo,vcMat({roughness:0.95}),N);m.castShadow=!MOB;m.receiveShadow=true;m.frustumCulled=false;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
  for(let i=0;i<N;i++){m.setMatrixAt(i,ZM);LZE.pool.push({on:false,i});}scene.add(m);LZE.im=m;return m;}
-function lzSlab(cx,cz,a,r,big){if(SPACE_ON)return;lzEarthMesh();let s=LZE.pool.find(q=>!q.on);if(!s){s=LZE.pool[LZE.n%LZE.pool.length];LZE.n++;}
+function lzSlab(cx,cz,a,r,big){lzEarthMesh();let s=LZE.pool.find(q=>!q.on);if(!s){s=LZE.pool[LZE.n%LZE.pool.length];LZE.n++;}
  const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;Object.assign(s,{on:true,x,z,g:gh(x,z),t:0,T:rr(0.12,0.22),hold:rr(0.8,1.5),w:rr(6,11)*big,h:rr(12,22)*big,d:rr(4,7)*big,ry:R()*TAU,tilt:rr(0.3,0.8),a});
  for(let k=0;k<2;k++)smokeP(x+rr(-4,4),s.g+1,z+rr(-4,4),{s:rr(4,7),life:rr(1.5,3),vy:rr(3,9),up:1,grow:1.5,c0:[0.45,0.37,0.3],c1:[0.7,0.64,0.58]});
  for(let k=0;k<(MOB?2:3);k++)chunk(x+rr(-3,3),s.g+1,z+rr(-3,3),Math.cos(a)*rr(4,14),rr(14,30),Math.sin(a)*rr(4,14),rr(1,2.6),EARTHC[(R()*EARTHC.length)|0],{life:rr(8,14)});}
@@ -2849,7 +2848,6 @@ const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();const AIM=new THREE.Vect
 /* o que a mira pegou: 1 alvo no ar (ilha, cidade aérea, ponte, titã), 2 prédio, 3 chão */
 let AIMK=0;
 /* também acerta morros e ilhas acima da altura da câmera (mira reta ou para cima) */
-function marchMoon(o,d){let t=0,prev=0;const H=(x,z)=>onMoon(x,z)?moonH(x,z):marsH(x,z);for(let it=0;it<400&&t<6000;it++){const x=o.x+d.x*t,z=o.z+d.z*t,y=o.y+d.y*t;if(!onMoon(x,z)&&!onMars(x,z)){prev=t;t+=20;continue;}const D=y-H(x,z);if(D<=0){let a=prev,b=t;for(let k=0;k<10;k++){const m=(a+b)/2;if(o.y+d.y*m-H(o.x+d.x*m,o.z+d.z*m)>0)a=m;else b=m;}return b;}prev=t;t+=Math.max(0.8,Math.min(40,D*0.6));}return -1;}
 function marchGround(o,d){if(d.y>-0.0005){if(o.y>420||d.y>0.6)return -1;}let t=d.y<-0.0005&&o.y>790?(790-o.y)/d.y:0;const tmax=d.y<-0.0005?Math.min((-125-o.y)/d.y,14000):Math.min(d.y>0?(420-o.y)/d.y:9000,9000);let prev=t;
  for(let it=0;it<600&&t<=tmax;it++){const x=o.x+d.x*t,y=o.y+d.y*t,z=o.z+d.z*t;const D=y-gh(x,z);if(D<=0){let a=prev,b=t;for(let k=0;k<10;k++){const m=(a+b)/2;if(o.y+d.y*m-gh(o.x+d.x*m,o.z+d.z*m)>0)a=m;else b=m;}return b;}prev=t;t+=Math.max(0.8,Math.min(40,D*0.6));}
  return -1;}
@@ -2863,7 +2861,7 @@ function aimAt(cx,cy){const r=renderer.domElement.getBoundingClientRect();ndc.se
  if(BLIMP.st===0){const P=BLIMP,fx=-Math.sin(P.ang),fz=Math.cos(P.ang);for(const k of[-22,-8,6,20])air(P.x+fx*k,P.y,P.z+fz*k,10.5);}
  for(let i=0;i<AIM_HOOKS.length;i++)AIM_HOOKS[i](air);
  const hits=ray.intersectObjects(bodyMeshes,false);for(const h of hits){const b=BI[AMK.get(h.object)][h.instanceId];if(b&&b.st===0&&!b.hidden){if(best<0||h.distance<best){best=h.distance;bk=b.fixY!=null?1:2;}break;}}
- const tg=SPACE_ON?marchMoon(o,d):marchGround(o,d);if(tg>=0&&(best<0||tg<best)){best=tg;bk=3;}
+ const tg=marchGround(o,d);if(tg>=0&&(best<0||tg<best)){best=tg;bk=3;}
  aimSky=false;if(best>=0){AIMK=bk;AIM.copy(o).addScaledVector(d,best);aimOK=Math.abs(AIM.x)<OE+600&&Math.abs(AIM.z)<OE+600;aimAssist(cx,cy);return;}aimOK=false;AIMK=0;AIM.copy(o).addScaledVector(d,420);aimSky=true;aimAssist(cx,cy);if(aimOK)aimSky=false;}
 const keys={};let firing=false,ptr=null,touches=0;
 const MOVEK=['w','a','s','d','q','e','arrowup','arrowdown','arrowleft','arrowright'];
@@ -2893,7 +2891,7 @@ bindJoy($('#joyL'),JOY.L);bindJoy($('#joyR'),JOY.R);
 /* ciclo de dia e noite: 8 minutos por dia; de noite o céu fica estrelado, o sol apaga e as luzes neon e das janelas aparecem */
 const DAYN={t:0,len:480,n:0,was:0,FN:new THREE.Color(0x0d1630)};
 function nightApply(dt){if(!G.started)return;DAYN.t+=dt;const ph=(DAYN.t/DAYN.len)%1,c=0.5-0.5*Math.cos(ph*TAU);const n=c<0.55?0:c>0.8?1:(c-0.55)/0.25;DAYN.n=n*n*(3-2*n);const k=DAYN.n;
- skyMat.uniforms.uNight.value=k*(1-(MOON.k||0));sunL.intensity*=1-0.82*k;hemi.intensity*=1-0.5*k;scene.fog.color.lerp(DAYN.FN,k*0.85);
+ skyMat.uniforms.uNight.value=k;sunL.intensity*=1-0.82*k;hemi.intensity*=1-0.5*k;scene.fog.color.lerp(DAYN.FN,k*0.85);
  if(k>0.6&&!DAYN.was){DAYN.was=1;banner('ANOITECEU',1.2);}else if(k<0.2&&DAYN.was){DAYN.was=0;banner('AMANHECEU',1.2);}}
 /* modo Desempenho: na cidade a visão vai até ~2,6 km (a névoa esconde o corte), o que tira do desenho os prédios, morros e mar distantes */
 const PVIEW={on:false};
@@ -3139,7 +3137,6 @@ function heroSupport(x,z,fy,step){let s=gh(x,z);const w=waterAt(x,z);MV.wet=0;
  /* ilhas do céu (10x2-sky): dá para pousar em cima */
  for(const I of SKYI){if(I.st!==0||Math.abs(x-I.x)>I.r||Math.abs(z-I.z)>I.r)continue;if(Math.hypot(x-I.x,z-I.z)>I.r*0.97)continue;const t=I.top;if(t<=fy+step&&t>s){s=t;MV.wet=0;MV_ROOF=null;}}
  if(MAPH)s=MAPH.sup(x,z,fy,step,s);
- if(fy>1500){const bh=bodyH(x,z,fy);if(bh!=null&&bh<=fy+step+40){s=bh;MV.wet=0;MV_ROOF=null;}}
  return s;}
 /* parede que impede o herói de ocupar (x,z) com os pés em fy */
 function heroWall(x,z,fy,step){for(const b of B){if(b.st!==0)continue;const sh=b.shr||1,bx=b.x+(b.px||0),bz=b.z+(b.pz||0),hw=b.w/2*sh+HR,hd=b.d/2*sh+HR;
@@ -3226,7 +3223,7 @@ function heroMove(dt,rdt,dirx,dirz,sp){
  if(!MV.climb){const s=heroSupport(HERO.x,HERO.z,MV.fy,step);
   /* descendo ladeira (túnel, morro) com os pés no chão: acompanha o piso em vez de sair voando */
   if(MV.fy>s+0.05&&MV.air<=0&&MV.vy===0&&MV.fy-s<Math.max(0.6,Math.hypot(HERO.x-hx0,HERO.z-hz0)*0.45))MV.fy=s;
-  if(MV.fy>s+0.05){MV.vy-=(MV.fy>MOON_Y-800?(onMars(HERO.x,HERO.z)?30:13):78)*rdt;MV.fy+=MV.vy*rdt;MV.air+=rdt;
+  if(MV.fy>s+0.05){MV.vy-=78*rdt;MV.fy+=MV.vy*rdt;MV.air+=rdt;
    if(MV.fy<=s){const hit=-MV.vy;MV.fy=s;MV.vy=0;if(hit>40&&MV.air>0.35){const wk=hyWk();ring(HERO.x,HERO.z,(6+hit*0.08)*Math.sqrt(wk),0.45,0xe8d6b8,s+0.5);G.shake=Math.max(G.shake,clamp(hit/260));
      if(hit>70)applyBlast(HERO.x,s+1,HERO.z,6+hit*0.04,hit*0.6,{fire:false,fling:1.2});sStomp(camDist(HERO.x,s,HERO.z)*1.5);}MV.air=0;}}
   else{MV.vy=0;MV.air=0;/* embaixo d'água sem voar: sobe boiando até a superfície */MV.fy=s>MV.fy?lerp(MV.fy,s,clamp(rdt*(MV.wet&&s-MV.fy>2.5?1.6:22))):s;}}}
@@ -3247,7 +3244,7 @@ window.__caos.MV=MV;window.__caos.heroPlace=heroPlace;
    ▲ ▼ no celular, Espaço e C no teclado sobem e descem direto. Rápido e Luz atravessam prédios explodindo. */
 const FLY={on:false,lv:1,meter:false,k:0,run:0,spd:0,vx:0,vy:0,vz:0,kx:0,ky:0,kz:0,air:0,p0:1,mvW:false,touchT:0,first:true,firstW:true,
  rt:0,wing:0,wingV:0,lean:0,armW:0,pose:0,bank:0,yaw:null,ypv:0,elev:0,px:null,py:0,pz:0,bh:0,boomed:false,sprT:0,cloudT:0,cloudIn:false,
- up:false,dn:false,kUp:false,kDn:false,tCall:false,txT:0,ramT:0,alt:0,ceil:MOON_CEIL,lowT:0,tipT:0,rnd:0};
+ up:false,dn:false,kUp:false,kDn:false,tCall:false,txT:0,ramT:0,alt:0,ceil:1500,lowT:0,tipT:0,rnd:0};
 const FLZ={f:13,u:17,t:220,h:220,T:700,g:160,cf:11,cu:13};
 const FLV=[null,
  {nm:'Normal',sp:1.8,acc:5,pass:false,wings:0,trW:0.42,trL:0.65,trC:[0.25,0.8,2.6],tipW:0,dist:0,blur:0,ab:0,shk:0,vol:0.7},
@@ -3416,17 +3413,13 @@ function flyMove(rdt,dirx,dirz,sp){const P=FLY.P,mv=sp>0;
  const base=clamp(28+camera.position.distanceTo(controls.target)*0.32,46,210)*(keys.shift?2.2:1),S=sp*P.sp;
  let tx=0,ty=0,tz=0;if(mv){const a=c*0.95;tx=dirx*S*Math.cos(a);tz=dirz*S*Math.cos(a);ty=S*Math.sin(a);}
  if(ud)ty=ud*base*Math.max(1.1,P.sp*0.75);
- /* no espaço tudo é mais rápido: dá para chegar à Lua voando */
- if(MV.fy>60&&ud){const sv=Math.min(110,1+(MV.fy-60)/40);ty*=sv;}
- HMAX=MV.fy>1500?16000:OE-160;
- if(MV.fy>1100){const sb=1+Math.min(24,(MV.fy-1100)/300);tx*=sb;tz*=sb;}
  const ah=clamp(rdt*P.acc),av=clamp(rdt*(mv||ud?P.acc:6));FLY.vx+=(tx-FLY.vx)*ah;FLY.vz+=(tz-FLY.vz)*ah;FLY.vy+=(ty-FLY.vy)*av;
  const kd=Math.exp(-rdt*2.6),dx=(FLY.vx+FLY.kx)*rdt,dz=(FLY.vz+FLY.kz)*rdt,dy=(FLY.vy+FLY.ky)*rdt;FLY.kx*=kd;FLY.ky*=kd;FLY.kz*=kd;
  /* atravessando (Rápido e Luz) não há parede: um passo só; no Normal anda em pedaços para não varar parede fina */
  const n=P.pass?1:Math.min(24,Math.max(1,Math.ceil(Math.hypot(dx,dz,dy)/2.6))),step=1.2;let fy=MV.fy;
  /* no voo normal não dá para ficar dentro de prédio nem de ilha: empurra para fora */
  if(!P.pass){heroUnstick(fy,step);for(const I of SKYI){if(I.st!==0)continue;const ex=HERO.x-I.x,ez=HERO.z-I.z,d=Math.hypot(ex,ez),hm=fy+1.6;if(hm>I.top-3||hm<I.top-I.H-I.topY)continue;const rr2=skyRadAt(I,hm)+1;if(d<rr2){const k=(rr2+0.2)/(d||1),ox=HERO.x,oz=HERO.z;HERO.x=I.x+(d?ex:1)*k;HERO.z=I.z+(d?ez:0)*k;moveCam(HERO.x-ox,0,HERO.z-oz);}}}
- for(let i=0;i<n;i++){const fy0=fy;fy=Math.min(FLY.ceil,fy+dy/n);if(fy>1500){const mh=bodyH(HERO.x,HERO.z,fy);if(mh!=null&&fy0<mh&&fy>=mh-1){fy=mh+0.5;if(FLY.vy>0)FLY.vy=0;FLY.ky=0;}}
+ for(let i=0;i<n;i++){const fy0=fy;fy=Math.min(FLY.ceil,fy+dy/n);
   const nx=clamp(HERO.x+dx/n,-HMAX,HMAX),nz=clamp(HERO.z+dz/n,-HMAX,HMAX);let fx=nx,fz=nz;
   if(!P.pass&&(heroWall(nx,nz,fy,step)||skyWall(nx,nz,fy))){if(!heroWall(nx,HERO.z,fy,step)&&!skyWall(nx,HERO.z,fy))fz=HERO.z;else if(!heroWall(HERO.x,nz,fy,step)&&!skyWall(HERO.x,nz,fy))fx=HERO.x;else{fx=HERO.x;fz=HERO.z;}}
   const ex=fx-HERO.x,ez=fz-HERO.z;HERO.x=fx;HERO.z=fz;if(ex||ez)moveCam(ex,0,ez);
@@ -4073,10 +4066,10 @@ function mapCam(){const cp=camera.position,tg=controls.target;const x=HERO.x,z=H
  if(hu){controls.maxPolarAngle=Math.PI*0.84;const ys=seaY(cp.x,cp.z,G.t)-1.2;
   if(cp.y>ys){const off=MPW.copy(cp).sub(tg),L=off.length()||1,oy=clamp(ys-tg.y,-L*0.85,L*0.97),hl=Math.sqrt(Math.max(0,L*L-oy*oy)),h0=Math.hypot(off.x,off.z)||1;off.x*=hl/h0;off.z*=hl/h0;off.y=oy;cp.copy(tg).add(off);}
   for(let i=0;i<8;i++){if(cp.y>gh(cp.x,cp.z)+2.2)break;MPW.copy(cp).sub(tg).multiplyScalar(0.82);cp.copy(tg).add(MPW);}}
- else{if(controls.maxPolarAngle!==Math.PI*0.7)controls.maxPolarAngle=Math.PI*0.7;const gy=(cp.y>1500?(bodyH(cp.x,cp.z,cp.y)??gh(cp.x,cp.z)):gh(cp.x,cp.z))+1.8;if(cp.y<gy){MPW.copy(cp).sub(tg);if(MPW.y<-0.01){const k=clamp((tg.y-gy)/-MPW.y,0.12,1);MPW.multiplyScalar(k);cp.copy(tg).add(MPW);}if(cp.y<gy)cp.y=gy;}}}
+ else{if(controls.maxPolarAngle!==Math.PI*0.7)controls.maxPolarAngle=Math.PI*0.7;const gy=gh(cp.x,cp.z)+1.8;if(cp.y<gy){MPW.copy(cp).sub(tg);if(MPW.y<-0.01){const k=clamp((tg.y-gy)/-MPW.y,0.12,1);MPW.multiplyScalar(k);cp.copy(tg).add(MPW);}if(cp.y<gy)cp.y=gy;}}}
 /* água funda fora do mar (lago e lagoas): usada para a visão e os efeitos de mergulho */
 function inlandW(x,z){if(!maybeWet(x,z))return null;const w=waterAt(x,z);return w!=null&&w-gh(x,z)>2?w:null;}
-function mapRender(){mapCam();spaceFx();perfView();const cp=camera.position;
+function mapRender(){mapCam();perfView();const cp=camera.position;
  const w=cp.x>SEA_X-40?seaY(cp.x,cp.z,G.t):inlandW(cp.x,cp.z),under=w!=null&&cp.y<w-0.12&&cp.y>gh(cp.x,cp.z)-2;
  if(under!==UW.on){UW.on=under;sky.visible=!under;scene.background=under?UW.fogC:null;UWS.visible=under;UWR.me.visible=under;FISH.me.visible=under;KELP.me.visible=under;CORAL.me.visible=under;
   if(under){hemi.color.copy(UW.hemiUS);hemi.groundColor.copy(UW.hemiUG);if(UW.first&&cp.x>SEA_X-40){UW.first=false;toast('Embaixo do mar','Atlântida fica no fundo, a leste da praia. Siga o túnel de vidro ou as boias.');}}
@@ -4849,16 +4842,12 @@ const TK_REG=[
   grab:o=>{o.i=o.i!=null?o.i:LAMPS.indexOf(o);for(let k=0;k<4;k++)chunk(o.x,(o.gy||0)+0.5,o.z,rr(-4,4),rr(4,9),rr(-4,4),rr(0.3,0.6),[0.5,0.5,0.52],{life:4});},
   set:(o,x,y,z)=>{o.x=x;o.z=z;o.gy=y-3;},hold:(o,t)=>{o.fx=Math.sin(t*2)*0.6;o.fz=Math.cos(t*1.7)*0.6;lampSet(o.i);},fly:(o,dt)=>{o.fx=(o.fx||0)+dt*5;lampSet(o.i);},
   boom:(o,x,y,z,g)=>{o.gone=true;lampSet(o.i);for(let k=0;k<6;k++)chunk(x,y,z,rr(-8,8),rr(4,12),rr(-8,8),rr(0.3,0.8),[0.5,0.5,0.52],{life:5});sZap&&sZap(0.2);},dmg:500},
- {k:'ship',nm:'Nave espacial',list:()=>SHIPS,ok:o=>o.g.visible,pos:o=>[o.g.position.x,o.g.position.y,o.g.position.z],rad:()=>24,sp:200,mass:3,
-  set:(o,x,y,z)=>o.g.position.set(x,y,z),hold:(o,t)=>{o.g.rotation.z=Math.sin(t*2)*0.4;},fly:(o,dt)=>{o.g.rotation.x+=dt*2;},
-  boom:(o,x,y,z,g)=>{fireball(x,y,z,24);for(let k=0;k<10;k++)chunk(x,y,z,rr(-14,14),rr(-6,14),rr(-14,14),rr(0.8,2),[0.9,0.92,0.95],{life:6});o.g.visible=false;o.dead=1;setTimeout(()=>{o.dead=0;o.g.visible=true;},20000);},dmg:4000},
  {k:'isl',nm:'Ilha do céu',list:()=>SKYI,ok:o=>o.st===0&&!o.aero,pos:o=>[o.x,o.y-o.H*0.3,o.z],rad:o=>o.r*0.9,sp:90,mass:8,clear:o=>o.H+20,ring:o=>o.r,
   grab:o=>{o.x0=o.x;o.z0=o.z;},hold:(o,t,dt)=>{o.g.position.set(o.x,o.y,o.z);o.top=o.y+o.topY;o.g.rotation.z=Math.sin(t*0.9)*0.06;if(R()<dt*6)chunk(o.x+rr(-0.6,0.6)*o.r,o.y-o.H*rr(0.3,0.9),o.z+rr(-0.6,0.6)*o.r,rr(-3,3),-4,rr(-3,3),rr(1,2.5),SKYCOL.rock,{life:5});},
   own:true,dmg:9000}];
 /* o que não pode ser pego, com o motivo (mostrado na mira) */
 function tkWhyNot(p){for(const T of titans){if(!T.ally||T.dead)continue;if(Math.hypot(p.x-T.x,p.z-T.z)<T.sc*0.4)return 'Aliado: a telecinese não pega quem luta do seu lado';}
- if(STA.g&&STA.g.visible&&Math.hypot(p.x-STA.x,p.y-STA.y,p.z-STA.z)<200)return 'Estação orbital: estrutura presa em órbita';
- if(MBASE.g&&MBASE.g.visible)for(const d of MBASE.domes)if(Math.hypot(p.x-d.x,p.z-d.z)<d.r)return 'Base lunar: cúpulas presas no chão';
+
  for(const b of B)if(b.st===0&&b.a==='stadium'&&Math.abs(p.x-b.x)<b.w/2&&Math.abs(p.z-b.z)<b.d/2)return 'Estádio: grande demais';return null;}
 function tkFindSpec(p){tkDir(p);const cp=camera.position;let best=null,bt=1e9;
  for(const C of TK_REG){const L=C.list();if(!L)continue;for(const o of L){if(o.tkg||o.dead||!C.ok(o))continue;const q=C.pos(o);_tkv.set(q[0]-cp.x,q[1]-cp.y,q[2]-cp.z);const t=_tkv.dot(_tkd);if(t<=0||t>2500)continue;if(C.k==='tree'||C.k==='lamp'){if(Math.abs(q[0]-p.x)>12||Math.abs(q[2]-p.z)>12)continue;}
@@ -5193,105 +5182,7 @@ function monAttacks(dt){for(const T of titans){if(T.dead||T.ally||T.tkh||T.tkf||
    else{spikeLine(T,T.x,T.z,tg.x,tg.z);banner('ESTACAS DE PEDRA!',0.9);}T.sat=rr(6,9);}}}
 STEP_HOOKS.push(mpStep);STEP_HOOKS.push(monAttacks);RESET_HOOKS.push(()=>{for(const p of MAP_P)scene.remove(p.m);MAP_P.length=0;});
 
-/* ================= Espaço e Lua: voe para cima sem parar; o céu escurece, aparecem estrelas e a Lua, onde dá para pousar ================= */
-const MOON={y:MOON_Y,R:2600,cr:[],mesh:null,earth:null,stars:null,k:0,first:true,land:true};
-{const r=seeded(91);for(let i=0;i<46;i++){const a=r()*TAU,d=Math.sqrt(r())*MOON.R*0.8;MOON.cr.push({x:Math.cos(a)*d,z:Math.sin(a)*d,r:20+Math.pow(r(),2.2)*260,dd:0.18+r()*0.12});}}
-function moonH(x,z){let h=6*Math.sin(x*0.004+1)*Math.cos(z*0.005)+3*Math.sin(x*0.013-z*0.011);
- for(const c of MOON.cr){const dx=x-c.x,dz=z-c.z;if(Math.abs(dx)>c.r*1.5||Math.abs(dz)>c.r*1.5)continue;const q=Math.sqrt(dx*dx+dz*dz)/c.r;if(q<1)h+=c.r*c.dd*(q*q-1);else if(q<1.5)h+=c.r*c.dd*0.35*Math.exp(-Math.pow((q-1.05)/0.16,2));}
- const d=Math.hypot(x,z);h-=d*d/(2*2800);return MOON.y+h;}
-function onMoon(x,z){return Math.hypot(x,z)<2600*0.97;}
-function moonBuild(){const seg=MOB?110:170,g=new THREE.PlaneGeometry(MOON.R*2,MOON.R*2,seg,seg);g.rotateX(-Math.PI/2);const p=g.attributes.position,col=new Float32Array(p.count*3);
- for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),y=moonH(x,z)-MOON.y;p.setY(i,y);const j=0.62+0.12*Math.sin(x*0.05+z*0.07)+0.08*Math.sin(x*0.31-z*0.27)+(y<-20?-0.1:0);col[i*3]=j;col[i*3+1]=j*0.98;col[i*3+2]=j*0.95;}
- g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,flatShading:true,fog:false}));m.position.y=MOON.y;m.receiveShadow=false;m.frustumCulled=false;scene.add(m);MOON.mesh=m;
- /* a Terra no céu da Lua */
- const cv=document.createElement('canvas');cv.width=512;cv.height=256;const x=cv.getContext('2d');x.fillStyle='#1f5fb0';x.fillRect(0,0,512,256);const r=seeded(13);
- for(let i=0;i<70;i++){x.fillStyle=r()<0.7?'#3d8a3a':'#b89a5a';x.beginPath();x.ellipse(r()*512,40+r()*176,10+r()*40,6+r()*24,r()*3,0,TAU);x.fill();}
- x.globalAlpha=0.75;x.fillStyle='#ffffff';for(let i=0;i<90;i++){x.beginPath();x.ellipse(r()*512,r()*256,8+r()*36,3+r()*8,r()*0.6,0,TAU);x.fill();}x.globalAlpha=1;x.fillStyle='#f4f8ff';x.fillRect(0,0,512,14);x.fillRect(0,242,512,14);
- const tx=new THREE.CanvasTexture(cv);const e=new THREE.Mesh(new THREE.SphereGeometry(1400,48,32),new THREE.MeshStandardMaterial({map:tx,roughness:0.8,fog:false,emissive:0x0a1a33}));e.position.set(5200,MOON.y+3300,-3600);e.frustumCulled=false;scene.add(e);MOON.earth=e;
- /* estrelas */
- const n=MOB?900:1800,sp=new Float32Array(n*3),sr=seeded(5);for(let i=0;i<n;i++){const u=sr()*2-1,a=sr()*TAU,q=Math.sqrt(1-u*u);sp[i*3]=Math.cos(a)*q*9000;sp[i*3+1]=u*9000;sp[i*3+2]=Math.sin(a)*q*9000;}
- const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));const st=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:MOB?2:1.6,sizeAttenuation:false,transparent:true,opacity:0,fog:false,depthWrite:false}));st.frustumCulled=false;scene.add(st);MOON.stars=st;}
-/* céu, neblina e luz conforme a altura da câmera */
-function spaceFx(){const cp=camera.position;SPACE_ON=cp.y>2500;const k=clamp((cp.y-1300)/2200);MOON.k=k;if(k<=0&&!MOON.mesh)return;if(!MOON.mesh)moonBuild();
- const near=cp.y>4000&&Math.hypot(cp.x,cp.z)<6000;MOON.mesh.visible=near;MOON.earth.visible=cp.y>3000;MOON.stars.visible=k>0.02;MOON.stars.position.copy(cp);MOON.stars.material.opacity=k;skyMat.uniforms.uSpace.value=k;MOON.earth.rotation.y+=0.0004;
- if(k>0&&!UW.on){scene.fog.color.copy(FOG0).lerp(SPACEC,k);scene.fog.near=lerp(UW.near0,UW.near0*2,k);scene.fog.far=lerp(UW.far0,UW.far0*1.3,k);if(cp.y>MOON.y-3500){scene.fog.near=1e5;scene.fog.far=2e5;}}
- else if(MOON.k0>0&&k<=0&&!UW.on){scene.fog.color.copy(FOG0);scene.fog.near=UW.near0;scene.fog.far=UW.far0;}MOON.k0=k;
- if(k>0.5&&MOON.first&&HERO.y<MOON.y-2000){MOON.first=false;banner('ESPAÇO! CONTINUE SUBINDO ATÉ A LUA',2);}
- if(MOON.land&&HERO.y>MOON.y-200&&onMoon(HERO.x,HERO.z)){MOON.land=false;MOON.first=false;banner('VOCÊ CHEGOU À LUA! MARTE É A BOLA VERMELHA: VOE NA DIREÇÃO DELA',3);}}
-const SPACEC=new THREE.Color(0x02030a);
 STEP_HOOKS.push(()=>{seaMat.uniforms.uDim.value=1-0.6*Math.max(G.dark||0,DAYN.n*0.85);});
-
-/* ================= Espaço 2: estação orbital, base lunar, naves e Marte ================= */
-const MARS={Rs:3000,x:9500,y:12000,z:0,R:2800,cr:[],mesh:null,far:null,first:true};
-{const r=seeded(311);for(let i=0;i<30;i++){const a=r()*TAU,d=Math.sqrt(r())*MARS.R*0.8;MARS.cr.push({x:Math.cos(a)*d,z:Math.sin(a)*d,r:30+Math.pow(r(),2)*200,dd:0.15+r()*0.1});}}
-/* Marte: cânion largo, vulcão gigante, crateras e dunas */
-function marsH(x,z){const lx=x-MARS.x,lz=z-MARS.z;let h=10*Math.sin(lx*0.006)*Math.cos(lz*0.005)+4*Math.sin(lx*0.03+lz*0.02);
- const cz=lz-260*Math.sin(lx*0.0012);h-=150*Math.exp(-Math.pow(cz/170,2))*(Math.abs(lx)<2000?1:0.3);
- const vd=Math.hypot(lx-900,lz+1100);h+=520*Math.max(0,1-vd/900)*Math.max(0,1-vd/900)-(vd<110?140*(1-vd/110):0);
- for(const c of MARS.cr){const dx=lx-c.x,dz=lz-c.z;if(Math.abs(dx)>c.r*1.5||Math.abs(dz)>c.r*1.5)continue;const q=Math.sqrt(dx*dx+dz*dz)/c.r;if(q<1)h+=c.r*c.dd*(q*q-1);else if(q<1.5)h+=c.r*c.dd*0.3*Math.exp(-Math.pow((q-1.05)/0.16,2));}
- const d=Math.hypot(lx,lz);h-=d*d/(2*MARS.Rs);return MARS.y+h;}
-function onMars(x,z){return Math.hypot(x-MARS.x,z-MARS.z)<MARS.R*0.97;}
-/* estação orbital (pouso na plataforma) e base lunar (cúpulas onde dá para subir) */
-const STA={x:900,y:6500,z:-700,r:70},MBASE={x:600,z:-500,domes:[]};
-function bodyH(x,z,fy){if(fy>MOON_Y-900){if(onMoon(x,z)){let h=moonH(x,z);for(const d of MBASE.domes){const q=Math.hypot(x-d.x,z-d.z);if(q<d.r)h=Math.max(h,d.y+Math.sqrt(d.r*d.r-q*q));}return h;}if(onMars(x,z))return marsH(x,z);}
- if(Math.abs(fy-STA.y)<300&&Math.hypot(x-STA.x,z-STA.z)<STA.r)return STA.y;return null;}
-function space2Build(){
- /* estação: anel, eixo, painéis solares e plataforma de pouso */
- const g=new THREE.Group(),mt=new THREE.MeshStandardMaterial({color:0xdfe4ea,metalness:0.6,roughness:0.35}),dk=new THREE.MeshStandardMaterial({color:0x2a3346,metalness:0.5,roughness:0.4}),pn=new THREE.MeshStandardMaterial({color:0x1f3f9a,emissive:0x0a1a40,metalness:0.4,roughness:0.3}),lt=new THREE.MeshBasicMaterial({color:0x7ff6ff,toneMapped:false});
- const ring=new THREE.Mesh(new THREE.TorusGeometry(160,10,12,64),mt);ring.rotation.x=Math.PI/2;ring.position.y=40;g.add(ring);
- for(let i=0;i<4;i++){const s=new THREE.Mesh(new THREE.CylinderGeometry(3,3,160,8),dk);s.rotation.z=Math.PI/2;s.rotation.y=i*Math.PI/4;s.position.y=40;g.add(s);}
- const hub=new THREE.Mesh(new THREE.CylinderGeometry(24,24,120,16),mt);hub.position.y=40;g.add(hub);const deck=new THREE.Mesh(new THREE.CylinderGeometry(STA.r,STA.r,4,32),dk);deck.position.y=-2;g.add(deck);
- for(let i=0;i<16;i++){const a=i/16*TAU,l=new THREE.Mesh(new THREE.SphereGeometry(1.6,8,6),lt);l.position.set(Math.cos(a)*(STA.r-3),0.5,Math.sin(a)*(STA.r-3));g.add(l);}
- for(const s of[-1,1]){const arm=new THREE.Mesh(new THREE.BoxGeometry(8,4,140),dk);arm.position.set(0,100,s*90);g.add(arm);for(let k=0;k<3;k++){const p=new THREE.Mesh(new THREE.BoxGeometry(70,1.5,36),pn);p.position.set(0,100,s*(50+k*40));g.add(p);}}
- g.position.set(STA.x,STA.y,STA.z);g.traverse(o=>o.frustumCulled=false);scene.add(g);STA.g=g;STA.ring=ring;
- /* base lunar: cúpulas de vidro, pista de pouso, antena e módulos */
- const bg=new THREE.Group(),glass=new THREE.MeshStandardMaterial({color:0x9fdcff,transparent:true,opacity:0.45,metalness:0.2,roughness:0.05,emissive:0x0a2a40}),wm=new THREE.MeshStandardMaterial({color:0xe8e8ec,roughness:0.5,metalness:0.3});
- [[0,0,70],[160,40,45],[-120,90,40],[60,-150,35]].forEach(([dx,dz,r])=>{const x=MBASE.x+dx,z=MBASE.z+dz,y=moonH(x,z);const d=new THREE.Mesh(new THREE.SphereGeometry(r,32,16,0,TAU,0,Math.PI/2),glass);d.position.set(x,y,z);bg.add(d);const base=new THREE.Mesh(new THREE.CylinderGeometry(r*1.02,r*1.05,4,32),wm);base.position.set(x,y+1,z);bg.add(base);MBASE.domes.push({x,z,y,r});
-  for(let k=0;k<3;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(r*0.3,r*0.25,r*0.3),wm);b.position.set(x+rr(-0.4,0.4)*r,y+r*0.12,z+rr(-0.4,0.4)*r);bg.add(b);}});
- const pad=new THREE.Mesh(new THREE.CylinderGeometry(50,50,2,32),new THREE.MeshStandardMaterial({color:0x3a3d44,roughness:0.8}));const px=MBASE.x-60,pz=MBASE.z+200;pad.position.set(px,moonH(px,pz)+1,pz);bg.add(pad);
- const ant=new THREE.Mesh(new THREE.CylinderGeometry(1.5,2.5,90,8),wm);ant.position.set(MBASE.x+100,moonH(MBASE.x+100,MBASE.z-60)+45,MBASE.z-60);bg.add(ant);const dish=new THREE.Mesh(new THREE.SphereGeometry(22,16,8,0,TAU,0,Math.PI/3),wm);dish.position.set(ant.position.x,ant.position.y+45,ant.position.z);dish.rotation.x=-0.9;bg.add(dish);
- bg.traverse(o=>o.frustumCulled=false);scene.add(bg);MBASE.g=bg;
- /* Marte */
- const seg=MOB?100:150,mg=new THREE.PlaneGeometry(MARS.R*2,MARS.R*2,seg,seg);mg.rotateX(-Math.PI/2);const p=mg.attributes.position,col=new Float32Array(p.count*3);
- for(let i=0;i<p.count;i++){const x=p.getX(i)+MARS.x,z=p.getZ(i)+MARS.z,y=marsH(x,z)-MARS.y;p.setY(i,y);const j=0.8+0.12*Math.sin(x*0.04+z*0.05)+(y>200?0.15:0)+(y<-80?-0.15:0);col[i*3]=0.72*j;col[i*3+1]=0.36*j;col[i*3+2]=0.2*j;}
- mg.setAttribute('color',new THREE.BufferAttribute(col,3));mg.computeVertexNormals();const mm=new THREE.Mesh(mg,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,flatShading:true,fog:false}));mm.position.set(MARS.x,MARS.y,MARS.z);mm.frustumCulled=false;scene.add(mm);MARS.mesh=mm;
- const body=new THREE.Mesh(new THREE.IcosahedronGeometry(MARS.Rs,4),new THREE.MeshStandardMaterial({color:0xa8461f,roughness:1,flatShading:true,fog:false}));body.position.set(MARS.x,MARS.y-MARS.Rs-12,MARS.z);body.frustumCulled=false;scene.add(body);MARS.body=body;
- const mb=new THREE.Mesh(new THREE.IcosahedronGeometry(2800,4),new THREE.MeshStandardMaterial({color:0x9a9a9e,roughness:1,flatShading:true,fog:false}));mb.position.set(0,MOON_Y-2800-14,0);mb.frustumCulled=false;scene.add(mb);MARS.moonBody=mb;
- const far=new THREE.Mesh(new THREE.SphereGeometry(1,32,16),new THREE.MeshStandardMaterial({color:0xc4552c,roughness:0.9,emissive:0x2a0800,fog:false}));far.frustumCulled=false;scene.add(far);MARS.far=far;
- /* naves de NPCs fazendo rotas entre Terra, estação e Lua */
- SHIPS.length=0;const sm=new THREE.MeshStandardMaterial({color:0xe6e9ef,metalness:0.6,roughness:0.3}),fm=new THREE.MeshBasicMaterial({color:0x7fd8ff,toneMapped:false});
- for(let i=0;i<(MOB?3:5);i++){const s=new THREE.Group();const b=new THREE.Mesh(new THREE.ConeGeometry(6,30,8).rotateX(Math.PI/2),sm);s.add(b);for(const k of[-1,1]){const w=new THREE.Mesh(new THREE.BoxGeometry(22,1.2,8),sm);w.position.set(k*10,0,6);s.add(w);}const f=new THREE.Mesh(new THREE.SphereGeometry(3.4,8,6),fm);f.position.z=16;s.add(f);s.traverse(o=>o.frustumCulled=false);scene.add(s);
-  SHIPS.push({g:s,u:R(),sp:rr(0.02,0.04),a:[[rr(-1500,1500),1800,rr(-1500,1500)],[STA.x,STA.y+60,STA.z],[MBASE.x-60,MOON_Y+300,MBASE.z+200],i%2?[MARS.x-2000,MARS.y+800,0]:[rr(-2000,2000),9000,rr(-2000,2000)]]});}}
-const SHIPS=[],_sv=new THREE.Vector3();
-function shipPos(S,u,out){const P=S.a,n=P.length,f=u*(n-1),i=Math.min(n-2,Math.floor(f)),k=f-i,e=k*k*(3-2*k);out.set(lerp(P[i][0],P[i+1][0],e),lerp(P[i][1],P[i+1][1],e),lerp(P[i][2],P[i+1][2],e));return out;}
-function space2Step(dt){const cp=camera.position;if(cp.y<1800&&!STA.g)return;if(!STA.g)space2Build();const vis=cp.y>1800;STA.g.visible=vis;MBASE.g.visible=cp.y>MOON_Y-4000;STA.ring.rotation.z+=dt*0.05;
- for(const S of SHIPS){if(S.tkg||S.dead)continue;S.g.visible=vis;S.u+=dt*S.sp*(S.dir||1);if(S.u>1){S.u=1;S.dir=-1;}if(S.u<0){S.u=0;S.dir=1;}shipPos(S,S.u,S.g.position);shipPos(S,clamp(S.u+0.01*(S.dir||1)),_sv);S.g.lookAt(_sv);if(vis&&R()<dt*20)fireP(S.g.position.x,S.g.position.y,S.g.position.z,{vx:0,vy:0,vz:0,s:rr(1.5,3),life:0.4,gl:3,c0:[0.7,0.9,1],c1:[0.3,0.5,1]});}
- /* Marte: perto aparece o terreno; de longe, uma bola vermelha na direção dele */
- const dm=Math.hypot(cp.x-MARS.x,cp.z-MARS.z);const sp=cp.y>3000;MARS.mesh.visible=sp&&dm<5500;MARS.body.visible=sp&&dm<10500;MARS.moonBody.visible=sp&&Math.hypot(cp.x,cp.z)<10500;const fv=sp&&dm>=10500;MARS.far.visible=fv;
- if(fv){_sv.set(MARS.x-cp.x,MARS.y+1500-cp.y,MARS.z-cp.z).normalize();MARS.far.position.copy(cp).addScaledVector(_sv,8500);MARS.far.scale.setScalar(clamp(9e6/dm,300,2400));}
- skyMat.uniforms.uMars.value=cp.y>MOON_Y-3000?clamp(1.4-dm/3000):0;MARS.mesh.material.color.setRGB(0.95,0.75,0.7);
- if(dm<4000&&cp.y>MOON_Y-3000){if(MARS.first&&onMars(HERO.x,HERO.z)&&HERO.y<MARS.y+600){MARS.first=false;banner('MARTE! O CÂNION E O VULCÃO GIGANTE FICAM AQUI',2.6);}}
- if(STA.first==null&&Math.hypot(HERO.x-STA.x,HERO.z-STA.z)<STA.r&&Math.abs(HERO.y-STA.y)<10){STA.first=false;banner('ESTAÇÃO ORBITAL',1.8);}}
-STEP_HOOKS.push(space2Step);
-
-/* menu: sensibilidade da câmera no celular */
-{const d=document.createElement('div');d.className='opt';d.innerHTML='<span>Sensibilidade (toque)</span><div class="seg" id="sensSeg">'+SENS.n.map((t,k)=>'<button type="button" data-k="'+k+'">'+t+'</button>').join('')+'</div>';
- const ref=document.getElementById('gySeg');const row=ref&&ref.closest?ref.closest('.opt'):null;if(row)row.after(d);
- const sync=()=>d.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.k===SENS.i?'true':'false'));sync();
- d.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;SENS.i=+b.dataset.k;store.set('sens',SENS.i);sync();});}
-/* ================= Navegação espacial: marcadores na tela apontando Terra, Estação, Lua e Marte, com distância; fora da tela, ficam na borda indicando a direção ================= */
-const NAV={el:null,items:[{n:'Marte',c:'#ff8a5a',p:()=>[MARS.x,MARS.y+60,MARS.z]},{n:'Lua',c:'#e8ecf4',p:()=>[0,MOON_Y+40,0]},{n:'Estação',c:'#7ff6ff',p:()=>[STA.x,STA.y+20,STA.z]},{n:'Terra',c:'#7fd17f',p:()=>[0,0,0]}],v:new THREE.Vector3()};
-function navStep(){const show=G.started&&!G.paused&&HERO.y>1500;if(!NAV.el){const d=document.createElement('div');d.id='navHud';d.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:25';(document.getElementById('stage')||document.body).appendChild(d);NAV.el=d;
-  for(const it of NAV.items){const m=document.createElement('div');m.style.cssText='position:absolute;transform:translate(-50%,-50%);font:700 12px Nunito,system-ui,sans-serif;color:'+it.c+';text-shadow:0 1px 3px #000;text-align:center;white-space:nowrap';m.innerHTML='<div style="width:14px;height:14px;margin:0 auto 2px;border:2px solid '+it.c+';border-radius:50%"></div><span></span>';d.appendChild(m);it.m=m;it.s=m.querySelector('span');it.r=m.firstChild;}}
- NAV.el.style.display=show?'block':'none';if(!show||frameN%2)return;const W=NAV.el.clientWidth,H=NAV.el.clientHeight,cp=camera.position;
- for(const it of NAV.items){const q=it.p();const d=Math.hypot(q[0]-HERO.x,q[1]-HERO.y,q[2]-HERO.z);
-  /* esconde o marcador do lugar onde você já está */
-  const here=(it.n==='Lua'&&HERO.y>MOON_Y-900&&onMoon(HERO.x,HERO.z))||(it.n==='Marte'&&HERO.y>MARS.y-900&&onMars(HERO.x,HERO.z))||(it.n==='Estação'&&d<250);it.m.style.display=here?'none':'block';if(here)continue;
-  NAV.v.set(q[0],q[1],q[2]).project(camera);let x=NAV.v.x,y=NAV.v.y;const behind=NAV.v.z>1;if(behind){x=-x;y=-y;}
-  const off=behind||Math.abs(x)>0.92||Math.abs(y)>0.88;if(off){const k=Math.max(Math.abs(x)/0.92,Math.abs(y)/0.88);x/=k;y/=k;}
-  it.m.style.left=((x*0.5+0.5)*W)+'px';it.m.style.top=((-y*0.5+0.5)*H)+'px';it.s.textContent=it.n+' · '+(d>=1000?(d/1000).toFixed(1)+' km':Math.round(d)+' m');it.r.style.borderRadius=off?'3px':'50%';it.m.style.opacity=off?0.75:1;}}
-STEP_HOOKS.push(navStep);
-
 /* ================= Nível de procurado: 0 a 5 estrelas, clicáveis ================= */
 const WANT={lv:0,heat:0,manual:false,quiet:0,shown:-1,T:[0,30,110,220,360,520],pT:0,hT:0,aT:0,tT:0,calmT:0};
 const wantEl=document.createElement('div');wantEl.className='wanted';wantEl.setAttribute('role','group');wantEl.setAttribute('aria-label','Nível de procurado');
@@ -5333,7 +5224,7 @@ RESET_HOOKS.push(()=>{WANT.lv=0;WANT.heat=0;WANT.manual=false;WANT.quiet=0;WANT.
  '.wanted.hot .ws.on svg{animation:wBl .6s infinite alternate}@keyframes wBl{to{fill:#ff5d5d}}@media (pointer:coarse){.wanted svg{width:24px;height:24px}}';
  document.head.appendChild(st);}
 /* ================= Ganchos de teste ================= */
-window.__caos.AIM=AIM;window.__caos.pdbg={diag:l=>{diagSet(l);},diagAcc:()=>DIAG.acc,setQ:q=>{Q=q;autoQ=false;applyQuality();},ri:()=>({calls:renderer.info.render.calls,tris:Math.round(renderer.info.render.triangles/1000)+'k',geo:renderer.info.memory.geometries,tex:renderer.info.memory.textures}),spawnHeli,DAYN,TKF,helis,boats,PLANES,SKYI,tkFindSpec,moonH,onMoon,ISLS,dig,OE,PS,PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
+window.__caos.AIM=AIM;window.__caos.pdbg={diag:l=>{diagSet(l);},diagAcc:()=>DIAG.acc,setQ:q=>{Q=q;autoQ=false;applyQuality();},ri:()=>({calls:renderer.info.render.calls,tris:Math.round(renderer.info.render.triangles/1000)+'k',geo:renderer.info.memory.geometries,tex:renderer.info.memory.textures}),spawnHeli,DAYN,TKF,helis,boats,PLANES,SKYI,tkFindSpec,ISLS,dig,OE,PS,PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
 })();
 </script>
 
