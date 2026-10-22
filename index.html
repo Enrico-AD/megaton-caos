@@ -477,8 +477,10 @@ float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);return mi
 const CC=(r,g,b)=>new THREE.Color(r,g,b);
 const GRI={uLot:{value:CC(0.6,0.58,0.54)},uPath:{value:CC(0.84,0.76,0.62)},uPath2:{value:CC(0.8,0.76,0.7)},uBrick0:{value:CC(0.74,0.62,0.5)},uBrick1:{value:CC(0.66,0.54,0.44)},
  uInd:{value:CC(0.43,0.43,0.45)},uPark:{value:CC(0.33,0.34,0.38)},uDirtL:{value:CC(0.62,0.5,0.38)},uTile0:{value:CC(0.96,0.7,0.62)},uTile1:{value:CC(0.62,0.78,0.94)},uCurb:{value:CC(0.7,0.67,0.62)},
- uApron:{value:CC(0.36,0.37,0.41)},uQuay:{value:CC(0.62,0.6,0.57)},uRoadPat:{value:0},uSidePat:{value:0},uGlow:{value:0},uGlowC:{value:CC(0.2,0.9,1)},uRails:{value:0}};
-const GRI_DECL='uniform vec3 uLot,uPath,uPath2,uBrick0,uBrick1,uInd,uPark,uDirtL,uTile0,uTile1,uCurb,uApron,uQuay,uGlowC;uniform float uRoadPat,uSidePat,uGlow,uRails;\n';
+ uAsph:{value:null},uAsphOn:{value:0},uApron:{value:CC(0.36,0.37,0.41)},uQuay:{value:CC(0.62,0.6,0.57)},uRoadPat:{value:0},uSidePat:{value:0},uGlow:{value:0},uGlowC:{value:CC(0.2,0.9,1)},uRails:{value:0}};
+const GRI_DECL='uniform sampler2D uAsph;uniform float uAsphOn;uniform vec3 uLot,uPath,uPath2,uBrick0,uBrick1,uInd,uPark,uDirtL,uTile0,uTile1,uCurb,uApron,uQuay,uGlowC;uniform float uRoadPat,uSidePat,uGlow,uRails;\n';
+/* asfalto de verdade nas ruas */
+(function(){const L=new THREE.TextureLoader();L.load('tex/asfalto.jpg',t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());t.needsUpdate=true;GRI.uAsph.value=t;GRI.uAsphOn.value=1;},undefined,()=>{});})();
 const GROUND_COL=`vec2 p=vWP.xz;float n=vnoise(p/3.0);float glowL=0.0;
  vec3 grass=mix(uG0,uG1,step(0.55,vnoise(p/38.0)))*(0.94+0.08*n);
  vec3 col=grass;
@@ -497,6 +499,7 @@ const GROUND_COL=`vec2 p=vWP.xz;float n=vnoise(p/3.0);float glowL=0.0;
  else if(lt>5.5&&lt<6.5){c=uDirtL*(0.88+0.18*n);}
  else if(lt>6.5){c=mix(uTile0,uTile1,step(0.5,fract(p.x/6.0+0.5*step(0.5,fract(p.y/6.0)))));}
  vec3 side=uSide;vec3 curb=uCurb;vec3 road=uRoad;
+ vec3 asph=texture2D(uAsph,p/9.0).rgb;if(uAsphOn>0.5&&uRoadPat<0.5)road=mix(uRoad,asph*0.82,0.85);
  if(uSidePat>0.5&&uSidePat<1.5){side=uSide*(0.78+0.26*step(0.14,fract(along/1.15)))*(0.9+0.16*n);}
  else if(uSidePat>1.5&&uSidePat<2.5){side=uSide*(0.9+0.12*step(0.5,fract(p.x/2.3+0.5*step(0.5,fract(p.y/2.3)))))*(0.95+0.06*n);}
  else if(uSidePat>2.5&&uSidePat<3.5){float sm=1.0-step(0.05,abs(fract(along/4.0)-0.5)*4.0);side=uSide*(0.96+0.05*n);glowL+=sm*0.35*(1.0-step(11.0,md))*step(7.6,md);}
