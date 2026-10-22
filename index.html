@@ -1109,13 +1109,20 @@ const AMK=new Map();for(const k in AM)AMK.set(AM[k].body,k);
 const BI={};for(const b of B){(BI[b.mk]=BI[b.mk]||[])[b.i]=b;}
 /* regiões fora da vista não vão para a placa de vídeo */
 RENDER_HOOKS.push(()=>{const cp=camera.position;const far=(MOB?4400:5600);for(const k in AM){const m=AM[k];if(!m.reg)continue;const S=REGS[m.reg];const vis=Math.hypot(S.x-cp.x,S.z-cp.z)<far+S.r&&(!S.under||cp.y<1.5)&&inView(S.x,S.y,S.z,S.r);m.body.visible=m.det.visible=vis;}});
-function bSet(b){const m=AM[b.mk];if(b.hidden){m.body.setMatrixAt(b.i,ZM);m.det.setMatrixAt(b.i,ZM);m.dirty=true;return;}
+function bSet(b){const m=AM[b.mk];if(b.hidden||(b.cull&&b.st===0)){m.body.setMatrixAt(b.i,ZM);m.det.setMatrixAt(b.i,ZM);m.dirty=true;return;}
  const sh=b.shr==null?1:b.shr;const sc=b.sy*(b.k==null?1:b.k)*sh;dummyB.position.set(b.x+(b.px||0),(b.gy||0)+(b.yo||0),b.z+(b.pz||0));dummyB.rotation.set(b.tx||0,b.ry||0,b.tz||0);
  dummyB.scale.set(b.w*(b.sq||1)*sh,Math.max(0.001,sc),b.d*(b.sq||1)*sh);dummyB.updateMatrix();m.body.setMatrixAt(b.i,dummyB.matrix);m.det.setMatrixAt(b.i,dummyB.matrix);m.dirty=true;}
 function bColor(b){const m=AM[b.mk];const c=b.tint;const f=1-0.68*clamp(b.burn||0);let r=c[0]*f,g=c[1]*f,bl=c[2]*f,dr=f,dg=f,db=f;
  if(b.gooK){const k=b.gooK;r=lerp(r,0.42,k);g=lerp(g,0.86,k);bl=lerp(bl,0.3,k);dr=lerp(dr,0.55,k);dg=lerp(dg,1,k);db=lerp(db,0.45,k);}
  if(b.frz>0){r=lerp(r,0.8,0.78);g=lerp(g,0.94,0.78);bl=lerp(bl,1.08,0.78);dr=0.86;dg=0.97;db=1.12;}
  m.body.setColorAt(b.i,tmpC.setRGB(r,g,bl));m.det.setColorAt(b.i,tmpC.setRGB(dr,dg,db));m.cdirty=true;}
+/* cidade: só desenha os prédios perto e dentro da visão (os de trás e os além da névoa somem do desenho, sem perder nada do jogo) */
+const CULL={fr:new THREE.Frustum(),pm:new THREE.Matrix4(),sp:new THREE.Sphere(),n:0,hid:0};
+function cullCity(){if(frameN%(MOB?6:8))return;const cp=camera.position;camera.updateMatrixWorld();CULL.pm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);CULL.fr.setFromProjectionMatrix(CULL.pm);
+ const far=Math.min(scene.fog.far,camera.far)+60,touched=new Set();let hid=0;
+ for(const b of B){if(b.reg||b.st!==0||b.hidden){if(b.cull){b.cull=false;}continue;}const R0=Math.max(b.w,b.d,b.H)*0.6+60,cy=b.gy+b.H*0.5;const dx=b.x-cp.x,dz=b.z-cp.z;let vis=dx*dx+dz*dz<(far+R0)*(far+R0);
+  if(vis){CULL.sp.center.set(b.x,cy,b.z);CULL.sp.radius=R0+Math.sqrt(dx*dx+dz*dz)*0.3;/* folga nas bordas: girando a câmera rápido nada some antes de aparecer */vis=CULL.fr.intersectsSphere(CULL.sp);}if(!vis)hid++;if(vis===!b.cull)continue;b.cull=!vis;const m=AM[b.mk];const was=m.dirty;bSet(b);if(!was){touched.add(m);}}
+ for(const m of touched){m.body.instanceMatrix.needsUpdate=m.det.instanceMatrix.needsUpdate=true;m.dirty=false;}CULL.hid=hid;}
 function flushB(){for(const k in AM){const m=AM[k];if(m.dirty){m.body.instanceMatrix.needsUpdate=m.det.instanceMatrix.needsUpdate=true;m.dirty=false;G.shadowDirty=true;}if(m.cdirty){m.body.instanceColor.needsUpdate=m.det.instanceColor.needsUpdate=true;m.cdirty=false;}}}
 /* bIntact conta só os prédios da cidade (o placar "Cidade destruída") */
 let bIntact=0;
@@ -2903,7 +2910,7 @@ function diagFrame(raw){if(!DIAG.on)return;if(!DIAG.el){const d=document.createE
  DIAG.t+=raw;DIAG.n++;if(DIAG.t<0.5)return;const fps=DIAG.n/DIAG.t,ms=1000*DIAG.t/DIAG.n,ri=renderer.info;let s='FPS '+fps.toFixed(0)+'  '+ms.toFixed(1)+' ms';
  if(DIAG.full){const rt=DIAG.rt/DIAG.n;let st=0;const L=Object.entries(DIAG.acc).map(([k,v])=>{st+=v;return [k,v/DIAG.n];}).sort((a,b)=>b[1]-a[1]).slice(0,6);
   let nS=0;for(let i=0;i<LIM.smoke;i++)if(SMOKE[i])nS++;let nC=0;for(const c of CH)if(c)nC++;
-  s+='\nlógica '+(st/DIAG.n).toFixed(1)+' ms · desenho '+rt.toFixed(1)+' ms\ndraw calls '+ri.render.calls+' · triângulos '+(ri.render.triangles/1000).toFixed(0)+'k\ngeometrias '+ri.memory.geometries+' · texturas '+ri.memory.textures+'\nmonstros '+titans.filter(t=>!t.dead).length+' · destroços '+nC+' · fumaça '+nS+'\nmodo '+['Desempenho','Equilíbrio','Qualidade'][Q]+' · escala '+renderer.getPixelRatio().toFixed(2)+'\n— mais caros —\n'+L.map(([k,v])=>k.padEnd(14).slice(0,14)+' '+v.toFixed(2)+' ms').join('\n');}
+  s+='\nlógica '+(st/DIAG.n).toFixed(1)+' ms · desenho '+rt.toFixed(1)+' ms\ndraw calls '+ri.render.calls+' · triângulos '+(ri.render.triangles/1000).toFixed(0)+'k\ngeometrias '+ri.memory.geometries+' · texturas '+ri.memory.textures+'\nprédios fora do desenho '+CULL.hid+'\nmonstros '+titans.filter(t=>!t.dead).length+' · destroços '+nC+' · fumaça '+nS+'\nmodo '+['Desempenho','Equilíbrio','Qualidade'][Q]+' · escala '+renderer.getPixelRatio().toFixed(2)+'\n— mais caros —\n'+L.map(([k,v])=>k.padEnd(14).slice(0,14)+' '+v.toFixed(2)+' ms').join('\n');}
  DIAG.el.textContent=s;DIAG.t=0;DIAG.n=0;DIAG.acc={};DIAG.rt=0;}
 addEventListener('keydown',e=>{if(e.code==='F8'){diagSet((DIAG.lvl+1)%3);syncDiag&&syncDiag();e.preventDefault();}});
 {const d=document.createElement('div');d.className='opt';d.innerHTML='<span>Diagnóstico</span><div class="seg" id="diagSeg"><button type="button" data-k="0">Desligado</button><button type="button" data-k="1">FPS</button><button type="button" data-k="2">Completo</button></div>';
@@ -2990,10 +2997,10 @@ function step(dt,rdt){G.t+=dt;G.rdt=rdt;GU.uTime.value=G.t;updClouds(dt);
  if(firing&&ptr&&G.started&&!G.paused){aimAt(ptr.x,ptr.y);if(aimOK||(aimSky&&w.free)){if(w.id==='laser')laserStep(dt);else if(w.step)w.step(dt,AIM);}else laserOff();if(w.id!=='laser')laserOff();}else laserOff();
  if(G.down&&ptr&&w.mode==='click'&&w.rate&&!G.paused){G.rep-=rdt;if(G.rep<=0){aimAt(ptr.x,ptr.y);if(aimOK)fireW(w);G.rep=w.rate;}}
  /* mundo */
- if(!DIAG.full){stepActs(dt);stepBuildings(dt);flushB();
+ if(!DIAG.full){stepActs(dt);stepBuildings(dt);flushB();cullCity();
  stepPeople(dt);for(const c of cars)carStep(c,dt);stepCops(dt);stepOrcs(dt);stepTitans(dt);stepTracers(dt);stepBoats(dt);
  stepCity(dt);stepBirds(dt);for(let i=0;i<STEP_HOOKS.length;i++){try{STEP_HOOKS[i](dt);}catch(err){if(!G.herr){G.herr=1;console.error(err);}}}}
- else{const M=(n,f)=>{const t0=performance.now();f();DIAG.acc[n]=(DIAG.acc[n]||0)+performance.now()-t0;};M('efeitos',()=>stepActs(dt));M('prédios',()=>{stepBuildings(dt);flushB();});M('pessoas',()=>stepPeople(dt));M('carros',()=>{for(const c of cars)carStep(c,dt);});M('polícia',()=>{stepCops(dt);stepOrcs(dt);});M('titãs/monstros',()=>stepTitans(dt));M('tiros',()=>stepTracers(dt));M('barcos',()=>stepBoats(dt));M('cidade',()=>{stepCity(dt);stepBirds(dt);});
+ else{const M=(n,f)=>{const t0=performance.now();f();DIAG.acc[n]=(DIAG.acc[n]||0)+performance.now()-t0;};M('efeitos',()=>stepActs(dt));M('prédios',()=>{stepBuildings(dt);flushB();cullCity();});M('pessoas',()=>stepPeople(dt));M('carros',()=>{for(const c of cars)carStep(c,dt);});M('polícia',()=>{stepCops(dt);stepOrcs(dt);});M('titãs/monstros',()=>stepTitans(dt));M('tiros',()=>stepTracers(dt));M('barcos',()=>stepBoats(dt));M('cidade',()=>{stepCity(dt);stepBirds(dt);});
   for(let i=0;i<STEP_HOOKS.length;i++){const f=STEP_HOOKS[i];M(f.name||'gancho'+i,()=>{try{f(dt);}catch(err){if(!G.herr){G.herr=1;console.error(err);}}});}}
  stepPuffs(dt);stepChunks(dt);stepMush(dt);stepBolts(dt,rdt);stepRings(dt);
  if(frameN%3===0)fxDecay(dt*3);flushTerrain();flushTrees();flushLamps();
