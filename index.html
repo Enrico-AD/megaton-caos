@@ -477,9 +477,12 @@ float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);return mi
 const CC=(r,g,b)=>new THREE.Color(r,g,b);
 const GRI={uLot:{value:CC(0.6,0.58,0.54)},uPath:{value:CC(0.84,0.76,0.62)},uPath2:{value:CC(0.8,0.76,0.7)},uBrick0:{value:CC(0.74,0.62,0.5)},uBrick1:{value:CC(0.66,0.54,0.44)},
  uInd:{value:CC(0.43,0.43,0.45)},uPark:{value:CC(0.33,0.34,0.38)},uDirtL:{value:CC(0.62,0.5,0.38)},uTile0:{value:CC(0.96,0.7,0.62)},uTile1:{value:CC(0.62,0.78,0.94)},uCurb:{value:CC(0.7,0.67,0.62)},
- uAsph:{value:null},uAsphOn:{value:0},uApron:{value:CC(0.36,0.37,0.41)},uQuay:{value:CC(0.62,0.6,0.57)},uRoadPat:{value:0},uSidePat:{value:0},uGlow:{value:0},uGlowC:{value:CC(0.2,0.9,1)},uRails:{value:0}};
-const GRI_DECL='uniform sampler2D uAsph;uniform float uAsphOn;uniform vec3 uLot,uPath,uPath2,uBrick0,uBrick1,uInd,uPark,uDirtL,uTile0,uTile1,uCurb,uApron,uQuay,uGlowC;uniform float uRoadPat,uSidePat,uGlow,uRails;\n';
+ uAsph:{value:null},uAsphOn:{value:0},uPave:{value:null},uPaveOn:{value:0},uApron:{value:CC(0.36,0.37,0.41)},uQuay:{value:CC(0.62,0.6,0.57)},uRoadPat:{value:0},uSidePat:{value:0},uGlow:{value:0},uGlowC:{value:CC(0.2,0.9,1)},uRails:{value:0}};
+const GRI_DECL='uniform sampler2D uAsph,uPave;uniform float uAsphOn,uPaveOn;uniform vec3 uLot,uPath,uPath2,uBrick0,uBrick1,uInd,uPark,uDirtL,uTile0,uTile1,uCurb,uApron,uQuay,uGlowC;uniform float uRoadPat,uSidePat,uGlow,uRails;\n';
 /* asfalto de verdade nas ruas */
+/* texturas reais (CC0) carregadas do próprio site; se falharem, fica a cor de antes */
+function texLoad(url,cb){new THREE.TextureLoader().load(url,t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());t.needsUpdate=true;cb(t);},undefined,()=>{});}
+texLoad('tex/calcada.jpg',t=>{GRI.uPave.value=t;GRI.uPaveOn.value=1;});
 (function(){const L=new THREE.TextureLoader();L.load('tex/asfalto.jpg',t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());t.needsUpdate=true;GRI.uAsph.value=t;GRI.uAsphOn.value=1;},undefined,()=>{});})();
 const GROUND_COL=`vec2 p=vWP.xz;float n=vnoise(p/3.0);float glowL=0.0;
  vec3 grass=mix(uG0,uG1,step(0.55,vnoise(p/38.0)))*(0.94+0.08*n);
@@ -500,6 +503,7 @@ const GROUND_COL=`vec2 p=vWP.xz;float n=vnoise(p/3.0);float glowL=0.0;
  else if(lt>6.5){c=mix(uTile0,uTile1,step(0.5,fract(p.x/6.0+0.5*step(0.5,fract(p.y/6.0)))));}
  vec3 side=uSide;vec3 curb=uCurb;vec3 road=uRoad;
  vec3 asph=texture2D(uAsph,p/9.0).rgb;if(uAsphOn>0.5&&uRoadPat<0.5)road=mix(uRoad,asph*0.82,0.85);
+ vec3 pav=texture2D(uPave,(g.x<g.y?vec2(p.y,p.x):p)/3.2).rgb;if(uPaveOn>0.5&&uSidePat<0.5)side=uSide*mix(vec3(1.0),pav/0.46,0.8);
  if(uSidePat>0.5&&uSidePat<1.5){side=uSide*(0.78+0.26*step(0.14,fract(along/1.15)))*(0.9+0.16*n);}
  else if(uSidePat>1.5&&uSidePat<2.5){side=uSide*(0.9+0.12*step(0.5,fract(p.x/2.3+0.5*step(0.5,fract(p.y/2.3)))))*(0.95+0.06*n);}
  else if(uSidePat>2.5&&uSidePat<3.5){float sm=1.0-step(0.05,abs(fract(along/4.0)-0.5)*4.0);side=uSide*(0.96+0.05*n);glowL+=sm*0.35*(1.0-step(11.0,md))*step(7.6,md);}
@@ -1072,7 +1076,7 @@ function backColors(gr,rk,sn,snH,sand){const H=BACK.H,c=BACK.col;for(let i=0;i<H
  if(h<4){r=sand[0];g=sand[1];b=sand[2];}if(h>snH){const k=clamp((h-snH)/80);r=lerp(r,sn[0],k);g=lerp(g,sn[1],k);b=lerp(b,sn[2],k);}c[i*3]=r;c[i*3+1]=g;c[i*3+2]=b;}BACK.m.geometry.attributes.color.needsUpdate=true;}
 backColors([0.45,0.62,0.33],[0.5,0.47,0.45],[0.95,0.96,0.99],330,[0.9,0.82,0.62]);
 /* mar maior para cobrir a ilha e os cantos */
-sea.geometry.dispose();sea.geometry=new THREE.PlaneGeometry(9000,OE*4,MOB?160:300,MOB?200:380).rotateX(-Math.PI/2);sea.position.set(SEA_X+4500,-0.3,0);
+sea.geometry.dispose();sea.geometry=new THREE.PlaneGeometry(9000,OE*4,MOB?90:140,MOB?120:180).rotateX(-Math.PI/2);sea.position.set(SEA_X+4500,-0.3,0);
 /* lago da serra e lagoas das fazendas */
 const lakeMat=flatStd({color:0x3d93b8,roughness:0.18,metalness:0.1});
 const WATERS=[];
@@ -1100,12 +1104,20 @@ const NA={x:ATL.x+40,z:ATL.z,P:150,C:46,n:3};
   if(i<NA.n-1)B.push({a:'nbr',x:cx+S/2,z:cz,w:NA.C+12,d:14,sy:1,reg:'atl',fixY:-1});if(j<NA.n-1)B.push({a:'nbr',x:cx,z:cz+S/2,w:14,d:NA.C+12,sy:1,reg:'atl',fixY:-1});}
  REGS.atl={x:NA.x,y:60,z:NA.z,r:S*NA.n*0.75+120};}
 
+const BTEX={fac:{v:null,avg:0.3,sc:40,mix:0.9,kinds:['tower','glass','round','ctower','terminal']},pla:{v:null,avg:0.72,sc:7,mix:0.55,kinds:['apt','house','shop','church','cabin']},mats:[]};
+texLoad('tex/fachada.jpg',t=>{BTEX.fac.v=t;for(const m of BTEX.mats)if(m.userData.bt==='fac'&&m.userData.u){m.userData.u.uBTex.value=t;m.userData.u.uBOn.value=1;}});
+texLoad('tex/reboco.jpg',t=>{BTEX.pla.v=t;for(const m of BTEX.mats)if(m.userData.bt==='pla'&&m.userData.u){m.userData.u.uBTex.value=t;m.userData.u.uBOn.value=1;}});
+function bodyTexMat(m,k){const bt=BTEX.fac.kinds.includes(k)?'fac':BTEX.pla.kinds.includes(k)?'pla':null;if(!bt)return m;const T=BTEX[bt];m.userData.bt=bt;BTEX.mats.push(m);const prev=m.onBeforeCompile;
+ m.onBeforeCompile=(sh,r)=>{if(prev)prev(sh,r);const u={uBTex:{value:T.v},uBOn:{value:T.v?1:0},uBSc:{value:T.sc},uBAvg:{value:T.avg},uBMix:{value:T.mix}};m.userData.u=u;Object.assign(sh.uniforms,u);
+  sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWPb;varying vec3 vNb;').replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\nmat4 mI=modelMatrix*instanceMatrix;\n#else\nmat4 mI=modelMatrix;\n#endif\nvWPb=(mI*vec4(transformed,1.0)).xyz;vNb=normalize(mat3(mI)*objectNormal);');
+  sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uBTex;uniform float uBOn,uBSc,uBAvg,uBMix;varying vec3 vWPb;varying vec3 vNb;').replace('#include <color_fragment>','#include <color_fragment>\nif(uBOn>0.5){vec3 an=abs(vNb);if(an.y<0.6){vec2 uv=an.x>an.z?vWPb.zy:vWPb.xy;vec3 tx=texture2D(uBTex,uv/uBSc).rgb;diffuseColor.rgb*=mix(vec3(1.0),tx/uBAvg,uBMix);}}');};
+ m.customProgramCacheKey=()=>'btex'+bt;return m;}
 /* ================= Montagem: malhas dos prédios (cidade e regiões), árvores e postes ================= */
 B.forEach((b,i)=>{b.idx=i;b.x0=b.x;b.z0=b.z;b.mk=b.reg?b.a+'@'+b.reg:b.a;b.gb=b.fixY!=null?b.fixY:b.reg?ghO(b.x,b.z):0;});
 const BC=B.filter(b=>!b.reg).length;
 const AM={};
 for(const mk of[...new Set(B.map(b=>b.mk))]){const list=B.filter(b=>b.mk===mk);const k=list[0].a,reg=list[0].reg||null;const A=ARCH[k];const n=list.length;
- const body=new THREE.InstancedMesh(A.body,vcMat(A.bodyMat),n),det=new THREE.InstancedMesh(A.det,glowify(vcMat(Object.assign({roughness:0.55},A.detMat||{})),1.4),n);
+ const body=new THREE.InstancedMesh(A.body,bodyTexMat(vcMat(A.bodyMat),k),n),det=new THREE.InstancedMesh(A.det,glowify(vcMat(Object.assign({roughness:0.55},A.detMat||{})),1.4),n);
  body.castShadow=det.castShadow=true;body.receiveShadow=det.receiveShadow=true;body.frustumCulled=det.frustumCulled=false;scene.add(body,det);AM[mk]={body,det,k,reg};list.forEach((b,i)=>{b.i=i;});}
 const bodyMeshes=Object.values(AM).map(m=>m.body);
 const AMK=new Map();for(const k in AM)AMK.set(AM[k].body,k);
@@ -1208,7 +1220,7 @@ function colGeo(geo,fn){const g=geo.index?geo.toNonIndexed():geo;g.computeVertex
   for(let k=0;k<3;k++){cs[(i+k)*3]=c[0];cs[(i+k)*3+1]=c[1];cs[(i+k)*3+2]=c[2];}}
  g.setAttribute('color',new THREE.BufferAttribute(cs,3));if(g.attributes.uv)g.deleteAttribute('uv');return g;}
 /* ================= Efeitos estilizados ================= */
-const PUFFG=new THREE.IcosahedronGeometry(1,1);
+const PUFFG=new THREE.IcosahedronGeometry(1,0);
 const fireMesh=new THREE.InstancedMesh(PUFFG,new THREE.MeshBasicMaterial({toneMapped:false}),LIM.fire);
 const smokeMesh=new THREE.InstancedMesh(PUFFG,glowify(flatStd({roughness:1}),2.4),LIM.smoke);smokeMesh.castShadow=false;/* fumaça translúcida: 70% de opacidade, dá para ver através */smokeMesh.material.transparent=true;smokeMesh.material.opacity=0.7;smokeMesh.material.depthWrite=false;smokeMesh.renderOrder=2;
 [fireMesh,smokeMesh].forEach(m=>{m.frustumCulled=false;scene.add(m);hideInst(m,m.count);m.setColorAt(0,tmpC.set(0xffffff));m.instanceColor.needsUpdate=true;});
