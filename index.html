@@ -2975,6 +2975,8 @@ const grade=new THREE.ShaderPass({uniforms:{tDiffuse:{value:null},uFlash:{value:
   vec2 dv=vUv-0.5;c.rgb*=1.0-dot(dv,dv)*0.55;c.rgb=mix(c.rgb,uFlashC,clamp(uFlash,0.0,1.0));gl_FragColor=c;}`});
 composer.addPass(grade);composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
 function resize(){const w=Math.max(1,stage.clientWidth),h=Math.max(1,stage.clientHeight);STGSZ.w=w;STGSZ.h=h;renderer.setSize(w,h,false);if(composer.setPixelRatio)composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(w,h);bloom.setSize(Math.round(w/2),Math.round(h/2));camera.aspect=w/h;camera.updateProjectionMatrix();grade.uniforms.uAsp.value=w/h;}
+/* placa de vídeo integrada (Intel UHD/Iris, Mali, Adreno, PowerVR): não começa em Qualidade */
+(function(){if(!autoQ)return;try{const gl=renderer.getContext(),d=gl.getExtension('WEBGL_debug_renderer_info');const s=d?String(gl.getParameter(d.UNMASKED_RENDERER_WEBGL)):'';if(/Intel|UHD|Iris|Mali|Adreno|PowerVR|Apple GPU/i.test(s)&&Q>1)Q=TOUCH||MOB?0:1;}catch(e){}})();
 function applyQuality(){sunL.castShadow=Q>0;PERFX.k=[0.55,0.8,1][Q];const pr=[TOUCH?0.7:0.85,TOUCH?1:1.25,TOUCH?1.4:1.75][Q];renderer.setPixelRatio(Math.min(pr,window.devicePixelRatio||1));bloom.enabled=Q>0;const S=(TOUCH?[512,1024,1536]:[1024,1536,2048])[Q];
  if(sunL.shadow.mapSize.x!==S){sunL.shadow.mapSize.set(S,S);if(sunL.shadow.map){sunL.shadow.map.dispose();sunL.shadow.map=null;}}G.shadowEvery=[6,3,2][Q];smokeMesh.castShadow=Q>1&&!(TOUCH||MOB);for(const V of CRW)V[0].m.castShadow=Q>0;G.shadowDirty=true;resize();}
 if(window.ResizeObserver)new ResizeObserver(resize).observe(stage);else window.addEventListener('resize',resize);
