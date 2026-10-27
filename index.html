@@ -164,6 +164,10 @@ button{font:inherit;color:inherit}
 @keyframes hyPulse{from{box-shadow:0 0 0 3px rgba(255,236,140,.75),0 0 18px 4px rgba(120,205,255,.7)}to{box-shadow:0 0 0 6px rgba(255,236,140,.35),0 0 34px 12px rgba(120,205,255,.95)}}
 /* voo: botão de asa ao lado do raio; medidor igual (Luz, Rápido, Normal); ▲▼ para subir e descer no celular */
 .fyb{left:calc(14px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 98px);background:radial-gradient(circle at 50% 38%,#3a5fae,#121d44 72%);color:#cfeaff;box-shadow:0 5px 16px rgba(0,0,0,.35),inset 0 0 0 2px rgba(170,220,255,.65)}
+.jmb{left:calc(90px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 16px);background:radial-gradient(circle at 50% 38%,#3f9a52,#10301a 72%);color:#c8ffd2;box-shadow:0 5px 16px rgba(0,0,0,.35),inset 0 0 0 2px rgba(160,255,180,.6)}
+.jmb svg{filter:drop-shadow(0 0 4px rgba(140,255,170,.55))}
+.jmb .jc{position:absolute;inset:-6px;border-radius:50%;pointer-events:none;background:conic-gradient(#b6ffc4 calc(var(--c,0)*360deg),transparent 0);-webkit-mask:radial-gradient(closest-side,transparent 82%,#000 85%);mask:radial-gradient(closest-side,transparent 82%,#000 85%)}
+.jmb[aria-pressed="true"]{transform:scale(.92);animation:none;color:#0d2a14;background:radial-gradient(circle at 50% 38%,#ffffff,#d8ffe0 35%,#6fe08a 70%,#2a8a44);box-shadow:0 0 18px 4px rgba(150,255,175,.55),inset 0 0 0 2px #d9ffe0}
 .fyb svg{width:29px;height:29px;filter:drop-shadow(0 0 4px rgba(150,210,255,.6))}
 .fyb span{font-variant-numeric:tabular-nums}
 .fyb[aria-pressed="true"]{background:radial-gradient(circle at 50% 38%,#ffffff,#e4f4ff 32%,#8fd0ff 64%,#3f8cff);color:#0e1a3a;animation:flyPulse .6s ease-in-out infinite alternate}
@@ -220,7 +224,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
 .help h2{font-family:var(--display);font-size:15px;color:var(--ink-on-bg);margin:0 0 4px;font-weight:600}
 .help p{margin:0;max-width:62ch}
 
-@media (pointer:coarse){.joy{display:block}.wb{width:58px}.hyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px)}.hyb .hk{display:none}.fyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 240px)}.flyud:not([hidden]){display:grid}.hymeter{left:calc(113px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px);padding:4px;gap:3px}.hymeter.flymeter{bottom:calc(var(--dockH,220px) + 240px)}.hymeter button{padding:7px 11px 7px 8px;font-size:13px}.hymeter button i{height:17px}}
+@media (pointer:coarse){.joy{display:block}.wb{width:58px}.hyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px)}.hyb .hk{display:none}.fyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 240px)}.flyud:not([hidden]){display:grid}.jmb{left:auto;right:calc(142px + env(safe-area-inset-right));bottom:calc(var(--dockH,220px) + 22px)}.hymeter{left:calc(113px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px);padding:4px;gap:3px}.hymeter.flymeter{bottom:calc(var(--dockH,220px) + 240px)}.hymeter button{padding:7px 11px 7px 8px;font-size:13px}.hymeter button i{height:17px}}
 @media (max-width:720px){
   .hud{width:auto;min-width:148px;max-width:54%;padding:8px 11px}
   .hud .rows,.hud .phase{display:none}
@@ -261,6 +265,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
   .joy{bottom:calc(16px + env(safe-area-inset-bottom));width:112px;height:112px}
   .hyb{left:calc(38px + env(safe-area-inset-left));bottom:calc(150px + env(safe-area-inset-bottom));width:54px;height:54px}
   .fyb{left:calc(38px + env(safe-area-inset-left));bottom:calc(210px + env(safe-area-inset-bottom))}
+  .jmb{left:auto;right:calc(139px + env(safe-area-inset-right));bottom:calc(114px + env(safe-area-inset-bottom))}
   .hymeter,.hymeter.flymeter{left:calc(100px + env(safe-area-inset-left));bottom:calc(140px + env(safe-area-inset-bottom))}
   .flyud{right:calc(139px + env(safe-area-inset-right));bottom:calc(114px + env(safe-area-inset-bottom))}
   .flyud button{width:46px;height:46px}
@@ -311,6 +316,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
   <div class="hymeter" id="hyLv" role="radiogroup" aria-label="Velocidade da hipervelocidade" hidden><button type="button" role="radio" data-l="3" aria-checked="false" title="O tempo para; tudo acontece quando você desliga"><i></i><span>Luz</span></button><button type="button" role="radio" data-l="2" aria-checked="false"><i></i><span>Muito alta</span></button><button type="button" role="radio" data-l="1" aria-checked="false"><i></i><span>Alta</span></button></div>
   <button class="hyb fyb" id="bFly" type="button" aria-pressed="false" title="Voar (F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 20.4C5.6 12.6 11.6 6.4 22 2.8c-.9 2.9-2.8 5-5.6 6.4 1.6.2 3-.1 4.2-.8-1.5 2.6-3.9 4.1-7 4.6 1.5.4 2.9.4 4.1 0-1.9 2.4-4.7 3.6-8.1 3.6 1 .5 2 .7 3 .6-2.6 2.2-6 3.2-10.4 3.2z"/></svg><span id="flyTx">Voar</span><b class="hk">F</b><b class="hl"><i></i></b></button>
   <div class="hymeter flymeter" id="flyLv" role="radiogroup" aria-label="Modo de voo" hidden><button type="button" role="radio" data-l="3" aria-checked="false" title="O tempo para; tudo acontece quando você desliga"><i></i><span>Luz</span></button><button type="button" role="radio" data-l="2" aria-checked="false" title="Asas de anjo, neon azul e raios"><i></i><span>Rápido</span></button><button type="button" role="radio" data-l="1" aria-checked="false" title="Voo com luzinha azul"><i></i><span>Normal</span></button></div>
+  <button class="hyb jmb" id="bJump" type="button" aria-pressed="false" title="Super pulo (segure Espaço)"><i class="jc"></i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 5 10h4.2v6.2h5.6V10H19z"/><path d="M5 19.5h14M7.5 22h9" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg><span>Pulo</span><b class="hk">␣</b></button>
   <div class="flyud" id="flyUD" hidden><button type="button" id="bUp" aria-label="Subir">▲</button><button type="button" id="bDn" aria-label="Descer">▼</button></div>
   <div class="joy" id="joyL" role="application" aria-label="Joystick de andar"><i></i><span>andar</span></div>
   <div class="joy" id="joyR" role="application" aria-label="Joystick de virar a câmera"><i></i><span>olhar</span></div>
@@ -335,7 +341,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
 </section>
 
 <div class="help">
-  <div><h2>Como jogar</h2><p>São nove: o laser, que sobe do nível 1 ao 6, três nucleares (Nuclear, Mininuclear e Nuclear tripla) e três poderes. Na Terra você segura para arrancar um bloco do chão e solta para arremessar. Na Terra você escolhe o tamanho, de uma pedra a um pedaço de avenida. Na Água você junta uma massa que flutua e escolhe a forma (esfera, lanças, chicote, onda ou vórtice), e com R ela vira gelo. Os Raios saem da sua mão e pulam de metal em metal. O Fogo lança bolas que incendeiam, e a Telecinese levanta tudo perto da mira para você arremessar. No Teletransporte você toca onde quer aparecer e surge lá num estalo, com raios e faíscas (no computador, a tecla T salta para onde o mouse aponta, com qualquer poder). As estrelas no alto mostram o nível de procurado: clique nelas para escolher de 0 a 5. Quanto mais você destrói sem parar, mais sobe a nota de estilo (de D a SSS), que multiplica os pontos. O titã tem um ponto fraco brilhando no peito, e acertar a cabeça dele enquanto carrega o raio o deixa atordoado. Nada tem recarga.</p></div>
+  <div><h2>Como jogar</h2><p>São nove: o laser, que sobe do nível 1 ao 6, três nucleares (Nuclear, Mininuclear e Nuclear tripla) e três poderes. Na Terra você segura para arrancar um bloco do chão e solta para arremessar. Na Terra você escolhe o tamanho, de uma pedra a um pedaço de avenida. Na Água você junta uma massa que flutua e escolhe a forma (esfera, lanças, chicote, onda ou vórtice), e com R ela vira gelo. Os Raios saem da sua mão e pulam de metal em metal. O Fogo lança bolas que incendeiam, e a Telecinese levanta tudo perto da mira para você arremessar. No Teletransporte você toca onde quer aparecer e surge lá num estalo, com raios e faíscas (no computador, a tecla T salta para onde o mouse aponta, com qualquer poder). As estrelas no alto mostram o nível de procurado: clique nelas para escolher de 0 a 5. Quanto mais você destrói sem parar, mais sobe a nota de estilo (de D a SSS), que multiplica os pontos. O titã tem um ponto fraco brilhando no peito, e acertar a cabeça dele enquanto carrega o raio o deixa atordoado. O botão Pulo (ou Espaço) é o super pulo: segure para carregar e solte; no ar, aperte de novo para o pisão. Nada tem recarga.</p></div>
   <div><h2>A cidade reage</h2><p>Chegue perto das pessoas e elas acenam, comemoram e tiram foto. Ataque e elas fogem. Depois vêm polícia, helicópteros, tanques e um titã que sai do mar.</p></div>
   <div><h2>Para quebrar</h2><p>O trem elevado descarrila, a roda-gigante sai rolando, a torre de TV e os guindastes tombam, postos e tanques de combustível explodem em cadeia e hidrantes viram chafarizes.</p></div>
   <div><h2>O mapa</h2><p>Tudo num mapa só, sem carregamento. A leste da cidade fica o mar, com a Ilha do Farol, a Ilha das Torres (ligada à costa norte por uma ponte pênsil) e a Ilha das Palmeiras. No fundo do mar está Atlântida, cinco cúpulas de vidro: entre pelo túnel da praia ou mergulhe voando (<kbd>C</kbd> desce na água). No céu flutuam duas cidades aéreas. Tudo isso também cai: a ponte, o vidro das cúpulas e as cidades aéreas.</p></div>
@@ -3341,12 +3347,15 @@ function heroMove(dt,rdt,dirx,dirz,sp){
     if(b){if(climbMode&&!b.glass){climbStart(b);break;}
      if(!heroWall(nx,HERO.z,MV.fy,step))fz=HERO.z;else if(!heroWall(HERO.x,nz,MV.fy,step))fx=HERO.x;else{fx=HERO.x;fz=HERO.z;}}}
    const dx=fx-HERO.x,dz=fz-HERO.z;if(!dx&&!dz)break;HERO.x=fx;HERO.z=fz;moveCam(dx,0,dz);}}
+ /* super pulo: o impulso para a frente continua no ar */
+ if(SJ.sj&&(SJ.jx||SJ.jz)){const n=Math.max(1,Math.ceil(Math.hypot(SJ.jx,SJ.jz)*rdt/2.6));for(let i=0;i<n;i++){const nx=clamp(HERO.x+SJ.jx*rdt/n,-HMAX,HMAX),nz=clamp(HERO.z+SJ.jz*rdt/n,-HMAX,HMAX);
+  const wb=heroWall(nx,nz,MV.fy,step);if(wb){if(Math.hypot(SJ.jx,SJ.jz)>35)applyBlast(nx,MV.fy+2,nz,6,160,{fire:false});SJ.jx=SJ.jz=0;break;}const ox=HERO.x,oz=HERO.z;HERO.x=nx;HERO.z=nz;moveCam(nx-ox,0,nz-oz);}}
  /* altura: telhado, chão ou água; fora disso, gravidade */
  if(!MV.climb){const s=heroSupport(HERO.x,HERO.z,MV.fy,step);
   /* descendo ladeira (túnel, morro) com os pés no chão: acompanha o piso em vez de sair voando */
   if(MV.fy>s+0.05&&MV.air<=0&&MV.vy===0&&MV.fy-s<Math.max(0.6,Math.hypot(HERO.x-hx0,HERO.z-hz0)*0.45))MV.fy=s;
   if(MV.fy>s+0.05){MV.vy-=78*rdt;MV.fy+=MV.vy*rdt;MV.air+=rdt;
-   if(MV.fy<=s){const hit=-MV.vy;MV.fy=s;MV.vy=0;if(hit>40&&MV.air>0.35){const wk=hyWk();ring(HERO.x,HERO.z,(6+hit*0.08)*Math.sqrt(wk),0.45,0xe8d6b8,s+0.5);G.shake=Math.max(G.shake,clamp(hit/260));
+   if(MV.fy<=s){const hit=-MV.vy;MV.fy=s;MV.vy=0;if(SJ.sj){sjLand(hit);}else if(hit>40&&MV.air>0.35){const wk=hyWk();ring(HERO.x,HERO.z,(6+hit*0.08)*Math.sqrt(wk),0.45,0xe8d6b8,s+0.5);G.shake=Math.max(G.shake,clamp(hit/260));
      if(hit>70)applyBlast(HERO.x,s+1,HERO.z,6+hit*0.04,hit*0.6,{fire:false,fling:1.2});sStomp(camDist(HERO.x,s,HERO.z)*1.5);}MV.air=0;}}
   else{MV.vy=0;MV.air=0;/* embaixo d'água sem voar: sobe boiando até a superfície */MV.fy=s>MV.fy?lerp(MV.fy,s,clamp(rdt*(MV.wet&&s-MV.fy>2.5?1.6:22))):s;}}}
  const ny=MV.fy+MV.hv;const dyh=MV.py==null?0:ny-MV.py;HERO.y=ny;MV.py=ny;
@@ -4911,6 +4920,45 @@ function carBoom(c){if(c.boomed||c.st===4)return;c.boomed=true;carHurt(c);const 
  for(let k=0;k<(MOB?2:4);k++){const a=R()*TAU,d=rr(3,9);flamePatch(x+Math.cos(a)*d,gh(x+Math.cos(a)*d,z+Math.sin(a)*d),z+Math.sin(a)*d,{r:2.6,life:rr(5,8)});}}
 STEP_HOOKS.push(fireWorld);
 RESET_HOOKS.push(()=>{FLM.length=0;FLM_I=0;for(const T of TBURN){const t=TREES[T.i];if(t)t.onF=false;}TBURN.length=0;for(const c of BURNC)c.fireT=0;BURNC.length=0;FT.on=false;FT.lx=null;TGF=null;});
+/* ================= Super pulo: segure para agachar e carregar, solte para saltar (de 15 m a uns 270 m).
+   Andando, o pulo vai para a frente. No ar, aperte de novo para o pisão: desce em linha reta e o impacto é maior.
+   A queda abre cratera, levanta destroços e solta uma onda de choque; caindo num telhado, arrebenta o prédio. Espaço no teclado. ================= */
+const SJ={ch:0,held:false,pound:false,sj:false,jx:0,jz:0};
+const jb=$('#bJump');
+function sjCan(){return G.started&&!G.paused&&!FLY.on&&!!hero;}
+function sjPress(){if(!sjCan())return;audio();if(MV.air>0.08){if(SJ.sj&&!SJ.pound)sjPound();return;}SJ.held=true;SJ.ch=0;jb.setAttribute('aria-pressed','true');}
+function sjRelease(){if(!SJ.held)return;SJ.held=false;jb.setAttribute('aria-pressed','false');jb.style.setProperty('--c','0');if(!sjCan())return;sjLaunch(SJ.ch);SJ.ch=0;}
+function sjLaunch(ch){if(MV.climb)climbEnd(false);const k=Math.pow(ch,1.15),v=lerp(30,205,k),s=MV.fy,x=HERO.x,z=HERO.z;
+ MV.vy=v;MV.fy=s+0.3;MV.air=0.01;SJ.sj=true;SJ.pound=false;
+ const hv=HY.mv?lerp(14,85,k):0;SJ.jx=Math.sin(HERO.face)*hv;SJ.jz=Math.cos(HERO.face)*hv;
+ ring(x,z,4+14*k,0.45,0xe8d6b8,s+0.4);for(let i=0;i<(MOB?5:9)+12*k;i++){const a=R()*TAU,sp=rr(6,16)*(0.5+k);smokeP(x+Math.cos(a)*2,s+0.5,z+Math.sin(a)*2,{s:rr(1.2,2.4)*(0.6+k),life:rr(1.2,2),vx:Math.cos(a)*sp,vz:Math.sin(a)*sp,vy:rr(0.5,2),up:0.5,drag:2,c0:[0.62,0.58,0.52],c1:[0.8,0.77,0.72]});}
+ if(k>0.35&&!MV.wet){if(!MV_ROOF)dig(x,z,3+6*k,0.5+1.4*k);applyBlast(x,s+1,z,5+10*k,60+220*k,{fire:false,fling:1+k,noB:k<0.7});}
+ G.shake=Math.max(G.shake,0.12+0.45*k);sStomp(camDist(x,s,z));sWhoosh(0.5+0.6*k,0.3,200,1200);buzz(20+Math.round(40*k));if(k>0.85)banner('SUPER PULO',1);}
+function sjPound(){SJ.pound=true;MV.vy=Math.min(MV.vy,-240);SJ.jx*=0.25;SJ.jz*=0.25;sWhoosh(0.6,0.45,1400,200);flashTo(0.05,0xfff2dc);}
+function sjLand(hit){const pd=SJ.pound;SJ.sj=false;SJ.pound=false;SJ.jx=SJ.jz=0;if(hit<32)return;const x=HERO.x,z=HERO.z,y=MV.fy,g=gh(x,z),roof=y-g>2;
+ const k=Math.min(1.6,clamp((hit-30)/220)*(pd?1.6:1)),R0=10+60*k;
+ hitstop(0.03+0.07*Math.min(1,k));G.shake=Math.max(G.shake,0.2+0.8*Math.min(1,k));buzz([40,20,60+Math.round(60*Math.min(1,k))]);
+ if(MV.wet){for(let i=0;i<12+20*k;i++){const a=R()*TAU,sp=rr(5,18)*(0.5+k);smokeP(x,y+1,z,{s:rr(2,4)*(0.6+k),life:rr(1,2),vx:Math.cos(a)*sp,vz:Math.sin(a)*sp,vy:rr(8,20)*(0.5+k),up:-10,drag:1,c0:[0.85,0.92,1],c1:[1,1,1]});}ring(x,z,R0*0.6,0.6,0xdff2ff,y+0.3);sStomp(camDist(x,y,z));return;}
+ if(k>0.12)shockwave(x,z,{R:R0,speed:180+160*k,pw:180+800*k,fling:1.1+k,fire:false,col:0xe8dcc6,ringCol:0xfff2dc,dust:0.4+0.8*k});
+ else{ring(x,z,R0,0.5,0xe8d6b8,y+0.4);applyBlast(x,y+1,z,R0*0.8,140,{fire:false});}
+ if(roof)applyBlast(x,y,z,6+10*k,350+900*k,{fire:false,fling:1.2});else dig(x,z,4+14*k,1+5*k);
+ for(let i=0;i<Math.round((MOB?6:12)+(MOB?10:22)*k);i++){const a=R()*TAU,sp=rr(8,22)*(0.5+k);chunk(x+Math.cos(a)*2,y+0.8,z+Math.sin(a)*2,Math.cos(a)*sp,rr(8,22)*(0.5+k),Math.sin(a)*sp,rr(0.4,1.3)*(0.6+k*0.6),roof?[0.62,0.6,0.58]:[0.44,0.39,0.33],{life:rr(8,14)});}
+ sStomp(camDist(x,y,z)*0.6);if(k>0.45)sBoom(14+16*k,camDist(x,y,z));if(pd&&k>0.6)banner('IMPACTO!',1);addChaos(Math.round(20*k));}
+function sjStep(dt){jb.style.visibility=FLY.on||!G.started?'hidden':'';
+ if(SJ.held){if(!sjCan()){SJ.held=false;jb.setAttribute('aria-pressed','false');return;}SJ.ch=Math.min(1,SJ.ch+dt/1.1);jb.style.setProperty('--c',SJ.ch.toFixed(3));const c=SJ.ch;
+  if(R()<dt*(8+30*c))smokeP(HERO.x+rr(-2,2)*(1+c*2),MV.fy+0.3,HERO.z+rr(-2,2)*(1+c*2),{s:rr(0.6,1.4),life:0.8,vy:rr(0.5,2),up:0.5,c0:[0.62,0.58,0.52],c1:[0.8,0.77,0.72]});
+  if(c>0.55&&R()<dt*12)chunk(HERO.x+rr(-3,3),MV.fy+0.3,HERO.z+rr(-3,3),rr(-1,1),rr(3,7),rr(-1,1),rr(0.15,0.35),[0.45,0.4,0.35],{life:2.5});
+  G.shake=Math.max(G.shake,c*0.07);loopSet('rumble',c*0.18);}
+ if(SJ.sj){if(FLY.on){SJ.sj=false;SJ.pound=false;SJ.jx=SJ.jz=0;return;}
+  if(MV.vy<-70&&R()<dt*(SJ.pound?40:16))smokeP(HERO.x+rr(-0.8,0.8),HERO.y+rr(2,5),HERO.z+rr(-0.8,0.8),{s:rr(0.8,1.6),life:0.6,vy:0,up:0,drag:3,c0:[0.92,0.94,0.97],c1:[1,1,1]});
+  if(SJ.pound&&R()<dt*30)fireP(HERO.x+rr(-0.6,0.6),HERO.y+rr(0,2),HERO.z+rr(-0.6,0.6),{s:rr(0.6,1.2),life:0.25,c0:[1,0.9,0.6],c1:[1,0.45,0.1]});}}
+STEP_HOOKS.push(sjStep);
+RESET_HOOKS.push(()=>{SJ.held=false;SJ.sj=false;SJ.pound=false;SJ.ch=0;SJ.jx=SJ.jz=0;});
+jb.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();try{jb.setPointerCapture(e.pointerId);}catch(_){}sjPress();});
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>jb.addEventListener(ev,()=>sjRelease()));jb.addEventListener('contextmenu',e=>e.preventDefault());
+addEventListener('keydown',e=>{if(e.code!=='Space'||FLY.on)return;const tg=(e.target&&e.target.tagName)||'';if(tg==='INPUT'||tg==='TEXTAREA'||tg==='BUTTON')return;e.preventDefault();if(!e.repeat)sjPress();});
+addEventListener('keyup',e=>{if(e.code==='Space')sjRelease();});
+window.__caos.SJ=SJ;window.__caos.sj={press:sjPress,release:sjRelease};
 RESET_HOOKS.push(()=>{BGRID=null;PGF=-1;});
 window.__caos.FIRE={FLM,TBURN,BURNC,TREES,flamePatch,carIgnite,treeIgnite};
 /* ================= Física da água: empuxo, arrasto, respingos, ondulações, afundar e boiar ================= */
