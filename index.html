@@ -1263,7 +1263,7 @@ function setChCol(k,ch){if(ch.hot>0){const h=clamp(ch.hot);chMesh.setColorAt(k,t
 function stepChunks(dt){let n=0;for(let i=0;i<LIM.chunk;i++){const c=CH[i];if(!c)continue;c.life-=dt;
   if(c.ctl){const r=ctlMove(c,dt);c.rx+=dt*4;c.ry+=dt*3;if(r===2)c.life=0;}
   else if(!c.rest){c.vy-=26*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.z+=c.vz*dt;c.rx+=c.w*dt;c.ry+=c.w*0.6*dt;const g=gh(c.x,c.z)+c.sy*0.5;if(c.x>SEA_X-80||c.wet||maybeWet(c.x,c.z))wPhys(c,dt,chunkRho(c),Math.max(0.6,c.sy),26,false);
-   if(c.y<g&&!portalPass(c)){if(c.onLand&&!c.landed){c.landed=true;c.onLand(c);}c.y=g;const iv=Math.abs(c.vy);c.vy*=-(c.sy<1.6?0.45:0.28);c.vx*=0.6;c.vz*=0.6;c.w=c.w*0.5+rr(-4,4)*Math.min(1,iv/14);if(Math.abs(c.vy)<1.2&&Math.hypot(c.vx,c.vz)<1)c.rest=true;}}
+   if(c.y<g&&!portalPass(c)){if(c.onLand&&!c.landed){c.landed=true;c.onLand(c);}c.y=g;const iv=Math.abs(c.vy);c.vy*=-(c.sy<1.6?0.45:0.28);c.vx*=0.6;c.vz*=0.6;c.w=c.w*0.5+rr(-4,4)*Math.min(1,iv/14);if(Math.abs(c.vy)<1.2&&Math.hypot(c.vx,c.vz)<1){c.rest=true;if(c.hot>0.45&&R()<0.22)flamePatch(c.x,c.y,c.z,{r:2.2,life:rr(4,7)});}}}
   if(c.hot>0){c.hot-=dt*0.2;if(!c.rest&&R()<dt*6)smokeP(c.x,c.y,c.z,{s:c.sx*0.5,life:1.1,up:1,vy:1,grow:1.2,c0:[0.2,0.18,0.17],c1:[0.5,0.5,0.5],hot:0.6});if(!c.rest&&R()<dt*10)fireP(c.x,c.y,c.z,{s:c.sx*0.6,life:0.3});}
   if(c.life<=0){CH[i]=null;continue;}
   const sh=c.life<2?c.life/2:1;dummy.position.set(c.x,c.y,c.z);dummy.rotation.set(c.rx,c.ry,0);dummy.scale.set(c.sx*sh,c.sy*sh,c.sz*sh);dummy.updateMatrix();chMesh.setMatrixAt(n,dummy.matrix);setChCol(n,c);n++;}
@@ -2729,7 +2729,7 @@ const WEAP=[
  {id:'earth',free:1,nm:'Terra',cat:'nature',mode:'hold',down:earthDown,step:earthStep,up:earthUp,d:'Escolha o tamanho, de rocha a uma montanha. Cada pedaço sai com forma própria. Segure para arrancar, mire e solte: em alta velocidade ele pega fogo como um cometa.'},
  {id:'water',free:1,nm:'Água',cat:'sky',mode:'hold',down:waterDown,step:waterStep,up:waterUp,d:'Segure para puxar a água do mar, do lago ou das lagoas. A massa cresce, segue a mira e arrasta o que atravessa. Solte para lançar. R transforma em gelo.'},
  {id:'storm',free:1,nm:'Raios',cat:'weird',mode:'hold',down:stormDown,step:stormStep,up:stormUp,d:'Descargas saem da sua mão e pulam de metal em metal. Segure mais de 1,5 s e solte para a descarga máxima.'},
- {id:'fire',free:1,nm:'Fogo',cat:'exp',mode:'hold',down:fireDown,step:fireStep,up:fireUp,d:'Toque para uma bola rápida. Segure e ela cresce até virar um sol sobre a sua cabeça. Vai reta para a mira.'},
+ {id:'fire',free:1,nm:'Fogo',cat:'exp',mode:'hold',down:fireDown,step:fireStep,up:fireUp,d:'Rastro: segure e arraste, e tudo onde o dedo passa pega fogo (chão, prédios, árvores, carros). Bola: toque para uma bola rápida ou segure até virar um sol.'},
  {id:'tk',free:1,nm:'Telecinese',tile:'Telec.',cat:'energy',mode:'hold',down:tkDown,step:tkStep,up:tkUp,d:'Mire em um titã, um monstro, um prédio ou no chão e segure: tudo sobe e segue a mira, até no céu. Arraste pelo chão para ir arrancando. Solte para arremessar longe.'},
  {id:'jump',free:1,nm:'Teletransporte',tile:'Teleporte',cat:'energy',mode:'hold',down:jumpDown,step:jumpStep,up:jumpUp,d:'Toque onde quer aparecer: você some num estalo e surge lá, com raios e faíscas. Segure para ir saltando em sequência. Mirando no céu, aparece no ar. T salta para onde o mouse aponta.'}];
 WEAP.push({id:'atitan',nm:'Titã dourado',tile:'Titã',cat:'ally',mode:'click',fire:p=>spawnAlly('atitan',p),d:'Chame um robô gigante dourado. Ele soca e dispara contra os monstros.'},
@@ -4789,6 +4789,81 @@ function jumpUp(){if(JP.n>=4)banner('SALTO EM SEQUÊNCIA x'+JP.n,1);}
 addEventListener('mousemove',e=>{JP.mx=e.clientX;JP.my=e.clientY;},{passive:true});
 addEventListener('keydown',e=>{const tg=(e.target&&e.target.tagName)||'';if(tg==='INPUT'||tg==='TEXTAREA'||!G.started||G.paused||e.code!=='KeyT'||e.repeat||firing||JP.mx==null)return;
  aimAt(JP.mx,JP.my);if(aimOK||aimSky)jumpTo(AIM.clone(),aimSky);e.preventDefault();});
+/* ================= Fogo: modo Rastro (onde o dedo passa pega fogo) e a física do fogo =================
+   Rastro: segure e arraste; o chão, os prédios, as árvores, os carros e as pessoas onde a mira passa pegam fogo.
+   Física: as chamas no chão duram uns segundos e queimam o que encosta; prédio em chamas perde vida e desaba, e o fogo pula
+   para o vizinho; árvore em chamas acende as do lado (incêndio na mata); carro em chamas explode depois de alguns segundos
+   e a explosão espalha mais fogo; destroço em brasa que cai acende o chão; água apaga. ================= */
+const FLM=[],FLM_CAP=MOB?70:160,TBURN=[],BURNC=[];let FLM_I=0;
+const FT={on:false,lx:null,ly:0,lz:0,snd:0,tick:0,ri:0,spread:0,n:0};
+/* árvores num grid de 24 m, montado na primeira vez */
+let TGF=null;function tgfBuild(){TGF=new Map();for(let i=0;i<TREES.length;i++){const t=TREES[i];const k=Math.floor(t.x/24)*100003+Math.floor(t.z/24);let a=TGF.get(k);if(!a)TGF.set(k,a=[]);a.push(i);}}
+function treesNear(x,z,r,f){if(!TGF)tgfBuild();const x0=Math.floor((x-r)/24),x1=Math.floor((x+r)/24),z0=Math.floor((z-r)/24),z1=Math.floor((z+r)/24);
+ for(let a=x0;a<=x1;a++)for(let b=z0;b<=z1;b++){const L=TGF.get(a*100003+b);if(!L)continue;for(const i of L){const t=TREES[i];if(t.gone||t.burnt)continue;if(Math.hypot(t.x-x,t.z-z)<r)f(i);}}}
+function treeIgnite(i){const t=TREES[i];if(t.gone||t.burnt||t.onF||t.frost)return;if(TBURN.length>=(MOB?40:110))return;t.onF=true;TBURN.push({i,t:0,dur:rr(7,11),nx:rr(0.3,0.8)});}
+function carIgnite(c){if(c.fireT>0||c.boomed||c.st===4||c.frz>0||c.dead)return;c.fireT=rr(3,6);if(BURNC.indexOf(c)<0)BURNC.push(c);if(c.civ)c.panic=true;}
+/* uma chama no chão (ou no telhado) */
+function flamePatch(x,y,z,o){o=o||{};const w=waterAt(x,z);if(w!=null&&y<=w+0.8){smokeP(x,w+0.5,z,{s:2.2,life:1.4,vy:3,up:1,c0:[0.9,0.92,0.95],c1:[1,1,1]});return null;}
+ const P={x,y,z,r:o.r||3.2,life:o.life||rr(7,10),max:0,b:null,tk:R()*0.5};P.max=P.life;
+ if(FLM.length<FLM_CAP)FLM.push(P);else{FLM[FLM_I]=P;FLM_I=(FLM_I+1)%FLM_CAP;}
+ if(y-gh(x,z)<2.5)burnAt(x,z,P.r*1.3,0.95);flameTouch(P,true);return P;}
+function flameTouch(P,first){const x=P.x,z=P.z,R0=P.r;
+ for(const b of B){if(b.st!==0)continue;const sh=b.shr||1,bx=b.x+(b.px||0),bz=b.z+(b.pz||0);if(Math.abs(x-bx)>b.w/2*sh+1.5||Math.abs(z-bz)>b.d/2*sh+1.5)continue;
+  const top=(b.gy||0)+(b.yo||0)+b.H*sh*(b.k||1);if(P.y>top+3)continue;
+  if(!b.sol&&!(b.frz>0)){if(!(b.fire>0))ignite(b);b.fire=Math.max(b.fire||0,24);b.burn=Math.min(0.85,(b.burn||0)+(first?0.1:0.03));bColor(b);}
+  if(first&&Math.abs(P.y-top)<3)P.b=b;}
+ treesNear(x,z,R0+2.5,treeIgnite);
+ for(let q=0;q<2;q++){const arr=q?cops:people;for(const p of arr){if(p.st>=2||p.ctl)continue;const dx=p.x-x,dz=p.z-z;if(dx>R0+16||dx<-R0-16||dz>R0+16||dz<-R0-16)continue;if(Math.abs(p.y-P.y)>6)continue;const d=Math.hypot(dx,dz);
+  if(d<R0){fling(p,dx,dz,rr(5,9),rr(5,9));fireP(p.x,p.y+1,p.z,{s:1.1,life:0.45,vy:3});}
+  else if(!q&&p.st===0&&!p.zom&&!p.seat&&!(p.frz>0)&&!p.goo){p.st=1;p.fear=rr(6,10);p.fan=0;p.flee={x:dx,z:dz};}}}
+ for(const arr of VEH_ARRS)for(const c of arr){if(c.st===4||c.ctl)continue;const dx=c.x-x,dz=c.z-z;if(dx>R0+2.5||dx<-R0-2.5||dz>R0+2.5||dz<-R0-2.5)continue;if(Math.abs(c.y-P.y)>5)continue;carIgnite(c);}
+ for(const T of titans){if(T.dead||T.ally)continue;if(Math.hypot(T.x-x,T.z-z)<R0+T.sc*0.3)titanDamage(T,first?30:12,{cap:0.03,el:'fire'});}}
+/* modo Rastro do poder Fogo */
+function ftDown(p){FT.on=true;FT.lx=null;FT.n=0;sWhoosh(0.5,0.25,300,900);ftAdd(p);}
+function ftAdd(p){if(aimSky)return;const x=p.x,y=p.y,z=p.z;
+ if(FT.lx==null||Math.hypot(x-FT.lx,z-FT.lz)>70){flamePatch(x,y,z);FT.lx=x;FT.ly=y;FT.lz=z;FT.n++;return;}
+ const d=Math.hypot(x-FT.lx,y-FT.ly,z-FT.lz);if(d<2.6)return;const n=Math.min(MOB?5:8,Math.floor(d/2.6));
+ for(let i=1;i<=n;i++){const t=i/n;flamePatch(lerp(FT.lx,x,t)+rr(-0.6,0.6),lerp(FT.ly,y,t),lerp(FT.lz,z,t)+rr(-0.6,0.6));FT.n++;}FT.lx=x;FT.ly=y;FT.lz=z;}
+function ftStep(dt,p){if(!FT.on)ftDown(p);ftAdd(p);if(hero)hero.wrap.rotation.y=Math.atan2(p.x-HERO.x,p.z-HERO.z);
+ handPos(_hd);if(R()<dt*30)fireP(_hd.x+rr(-0.3,0.3),_hd.y+rr(-0.2,0.3),_hd.z+rr(-0.3,0.3),{s:rr(0.4,0.8),life:rr(0.25,0.45),vy:rr(1,3),up:3});
+ loopSet('flame',0.35);FT.snd-=dt;if(FT.snd<=0){FT.snd=rr(0.35,0.6);sCrackle(camDist(p.x,p.y,p.z));}}
+function ftUp(){FT.on=false;FT.lx=null;if(FT.n>=40){banner('RASTRO DE FOGO',1);}}
+/* a física: chamas, árvores, carros e prédios, a cada quadro (efeitos) e a cada 0,5 s (queima e espalha) */
+function fireWorld(dt){const cp=camera.position;let near=0;
+ for(let i=FLM.length-1;i>=0;i--){const P=FLM[i];if(!P)continue;P.life-=dt;if(P.life<=0||(P.b&&P.b.st!==0)){FLM.splice(i,1);if(FLM_I>FLM.length)FLM_I=0;continue;}
+  const k=P.life/P.max,dc=Math.hypot(P.x-cp.x,P.z-cp.z);if(dc<160)near++;if(dc>(MOB?420:650))continue;
+  if(R()<dt*(MOB?4:7)*(0.4+k))fireP(P.x+rr(-P.r,P.r)*0.6,P.y+0.3,P.z+rr(-P.r,P.r)*0.6,{s:rr(1,2.2)*(0.5+0.6*k),life:rr(0.45,0.85),vy:rr(2,5),up:4,drag:1.2,c0:R()<0.3?[1,0.85,0.45]:[1,0.62,0.22],c1:[0.9,0.2,0.02]});
+  if(R()<dt*0.9*k)smokeP(P.x,P.y+2.5,P.z,{s:rr(1.5,2.6),life:rr(3,5),vy:3,vx:1.5,up:1.5,grow:1.6,c0:[0.16,0.15,0.14],c1:[0.45,0.44,0.43]});}
+ if(near)loopSet('flame',clamp(near/40)*0.3);
+ if(frameN%7===0&&FLM.length){const P=FLM[(R()*FLM.length)|0];if(P&&Math.hypot(P.x-cp.x,P.z-cp.z)<200)flashLight(P.x,P.y+2,P.z,2.2,40,0.25,0xff8a3a);}
+ for(let i=TBURN.length-1;i>=0;i--){const T=TBURN[i],t=TREES[T.i];T.t+=dt;const h=t.h||9,gy=t.fixY!=null?t.fixY:gh(t.x,t.z);
+  if(t.gone){t.onF=false;TBURN.splice(i,1);continue;}
+  if(R()<dt*(MOB?5:9))fireP(t.x+rr(-2,2),gy+h*rr(0.35,1),t.z+rr(-2,2),{s:rr(1.2,2.6),life:rr(0.5,0.9),vy:rr(3,6),up:5,drag:1,c0:[1,0.66,0.25],c1:[0.9,0.2,0.02]});
+  if(R()<dt*1.2)smokeP(t.x,gy+h+2,t.z,{s:rr(2,3.5),life:rr(4,6),vy:3,vx:1.5,up:1.5,grow:1.7,c0:[0.14,0.13,0.12],c1:[0.42,0.41,0.4]});
+  T.nx-=dt;if(T.nx<=0){T.nx=rr(0.5,0.9);treesNear(t.x,t.z,10,j=>{if(R()<0.28)treeIgnite(j);});if(R()<0.3)flameTouch({x:t.x,y:gy,z:t.z,r:3},false);}
+  if(T.t>=T.dur){t.onF=false;treeBurn(T.i);t.bare=true;treeSet(T.i);TBURN.splice(i,1);}}
+ for(let i=BURNC.length-1;i>=0;i--){const c=BURNC[i];if(c.st===4||c.boomed||c.frz>0||!(c.fireT>0)){c.fireT=0;BURNC.splice(i,1);continue;}c.fireT-=dt;
+  if(R()<dt*14)fireP(c.x+rr(-1.2,1.2),c.y+rr(1,2),c.z+rr(-1.2,1.2),{s:rr(0.8,1.6),life:rr(0.4,0.7),vy:rr(2,5),up:4});if(R()<dt*2)smokeP(c.x,c.y+2.5,c.z,{s:1.6,life:3,vy:3,up:1.5,c0:[0.12,0.11,0.11],c1:[0.4,0.4,0.4]});
+  if(c.fireT<=0){c.fireT=0;BURNC.splice(i,1);carBoom(c);}}
+ FT.tick-=dt;if(FT.tick>0)return;FT.tick=0.5;
+ /* chamas continuam queimando o que encosta (algumas por vez) */
+ const nT=Math.min(FLM.length,MOB?10:24);for(let j=0;j<nT;j++){FT.ri=(FT.ri+1)%Math.max(1,FLM.length);const P=FLM[FT.ri];if(P)flameTouch(P,false);}
+ /* prédios em chamas: perdem vida, escurecem e passam o fogo */
+ let burning=0;for(const b of B){if(!(b.fire>0)||b.st!==0)continue;burning++;if(b.sol||b.a==='stadium')continue;
+  b.hp-=(2.2+b.H*0.07)*0.5/b.res;b.burn=Math.min(0.9,(b.burn||0)+0.015);if(R()<0.3)bColor(b);
+  if(b.hp<=0){collapse(b,0,0,{hot:true,fling:0.8});continue;}
+  if(R()<0.1&&(G.fireN||0)<(MOB?30:70)){if(!b.nb)bNeighbors(b);if(b.nb.length){const o=b.nb[(R()*b.nb.length)|0];if(o.st===0&&!(o.fire>0)&&!o.sol&&!(o.frz>0))ignite(o);}}
+  if(R()<0.15)treesNear(b.x,b.z,Math.max(b.w,b.d)/2+8,j=>{if(R()<0.4)treeIgnite(j);});}
+ G.fireN=burning;}
+function bNeighbors(b){b.nb=[];for(const o of B){if(o===b)continue;const gx=Math.abs(o.x-b.x)-(o.w+b.w)/2,gz=Math.abs(o.z-b.z)-(o.d+b.d)/2;if(gx<7&&gz<7)b.nb.push(o);}}
+/* carro em chamas: o tanque estoura */
+function carBoom(c){if(c.boomed||c.st===4)return;c.boomed=true;carHurt(c);const x=c.x,y=c.y,z=c.z;
+ explode(x,y+1,z,c.kind==='tanker'?24:9,c.kind==='tanker'?280:150,{crater:0.4});fireball(x,y+1.5,z,c.kind==='tanker'?22:8);
+ if(c.st<2)flingCar(c,rr(-1,1),rr(-1,1),rr(2,6),rr(16,24));
+ for(let k=0;k<(MOB?2:4);k++){const a=R()*TAU,d=rr(3,9);flamePatch(x+Math.cos(a)*d,gh(x+Math.cos(a)*d,z+Math.sin(a)*d),z+Math.sin(a)*d,{r:2.6,life:rr(5,8)});}}
+STEP_HOOKS.push(fireWorld);
+RESET_HOOKS.push(()=>{FLM.length=0;FLM_I=0;for(const T of TBURN){const t=TREES[T.i];if(t)t.onF=false;}TBURN.length=0;for(const c of BURNC)c.fireT=0;BURNC.length=0;FT.on=false;FT.lx=null;TGF=null;});
+window.__caos.FIRE={FLM,TBURN,BURNC,TREES,flamePatch,carIgnite,treeIgnite};
 /* ================= Física da água: empuxo, arrasto, respingos, ondulações, afundar e boiar ================= */
 /* caixas rápidas das águas (lago, lagoas e mar): evitam chamar waterAt para o que está longe de qualquer água */
 let WBOX=null;
@@ -4842,20 +4917,21 @@ STEP_HOOKS.push(dt=>{if(!firing||!aimOK||!G.hand)return;const w0=WEAP[G.w];if(!w
  if(R()<dt*20)fireP(AIM.x+rr(-4,4),w+0.1,AIM.z+rr(-4,4),{vx:rr(-2,2),vy:rr(3,7),vz:rr(-2,2),up:-20,s:rr(0.3,0.7),life:0.4,gl:0.6,c0:[1,1,1],c1:[0.7,0.88,1]});
  if(frameN%10===0)ring(AIM.x,AIM.z,6+G.lv*2,0.5,0xe8f6ff,w+0.2);});
 /* ================= Opções do poder selecionado (tamanho da terra, forma da água, gelo, alcance) ================= */
-const PW={earth:store.get('pwEarth',2),wform:store.get('pwWform',0),ice:false,tk:store.get('pwTk',1)};
+const PW={fmode:store.get('pwFmode',1),earth:store.get('pwEarth',2),wform:store.get('pwWform',0),ice:false,tk:store.get('pwTk',1)};
 
 const WFORMS=['Massa','Lanças','Onda','Vórtice'],TKR=[{n:'Perto',r:12,max:12},{n:'Médio',r:24,max:24},{n:'Longe',r:42,max:40}];
 const pwEl=document.createElement('div');pwEl.className='pwopt';pwEl.hidden=true;stage.appendChild(pwEl);
 function pwRow(label,opts,cur,key){return '<div class="pwr"><span>'+label+'</span><div class="pws" data-k="'+key+'">'+opts.map((o,i)=>'<button type="button" data-i="'+i+'" aria-pressed="'+(i===cur)+'">'+o+'</button>').join('')+'</div></div>';}
 let pwLast='';
 function pwUI(){const w=G.hand?WEAP[G.w]:null,id=w?w.id:'';let html='';
- if(id==='earth')html=pwRow('Tamanho',EARTH_SZ.map(o=>o.n),PW.earth,'earth');
+ if(id==='fire')html=pwRow('Modo',['Bola','Rastro'],PW.fmode,'fmode');
+ else if(id==='earth')html=pwRow('Tamanho',EARTH_SZ.map(o=>o.n),PW.earth,'earth');
  else if(id==='water'){if(PW.wform>3)PW.wform=0;html=pwRow('Forma',WFORMS,PW.wform,'wform')+pwRow('Estado',['Água','Gelo'],PW.ice?1:0,'ice');}
  else if(id==='tk'){if(PW.tkf==null)PW.tkf=store.get('pwTkf',1);html=pwRow('Alcance',TKR.map(o=>o.n),PW.tk,'tk')+pwRow('Força',TKP.n,PW.tkf,'tkf');}
- const key=id+'|'+PW.earth+PW.wform+PW.ice+PW.tk;if(key===pwLast)return;pwLast=key;pwEl.hidden=!html;pwEl.innerHTML=html+(html&&!TOUCH?'<small>Q / E mudam · R troca água e gelo</small>':'');}
+ const key=id+'|'+PW.earth+PW.wform+PW.ice+PW.tk+PW.fmode;if(key===pwLast)return;pwLast=key;pwEl.hidden=!html;pwEl.innerHTML=html+(html&&!TOUCH?'<small>Q / E mudam · R troca água e gelo</small>':'');}
 pwEl.addEventListener('pointerdown',e=>e.stopPropagation());
 pwEl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.parentNode.dataset.k,i=+b.dataset.i;if(k==='ice')PW.ice=i===1;else{PW[k]=i;store.set('pw'+k[0].toUpperCase()+k.slice(1),i);}pwLast='';pwUI();sPop(0.15);});
-function pwCycle(d){const w=G.hand?WEAP[G.w]:null;if(!w)return;if(w.id==='earth')PW.earth=(PW.earth+d+5)%5;else if(w.id==='water')PW.wform=(Math.min(3,PW.wform)+d+4)%4;else if(w.id==='tk')PW.tk=(PW.tk+d+3)%3;else return;pwLast='';pwUI();sPop(0.12);}
+function pwCycle(d){const w=G.hand?WEAP[G.w]:null;if(!w)return;if(w.id==='fire')PW.fmode=1-PW.fmode;else if(w.id==='earth')PW.earth=(PW.earth+d+5)%5;else if(w.id==='water')PW.wform=(Math.min(3,PW.wform)+d+4)%4;else if(w.id==='tk')PW.tk=(PW.tk+d+3)%3;else return;pwLast='';pwUI();sPop(0.12);}
 addEventListener('keydown',e=>{const t=(e.target&&e.target.tagName)||'';if(t==='INPUT'||t==='TEXTAREA'||!G.started)return;if(e.code==='KeyQ')pwCycle(-1);else if(e.code==='KeyE')pwCycle(1);else if(e.code==='KeyR'){const w=G.hand?WEAP[G.w]:null;if(w&&w.id==='water'){PW.ice=!PW.ice;pwLast='';pwUI();if(WB.blob)wbFreeze(PW.ice);}}});
 STEP_HOOKS.push(()=>{if(frameN%6===0)pwUI();});
 
@@ -5053,8 +5129,8 @@ function fbAnim(g,t,vx,vy,vz){for(const m of[g.userData.fl,g.userData.fl2]){cons
 /* tamanho pelo tempo segurando: pequena na mão, depois um sol */
 function fbSize(ch){return ch<1?0.9+ch*1.3:Math.min(FB_MAX,2.2+Math.pow(ch-1,1.35)*4.2);}
 function fbHold(s){const f=hero?hero.wrap.rotation.y:0;if(s<3)return[HERO.x+Math.sin(f)*1.6,HERO.y+3.8,HERO.z+Math.cos(f)*1.6];const fw=3+s*1.25;return[HERO.x+Math.sin(f)*fw,HERO.y+6+s*1.05,HERO.z+Math.cos(f)*fw];}
-function fireDown(p){FB.charging=true;FB.ch=0;FB.sun=false;if(!FB.hand)FB.hand=fbMesh();FB.hand.visible=true;const h=fbHold(1);FB.hx=h[0];FB.hy=h[1];FB.hz=h[2];}
-function fireStep(dt,p){if(!FB.charging)fireDown(p);FB.ch=Math.min(FB_CH,FB.ch+dt);if(hero)hero.wrap.rotation.y=Math.atan2(p.x-HERO.x,p.z-HERO.z);
+function fireDown(p){if(PW.fmode===1)return ftDown(p);FB.charging=true;FB.ch=0;FB.sun=false;if(!FB.hand)FB.hand=fbMesh();FB.hand.visible=true;const h=fbHold(1);FB.hx=h[0];FB.hy=h[1];FB.hz=h[2];}
+function fireStep(dt,p){if(PW.fmode===1)return ftStep(dt,p);if(!FB.charging)fireDown(p);FB.ch=Math.min(FB_CH,FB.ch+dt);if(hero)hero.wrap.rotation.y=Math.atan2(p.x-HERO.x,p.z-HERO.z);
  const s=fbSize(FB.ch),h=fbHold(s),k=clamp(dt*8);FB.hx+=(h[0]-FB.hx)*k;FB.hy+=(h[1]-FB.hy)*k;FB.hz+=(h[2]-FB.hz)*k;const hx=FB.hx,hy=FB.hy,hz=FB.hz;
  FB.hand.position.set(hx,hy,hz);FB.hand.scale.setScalar(s);FB.hand.rotation.y+=dt*(1+s*0.05);fbAnim(FB.hand,G.t,0,2,0);{const cd=camera.position.distanceTo(FB.hand.position),near=clamp((cd-s*1.2)/(s*2.5));CORONAM.opacity=(0.1+Math.min(0.08,s*0.003))*near;FB.hand.userData.fl.material.opacity=0.6*(0.35+0.65*near);FB.hand.userData.fl2.material.opacity=0.3*(0.3+0.7*near);}
  const np=Math.min(MOB?6:12,1+s*0.4);for(let i=0;i<np;i++)if(R()<dt*20){const a=R()*TAU,e=R()*2-1,q=Math.sqrt(1-e*e);fireP(hx+Math.cos(a)*q*s*0.9,hy+e*s*0.9,hz+Math.sin(a)*q*s*0.9,{vx:Math.cos(a)*q*s*0.8,vy:e*s*0.8+rr(2,6),vz:Math.sin(a)*q*s*0.8,s:Math.max(0.5,s*rr(0.15,0.3)),life:rr(0.3,0.7),drag:1.5,gl:2.5,c0:[1,0.85,0.4],c1:[1,0.3,0.05]});}
@@ -5064,7 +5140,7 @@ function fireStep(dt,p){if(!FB.charging)fireDown(p);FB.ch=Math.min(FB_CH,FB.ch+d
  /* o calor do sol incendeia o que está logo embaixo */
  if(s>8&&frameN%20===0){applyBlast(hx,Math.max(gS(hx,hz),hy-s*1.6),hz,s*1.2,s*5,{fire:true,fling:0.25});G.shake=Math.max(G.shake,clamp(s/200));}
  if(s>=20&&!FB.sun){FB.sun=true;banner('UM SOL NA SUA MÃO',1.2);sRoar(400);buzz([30,20,60]);}}
-function fireUp(p){if(!FB.charging)return;FB.charging=false;if(FB.hand)FB.hand.visible=false;const ch=FB.ch;FB.ch=0;const s=fbSize(ch);const sx=FB.hx,sy=FB.hy,sz=FB.hz;
+function fireUp(p){if(PW.fmode===1||FT.on)return ftUp(p);if(!FB.charging)return;FB.charging=false;if(FB.hand)FB.hand.visible=false;const ch=FB.ch;FB.ch=0;const s=fbSize(ch);const sx=FB.hx,sy=FB.hy,sz=FB.hz;
  const dx=p.x-sx,dy=p.y-sy,dz=p.z-sz,d=Math.hypot(dx,dy,dz)||1;const k=clamp((s-3)/(FB_MAX-3));const sp=s<3?210:lerp(160,75,k);const gv=s<3?3:1.2;const T=d/sp;
  const b={g:fbMesh(),x:sx,y:sy,z:sz,vx:dx/T,vy:dy/T+(aimSky?0:0.5*gv*T),vz:dz/T,s,ch,gv,t:0,plow:0};b.g.scale.setScalar(s);FB.list.push(b);if(FB.list.length>(MOB?8:16)){const o=FB.list.shift();fbFree(o.g);}
  sBoom(6+s*1.5,camDist(sx,sy,sz));G.kick=Math.max(G.kick,0.06+k*0.3);buzz(s>8?[40,20,60]:15);if(s>=12)hitstop(0.05);}
@@ -5128,7 +5204,9 @@ function waterStep(dt,p){if(!WB.blob||!WB.blob.visible)waterDown(p);WB.t+=dt;if(
   for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-WB.x,_cp.y-WB.y,_cp.z-WB.z)<T.sc*0.35+r){titanDamage(T,r*r*2+60,{el:PW.ice?'ice':'water',cap:0.03});T.x+=WB.vx/n*Math.min(6,sp*0.05);T.z+=WB.vz/n*Math.min(6,sp*0.05);T.stg=Math.max(T.stg||0,0.3);}}}
  if(PW.ice)loopSet('wind',0.08+Math.min(0.15,WB.vol/600));}
 function wbHitFx(x,y,z,r){for(let k=0;k<(MOB?3:6);k++){const a=R()*TAU;fireP(x,y+0.5,z,{vx:Math.cos(a)*rr(4,14),vy:rr(5,14),vz:Math.sin(a)*rr(4,14),up:-26,drag:0.6,s:rr(0.5,1.2),life:rr(0.5,0.9),gl:0.3,c0:PW.ice?[0.95,0.98,1]:[0.9,0.97,1],c1:PW.ice?[0.7,0.85,1]:[0.3,0.65,1]});}if(R()<0.4)sSplashM(camDist(x,y,z),0.3);}
-function douse(x,z,r){for(const b of B){if(b.st!==0||!(b.fire>0||b.burn>0.05))continue;if(Math.abs(b.x-x)>b.w/2+r||Math.abs(b.z-z)>b.d/2+r)continue;b.fire=0;b.burn*=0.5;bColor(b);smokeP(b.x,b.gy+b.H*0.6,b.z,{s:6,life:2.5,vy:6,up:2,grow:1.6,c0:[0.92,0.94,0.96],c1:[0.98,0.98,1]});}}
+function douse(x,z,r){for(let i=FLM.length-1;i>=0;i--){const P=FLM[i];if(Math.hypot(P.x-x,P.z-z)<r+P.r){FLM.splice(i,1);smokeP(P.x,P.y+1,P.z,{s:2.5,life:1.6,vy:4,up:1.5,c0:[0.9,0.92,0.95],c1:[1,1,1]});}}if(FLM_I>FLM.length)FLM_I=0;
+ for(let i=TBURN.length-1;i>=0;i--){const t=TREES[TBURN[i].i];if(Math.hypot(t.x-x,t.z-z)<r+4){t.onF=false;TBURN.splice(i,1);}}for(const c of BURNC)if(Math.hypot(c.x-x,c.z-z)<r+3)c.fireT=0;
+for(const b of B){if(b.st!==0||!(b.fire>0||b.burn>0.05))continue;if(Math.abs(b.x-x)>b.w/2+r||Math.abs(b.z-z)>b.d/2+r)continue;b.fire=0;b.burn*=0.5;bColor(b);smokeP(b.x,b.gy+b.H*0.6,b.z,{s:6,life:2.5,vy:6,up:2,grow:1.6,c0:[0.92,0.94,0.96],c1:[0.98,0.98,1]});}}
 /* congelar: gente e carros viram gelo (quebram ao serem atingidos), prédios ficam quebradiços */
 function freezeAt(x,z,r,dur){for(const P of[people,cops])for(const o of P){if(o.st>=2||o.ctl||o.giant)continue;if(Math.hypot(o.x-x,o.z-z)<r)o.frz=Math.max(o.frz||0,dur);}
  for(const T of VEH_ARRS)for(const c of T){if(c.st>=2||c.ctl||c.hide)continue;if(Math.hypot(c.x-x,c.z-z)<r){c.frz=Math.max(c.frz||0,dur);vehColor(c);}}
