@@ -1951,14 +1951,39 @@ const VT={
 for(const k in VT){const T=VT[k];T.mb0=new THREE.MeshStandardMaterial({roughness:0.35,metalness:0.25});T.md0=glowify(vcMat({roughness:0.5}),1.4);T.mbL=legify(new THREE.MeshStandardMaterial({roughness:0.7,metalness:0}),'vb');T.mdL=legify(glowify(vcMat({roughness:0.6}),1.4),'vd');T.gait=new THREE.InstancedBufferAttribute(new Float32Array(T.cap*2),2);T.gait.setUsage(THREE.DynamicDrawUsage);T.gk=0;T.alt=null;
  T.mb=new THREE.InstancedMesh(T.body,T.mb0,T.cap);T.md=new THREE.InstancedMesh(T.det,T.md0,T.cap);
  for(const m of[T.mb,T.md]){m.castShadow=true;m.receiveShadow=true;m.frustumCulled=false;m.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(T.cap*3).fill(1),3);m.instanceColor.setUsage(THREE.DynamicDrawUsage);m.count=0;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(m);}T.n=0;}
-function newVeh(kind){const T=VT[kind];const c={veh:true,civ:true,kind,ph:R()*TAU,alt:T.alt?rr(T.alt[0],T.alt[1]):0,col:pick(T.cols),x:0,z:0,ax:'x',y:0,dir:1,sp:rr(T.sp[0],T.sp[1]),st:0,rx:0,rz:0,ctl:null,downT:0,goneT:0,sc:1,shrT:0,frz:0};respawnCar(c,true);return c;}
+/* ================= Carros do Car Kit do Kenney (CC0, www.kenney.nl): de perto, modelo de verdade (13 tipos, rodas leves);
+   de longe, o carro simples de sempre. Chega depois que o jogo abre (veh.bin, ~410 KB); se falhar, nada muda. ================= */
+const KCAR={ok:false,V:[],pol:null,polTop:1.78,LOD2:(MOB?170:270)**2,mp:null};
+const KC_W={sedan:3,'sedan-sports':2,'hatchback-sports':2,suv:2,'suv-luxury':1,van:2,truck:1,taxi:2,delivery:1,ambulance:0.35,firetruck:0.25,'garbage-truck':0.5};
+function kcarGeo(buf,base,e){if(!e)return null;const g=new THREE.BufferGeometry();const p=new Int16Array(buf,base+e.pos,e.nv*3),P=new Float32Array(e.nv*3);for(let i=0;i<P.length;i++)P[i]=p[i]/1000;
+ const c=new Uint8Array(buf,base+e.col,e.nv*3),C=new Float32Array(e.nv*3);for(let i=0;i<C.length;i++)C[i]=c[i]/160;
+ g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('normal',new THREE.BufferAttribute(new Int8Array(buf,base+e.nor,e.nv*3),3,true));g.setAttribute('color',new THREE.BufferAttribute(C,3));
+ g.setIndex(new THREE.BufferAttribute(new Uint16Array(buf,base+e.idx,e.ni),1));g.computeBoundingSphere();return g;}
+function kcarMesh(geo,mat,cap){if(!geo)return null;const m=new THREE.InstancedMesh(geo,mat,cap);m.castShadow=true;m.receiveShadow=true;m.frustumCulled=false;m.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);m.instanceColor.setUsage(THREE.DynamicDrawUsage);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.count=0;scene.add(m);return m;}
+function kcarPick(){let s=0;for(const V of KCAR.V)s+=V.w;let r=R()*s;for(let i=0;i<KCAR.V.length;i++){r-=KCAR.V[i].w;if(r<=0)return i;}return 0;}
+function kcarLoad(){fetch('veh.bin').then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer();}).then(buf=>{
+ const hl=new DataView(buf).getUint32(0,true),H=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,4,hl))),base=4+hl;
+ const T=VT.car,cap=Math.min(T.cap,MOB?40:90),pm=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.35,metalness:0.25,flatShading:true});KCAR.mp=pm;
+ for(const e of H){if(e.nm==='police'){KCAR.pol=kcarGeo(buf,base,e.d);KCAR.polTop=e.box[1][1]+0.08;continue;}if(!KC_W[e.nm])continue;
+  const fixed=!e.paint;KCAR.V.push({nm:e.nm,w:KC_W[e.nm],fixed,rep:e.rep,md:kcarMesh(kcarGeo(buf,base,e.d),T.md0,fixed?Math.ceil(cap/3):cap),mb:fixed?null:kcarMesh(kcarGeo(buf,base,e.p),pm,cap),n:0,cap:fixed?Math.ceil(cap/3):cap});}
+ for(const c of cars)if(c.kind==='car')kcarAssign(c);KCAR.ok=KCAR.V.length>0;}).catch(err=>console.warn('carros Kenney indisponíveis',err));}
+/* cada carro sorteia um modelo; os de cor fixa (táxi, ambulância...) usam a cor deles também de longe */
+function kcarAssign(c){if(!KCAR.V.length)return;c.vm=kcarPick();const V=KCAR.V[c.vm];if(V.fixed)c.col=V.rep;else if(c.colP)c.col=c.colP;}
+function kcarPut(V,c,s,fy){const i=V.n++;dummy.position.set(c.x,c.y+fy+(Math.abs(c.rz%Math.PI)>1?1.6*s:0),c.z);dummy.rotation.set(c.rx||0,vehYaw(c),c.rz||0);if(c.flat)dummy.scale.set(1.15*s,0.22*s,1.15*s);else dummy.scale.setScalar(s);dummy.updateMatrix();
+ V.md.setMatrixAt(i,dummy.matrix);let d=1;if(c.burnt)d=0.3;V.md.setColorAt(i,c.frz>0?tmpC.setRGB(0.85,0.95,1.1):tmpC.setRGB(d,d,d));
+ if(V.mb){V.mb.setMatrixAt(i,dummy.matrix);let r=c.col[0],g=c.col[1],b=c.col[2];if(c.burnt){r=g=b=0.17;}if(c.frz>0){r=ICY[0];g=ICY[1];b=ICY[2];}V.mb.setColorAt(i,tmpC.setRGB(r,g,b));}}
+function kcarFlush(){for(const V of KCAR.V){for(const m of[V.md,V.mb]){if(!m)continue;m.count=V.n;m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;}}}
+setTimeout(kcarLoad,1200);
+function newVeh(kind){const T=VT[kind];const c={veh:true,civ:true,kind,ph:R()*TAU,alt:T.alt?rr(T.alt[0],T.alt[1]):0,col:pick(T.cols),x:0,z:0,ax:'x',y:0,dir:1,sp:rr(T.sp[0],T.sp[1]),st:0,rx:0,rz:0,ctl:null,downT:0,goneT:0,sc:1,shrT:0,frz:0};c.colP=c.col;if(kind==='car')kcarAssign(c);respawnCar(c,true);return c;}
 function respawnCar(c,any){const lp=any?lanePos(true):farLane(true);Object.assign(c,{x:lp.x,z:lp.z,ax:lp.ax,y:0,dir:lp.off>0?(lp.ax==='x'?1:-1):(lp.ax==='x'?-1:1),st:0,rx:0,rz:0,ctl:null,downT:0,goneT:0,burnt:false,counted:false,panic:false,flat:false,hide:false,boomed:false,dead:false,frz:0,shrT:0,sc:1,stall:0,loops:0,hop:false,goo:0,portal:null});const T=VT[c.kind];c.alt=T&&T.alt?rr(T.alt[0],T.alt[1]):0;if(c.path)pathPlace(c,any);}
 function vehColor(c){if(c.g){const m=c.g.userData.mat;if(m)m.color.setScalar(c.burnt?0.25:1);}}
 function vehYaw(c){return c.yaw!=null?c.yaw:c.ax==='x'?(c.dir>0?0:Math.PI):(c.dir>0?-Math.PI/2:Math.PI/2);}
-function renderVehicles(){const cp=camera.position;for(const k in VT)VT[k].n=0;
+function renderVehicles(){const cp=camera.position;for(const k in VT)VT[k].n=0;for(const V of KCAR.V)V.n=0;
  for(const c of cars){if(c.hide||c.st===4)continue;const T=VT[c.kind];if(T.n>=T.cap)continue;const dx=c.x-cp.x,dz=c.z-cp.z,VD=[MOB?700:900,MOB?1200:1600,2600][Q];if(dx*dx+dz*dz>VD*VD&&!c.ctl&&c.st!==2)continue;const s=c.sc||1;if(!inView(c.x,c.y+1.5*s,c.z,7*s))continue;
+  if(KCAR.ok&&c.vm!=null&&dx*dx+dz*dz<KCAR.LOD2){const V=KCAR.V[c.vm];if(V.n<V.cap){kcarPut(V,c,s,c.alt&&c.st===0?Math.sin(G.t*1.3+c.ph)*0.6:0);continue;}}
   const i=T.n++;if(T.gk){const mv=c.st===0&&!(c.frz>0)&&!(c.stall>0)&&!c.burnt&&!heroBlocks(c);T.gait.array[i*2]=c.ph;T.gait.array[i*2+1]=mv?T.gk*(c.panic?1.6:1):0;}const fy=c.alt&&c.st===0?Math.sin(G.t*1.3+c.ph)*0.6:0;dummy.position.set(c.x,c.y+fy+(Math.abs(c.rz%Math.PI)>1?1.6*s:0),c.z);dummy.rotation.set(c.rx||0,vehYaw(c),c.rz||0);if(c.flat)dummy.scale.set(1.15*s,0.22*s,1.15*s);else dummy.scale.setScalar(s);dummy.updateMatrix();T.mb.setMatrixAt(i,dummy.matrix);T.md.setMatrixAt(i,dummy.matrix);
   let r=c.col[0],g=c.col[1],b=c.col[2],d=1;if(c.burnt){r=g=b=0.17;d=0.35;}if(c.frz>0){r=ICY[0];g=ICY[1];b=ICY[2];d=1.05;}T.mb.setColorAt(i,tmpC.setRGB(r,g,b));T.md.setColorAt(i,c.frz>0?tmpC.setRGB(0.85,0.95,1.1):tmpC.setRGB(d,d,d));}
+ if(KCAR.ok)kcarFlush();
  for(const k in VT){const T=VT[k];T.mb.count=T.md.count=T.n;T.mb.instanceMatrix.needsUpdate=T.md.instanceMatrix.needsUpdate=true;if(T.gk)T.gait.needsUpdate=true;if(T.mb.instanceColor){T.mb.instanceColor.needsUpdate=true;T.md.instanceColor.needsUpdate=true;}}}
 function vehPhys(c,dt){c.vy-=24*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.z+=c.vz*dt;c.rx+=c.wx*dt;c.rz+=c.wz*dt;const g=gh(c.x,c.z);
  wPhys(c,dt,carRho(c),c.kind==='tank'?3.4:2.4,24,false);
@@ -1978,8 +2003,8 @@ function spawnTraffic(){cars.length=0;for(let i=0;i<LIM.car;i++)cars.push(newVeh
 
 /* ================= Polícia ================= */
 let PCARG=(function(){const a=[];gpart(a,CARG,0,0,0,[0.97,0.97,0.97]);gpart(a,BX(2.42,0.32,1.88),0.1,0.7,0,[0.12,0.24,0.55]);gpart(a,BX(2.05,0.38,1.84),-0.12,1.28,0,GLS);for(const[x,z]of[[-1.3,0.82],[1.3,0.82],[-1.3,-0.82],[1.3,-0.82]])gpart(a,WHEEL(0.36,0.3),x,0.36,z,TIRE);gpart(a,BX(0.5,0.12,1.2),-0.2,1.62,0,[0.2,0.2,0.24]);return merge(a);})();
-function makePCar(){const g=new THREE.Group();const mat=vcMat({roughness:0.4,metalness:0.15});let gu=null;if(PCARG.attributes.aLeg){gu={value:new THREE.Vector2(R()*6,0)};legifyU(mat,gu);}const body=new THREE.Mesh(PCARG,mat);body.castShadow=true;g.add(body);
- const lr=new THREE.Mesh(BX(0.35,0.22,0.55),new THREE.MeshBasicMaterial({color:0xff2a3a,toneMapped:false})),lb=new THREE.Mesh(BX(0.35,0.22,0.55),new THREE.MeshBasicMaterial({color:0x2a6bff,toneMapped:false}));lr.position.set(-0.2,1.78,0.32);lb.position.set(-0.2,1.78,-0.32);g.add(lr,lb);g.userData={l:[lr,lb],mat,gu};scene.add(g);return g;}
+function makePCar(){const g=new THREE.Group();const mat=vcMat({roughness:0.4,metalness:0.15});let gu=null;if(PCARG.attributes.aLeg){gu={value:new THREE.Vector2(R()*6,0)};legifyU(mat,gu);}const body=new THREE.Mesh(KCAR.pol||PCARG,mat);body.castShadow=true;g.add(body);
+ const lr=new THREE.Mesh(BX(0.35,0.22,0.55),new THREE.MeshBasicMaterial({color:0xff2a3a,toneMapped:false})),lb=new THREE.Mesh(BX(0.35,0.22,0.55),new THREE.MeshBasicMaterial({color:0x2a6bff,toneMapped:false}));{const ly=KCAR.pol?KCAR.polTop:1.78;lr.position.set(-0.2,ly,0.32);lb.position.set(-0.2,ly,-0.32);}g.add(lr,lb);g.userData={l:[lr,lb],mat,gu};scene.add(g);return g;}
 function makeCop(x,z){const p=mkPerson('cop');p.x=x;p.z=z;p.y=gh(x,z);p.fireT=rr(0.6,1.6);return p;}
 function spawnPolice(){const n=Math.min(2,Math.floor((LIM.cop-cops.filter(c=>c.st<2).length)/2));if(n<=0)return;
  for(let k=0;k<n;k++){const horiz=R()<0.5,side=R()<0.5?-1:1;const line=-HALF+CELL*Math.round(clamp(((horiz?HERO.z:HERO.x)+HALF)/CELL,1,CELLS-1));const lane=side>0?-3.5:3.5;
