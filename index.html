@@ -335,7 +335,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
 </section>
 
 <div class="help">
-  <div><h2>Como jogar</h2><p>São nove: o laser, que sobe do nível 1 ao 6, três nucleares (Nuclear, Mininuclear e Nuclear tripla) e três poderes. Na Terra você segura para arrancar um bloco do chão e solta para arremessar. Na Terra você escolhe o tamanho, de uma pedra a um pedaço de avenida. Na Água você junta uma massa que flutua e escolhe a forma (esfera, lanças, chicote, onda ou vórtice), e com R ela vira gelo. Os Raios saem da sua mão e pulam de metal em metal. O Fogo lança bolas que incendeiam, e a Telecinese levanta tudo perto da mira para você arremessar. As estrelas no alto mostram o nível de procurado: clique nelas para escolher de 0 a 5. Quanto mais você destrói sem parar, mais sobe a nota de estilo (de D a SSS), que multiplica os pontos. O titã tem um ponto fraco brilhando no peito, e acertar a cabeça dele enquanto carrega o raio o deixa atordoado. Nada tem recarga.</p></div>
+  <div><h2>Como jogar</h2><p>São nove: o laser, que sobe do nível 1 ao 6, três nucleares (Nuclear, Mininuclear e Nuclear tripla) e três poderes. Na Terra você segura para arrancar um bloco do chão e solta para arremessar. Na Terra você escolhe o tamanho, de uma pedra a um pedaço de avenida. Na Água você junta uma massa que flutua e escolhe a forma (esfera, lanças, chicote, onda ou vórtice), e com R ela vira gelo. Os Raios saem da sua mão e pulam de metal em metal. O Fogo lança bolas que incendeiam, e a Telecinese levanta tudo perto da mira para você arremessar. No Teletransporte você toca onde quer aparecer e surge lá num estalo, com raios e faíscas (no computador, a tecla T salta para onde o mouse aponta, com qualquer poder). As estrelas no alto mostram o nível de procurado: clique nelas para escolher de 0 a 5. Quanto mais você destrói sem parar, mais sobe a nota de estilo (de D a SSS), que multiplica os pontos. O titã tem um ponto fraco brilhando no peito, e acertar a cabeça dele enquanto carrega o raio o deixa atordoado. Nada tem recarga.</p></div>
   <div><h2>A cidade reage</h2><p>Chegue perto das pessoas e elas acenam, comemoram e tiram foto. Ataque e elas fogem. Depois vêm polícia, helicópteros, tanques e um titã que sai do mar.</p></div>
   <div><h2>Para quebrar</h2><p>O trem elevado descarrila, a roda-gigante sai rolando, a torre de TV e os guindastes tombam, postos e tanques de combustível explodem em cadeia e hidrantes viram chafarizes.</p></div>
   <div><h2>O mapa</h2><p>Tudo num mapa só, sem carregamento. A leste da cidade fica o mar, com a Ilha do Farol, a Ilha das Torres (ligada à costa norte por uma ponte pênsil) e a Ilha das Palmeiras. No fundo do mar está Atlântida, cinco cúpulas de vidro: entre pelo túnel da praia ou mergulhe voando (<kbd>C</kbd> desce na água). No céu flutuam duas cidades aéreas. Tudo isso também cai: a ponte, o vidro das cúpulas e as cidades aéreas.</p></div>
@@ -2688,6 +2688,7 @@ const ICO={atitan:'<rect x="10" y="4" width="12" height="9" rx="2" fill="#f2c14e
  tk:'<path d="M10 16l3-6h6l3 6-3 5h-6z" fill="#8a6a48"/><path d="M6 27c2-3 6-4 10-4s8 1 10 4" stroke="#b48cff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M6 12a11 11 0 0 1 4-6M26 12a11 11 0 0 0-4-6M16 3v2" stroke="#d9c4ff" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
  earth:'<path d="M3 27h26" stroke="#6c7090" stroke-width="2"/><path d="M7 25c3-1 4-4 9-4s6 3 9 4" fill="#8a6a48"/><path d="M9 13c0-5 4-8 8-8s7 3 7 7-3 7-8 7-7-2-7-6z" fill="#7a5a3c"/><path d="M10 10c2-4 6-5 9-4 2 1 4 3 4 5-4-2-9-2-13-1z" fill="#4fb06a"/><path d="M5 9l3 1M4 14h3M6 18l3-1" stroke="#c9b08a" stroke-width="1.6" stroke-linecap="round"/>',
  water:'<path d="M3 24c4 0 4-3 8-3s4 3 8 3 4-3 8-3" stroke="#4cb3ff" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M5 20c0-8 6-14 14-14 4 0 7 2 8 5-3-2-7-1-8 2-1 2 0 5 3 5-3 3-9 3-12 1-2 2-4 2-5 1z" fill="#4cb3ff"/><path d="M19 13c-1 2 0 5 3 5" stroke="#e6f7ff" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
+ jump:'<circle cx="8" cy="20" r="5" fill="none" stroke="#9fc4ff" stroke-width="1.6" stroke-dasharray="2 2"/><circle cx="24" cy="10" r="5.5" fill="#5a8cff"/><circle cx="24" cy="10" r="2.6" fill="#eaf2ff"/><path d="M10 14l4-3-1 3 4-2" stroke="#ffe680" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 18l2 3M27 17l-1 3M29 8l2-1M18 5l-1-2" stroke="#cfe0ff" stroke-width="1.4" stroke-linecap="round"/>',
  storm:'<path d="M8 15a5 5 0 0 1 1-10 7 7 0 0 1 13 1 4.5 4.5 0 0 1 1 9z" fill="#5a5f7a"/><path d="M17 13l-5 8h4l-3 8 8-11h-4l3-5z" fill="#ffd166" stroke="#fff3c4" stroke-width=".8" stroke-linejoin="round"/>',
  laser:'<path d="M3 26 L26 5" stroke="#ff3d6e" stroke-width="6" stroke-linecap="round"/><path d="M3 26 L26 5" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="26" cy="5" r="4" fill="#ffd166"/>',
  nuke:'<circle cx="16" cy="16" r="13" fill="#ffd166"/><circle cx="16" cy="16" r="2.6" fill="#2b2f45"/><path d="M13.9 12.36 L10.5 6.47 A11 11 0 0 1 21.5 6.47 L18.1 12.36 A4.2 4.2 0 0 0 13.9 12.36Z M20.2 16 L27 16 A11 11 0 0 1 21.5 25.53 L18.1 19.64 A4.2 4.2 0 0 0 20.2 16Z M13.9 19.64 L10.5 25.53 A11 11 0 0 1 5 16 L11.8 16 A4.2 4.2 0 0 0 13.9 19.64Z" fill="#2b2f45"/>',
@@ -2704,7 +2705,8 @@ const WEAP=[
  {id:'water',free:1,nm:'Água',cat:'sky',mode:'hold',down:waterDown,step:waterStep,up:waterUp,d:'Segure para puxar a água do mar, do lago ou das lagoas. A massa cresce, segue a mira e arrasta o que atravessa. Solte para lançar. R transforma em gelo.'},
  {id:'storm',free:1,nm:'Raios',cat:'weird',mode:'hold',down:stormDown,step:stormStep,up:stormUp,d:'Descargas saem da sua mão e pulam de metal em metal. Segure mais de 1,5 s e solte para a descarga máxima.'},
  {id:'fire',free:1,nm:'Fogo',cat:'exp',mode:'hold',down:fireDown,step:fireStep,up:fireUp,d:'Toque para uma bola rápida. Segure e ela cresce até virar um sol sobre a sua cabeça. Vai reta para a mira.'},
- {id:'tk',free:1,nm:'Telecinese',tile:'Telec.',cat:'energy',mode:'hold',down:tkDown,step:tkStep,up:tkUp,d:'Mire em um titã, um monstro, um prédio ou no chão e segure: tudo sobe e segue a mira, até no céu. Arraste pelo chão para ir arrancando. Solte para arremessar longe.'}];
+ {id:'tk',free:1,nm:'Telecinese',tile:'Telec.',cat:'energy',mode:'hold',down:tkDown,step:tkStep,up:tkUp,d:'Mire em um titã, um monstro, um prédio ou no chão e segure: tudo sobe e segue a mira, até no céu. Arraste pelo chão para ir arrancando. Solte para arremessar longe.'},
+ {id:'jump',free:1,nm:'Teletransporte',tile:'Teleporte',cat:'energy',mode:'hold',down:jumpDown,step:jumpStep,up:jumpUp,d:'Toque onde quer aparecer: você some num estalo e surge lá, com raios e faíscas. Segure para ir saltando em sequência. Mirando no céu, aparece no ar. T salta para onde o mouse aponta.'}];
 WEAP.push({id:'atitan',nm:'Titã dourado',tile:'Titã',cat:'ally',mode:'click',fire:p=>spawnAlly('atitan',p),d:'Chame um robô gigante dourado. Ele soca e dispara contra os monstros.'},
  {id:'afrost',nm:'Guardião de gelo',tile:'Gelo',cat:'ally',mode:'click',fire:p=>spawnAlly('afrost',p),d:'Robô de gelo: os golpes congelam. Ótimo contra o demônio.'},
  {id:'aslime',nm:'Gosma azul',tile:'Gosma',cat:'ally',mode:'click',fire:p=>spawnAlly('aslime',p),d:'Uma gosma do bem que cai do céu e esmaga os monstros pulando em cima. Forte contra o golem.'},
@@ -4700,6 +4702,68 @@ function stormUp(p){if(ST.t<1.5)return;const x=p.x,z=p.z;banner('DESCARGA MÁXIM
  for(let i=0;i<(MOB?5:8);i++){const a=i/(MOB?5:8)*TAU,r=rr(25,45),tx=x+Math.cos(a)*r,tz=z+Math.sin(a)*r;bolt(x,Math.max(p.y,gh(x,z))+1,z,tx,gh(tx,tz)+0.5,tz,{n:10,w:1.2,col:[1.6,1.8,2.9],life:0.25,amp:0.18});applyBlast(tx,gh(tx,tz)+1,tz,8,500,{fire:true,fling:1.2});}
  shockwave(x,z,{R:MOB?110:150,speed:380,pw:700,fling:1.8,fire:true,col:0xcfe0ff,ringCol:0xe8f0ff,dust:0.6});hitstop(0.07);}
 
+/* ================= Teletransporte (estilo Jumper): some e aparece onde você mirar, num estalo, com raios pequenos e faíscas.
+   Toque/clique: um salto. Segure: vai saltando em sequência para onde a mira aponta. No céu: aparece no ar (até 300 m) e cai, a não ser que esteja voando.
+   O lugar de onde você saiu fica com a "cicatriz" do salto, faiscando por um ou dois segundos. Tecla T: salta para onde o mouse aponta, com qualquer poder. ================= */
+const JP={t:0,n:0,mx:null,my:null,jumps:0};
+const JCOL=[0.55,0.9,2.7],JCOL2=[1.3,1.6,2.5];
+function jumpSparks(x,y,z,n,sp){for(let i=0;i<n;i++){const a=R()*TAU,e=rr(-0.35,1),v=rr(0.35,1)*sp;
+ const o=rr(0.4,1.4);fireP(x+Math.cos(a)*o,y+rr(-1,1.2),z+Math.sin(a)*o,{vx:Math.cos(a)*Math.cos(e)*v,vy:Math.sin(e)*v+rr(2,7),vz:Math.sin(a)*Math.cos(e)*v,s:rr(0.12,0.3),life:rr(0.3,0.8),drag:1.1,up:-40,c0:[1.05,1.35,2.2],c1:[0.2,0.45,1.6]});}}
+/* estalo do ar fechando o buraco + zumbido elétrico + estalinhos */
+function sJump(dist,arrive){if(!audio())return;const t=AC.currentTime;const vol=clamp(0.55/(1+dist/220),0.04,0.55);
+ const g=AC.createGain();env(g,t,0.001,vol,0.12);nsrc(t,0.12).connect(filt('bandpass',arrive?1500:900,0.7)).connect(g).connect(MASTER);
+ const o=AC.createOscillator();o.frequency.setValueAtTime(arrive?160:110,t);o.frequency.exponentialRampToValueAtTime(38,t+0.18);const g2=AC.createGain();env(g2,t,0.002,vol*0.9,0.22);o.connect(g2).connect(MASTER);o.start(t);o.stop(t+0.25);
+ const z=AC.createOscillator();z.type='sawtooth';z.frequency.setValueAtTime(rr(1400,2200),t);z.frequency.exponentialRampToValueAtTime(300,t+0.12);const g3=AC.createGain();env(g3,t,0.002,vol*0.22,0.14);z.connect(filt('highpass',900)).connect(g3).connect(MASTER);z.start(t);z.stop(t+0.16);
+ for(let k=0;k<5;k++){const tk=t+0.03+R()*0.35;const g4=AC.createGain();env(g4,tk,0.001,vol*0.3,0.04);nsrc(tk,0.04).connect(filt('bandpass',rr(2500,6000),2)).connect(g4).connect(MASTER);}}
+/* clarão, raios curtos saindo do corpo (alguns descem até o chão) e chuva de faíscas */
+function jumpBurst(x,y,z,fy,arrive){
+ ball(x,y+1.6,z,arrive?1.2:1,0x6f9cff,0.08);flashLight(x,y+1.8,z,arrive?4.5:3.5,arrive?60:45,0.2,0x9fbcff);
+ const n=MOB?7:12;for(let i=0;i<n;i++){const a=R()*TAU,sy=y+rr(0.2,3.4);
+  if(R()<0.45&&y-fy<14){const r=rr(1,4.5);bolt(x+rr(-0.4,0.4),sy,z+rr(-0.4,0.4),x+Math.cos(a)*r,fy+0.15,z+Math.sin(a)*r,{n:7,w:rr(0.2,0.38),col:R()<0.3?JCOL2:JCOL,life:rr(0.14,0.3),amp:0.3,br:0.3});}
+  else{const L=rr(1.5,4.5);bolt(x,sy,z,x+Math.cos(a)*L,sy+rr(-1.5,1.5),z+Math.sin(a)*L,{n:5,w:rr(0.16,0.3),col:R()<0.3?JCOL2:JCOL,life:rr(0.12,0.26),amp:0.35,br:0.25});}}
+ jumpSparks(x,y+1.6,z,MOB?10:16,arrive?24:16);
+ if(y-fy<6)ring(x,z,arrive?7:5,0.35,0xcfe0ff,fy+0.4);
+ /* o ar deslocado empurra o que está perto, sem quebrar prédio */
+ if(arrive)applyBlast(x,y+1,z,6,40,{fire:false,fling:0.6,noB:true});}
+/* a cicatriz do salto: um rasgo no ar que fica soltando raiozinhos e faíscas e vai se fechando */
+function jumpScar(x,y,z){act('jscar',MOB?3:6,{nx:0,dur:1.7,upd(dt){const k=1-this.t/this.dur;if(k<=0)return false;this.nx-=dt;
+ while(this.nx<=0){this.nx+=rr(0.03,0.08)/(0.35+k);const a=R()*TAU,L=rr(0.7,2.4)*(0.45+k),sx=x+rr(-0.5,0.5),sy=y+rr(0.4,3.2),sz=z+rr(-0.5,0.5);
+  bolt(sx,sy,sz,sx+Math.cos(a)*L,sy+rr(-1,1)*L,sz+Math.sin(a)*L,{n:5,w:0.14+0.2*k,col:R()<0.3?JCOL2:JCOL,life:rr(0.06,0.12),amp:0.4});
+  if(R()<0.55)jumpSparks(sx,sy-1,sz,1+(R()*2|0),10*k);if(R()<0.25)flashLight(sx,sy,sz,2.5*k,30,0.08,0x9fbcff);}
+ if(this.t<0.05||frameN%5===0)ball(x,y+1.6,z,0.4+0.5*k,0x4f7fe0,0.08);
+ return true;}});}
+/* o salto em si: posição, câmera e efeitos nos dois lados */
+function jumpTo(p,sky){if(!G.started||!p)return false;
+ const ox=HERO.x,oy=HERO.y,oz=HERO.z,ofy=MV.fy,hv=MV.hv;let x=p.x,z=p.z,fy;
+ if(sky){const dx=p.x-ox,dy=p.y-oy,dz=p.z-oz,L=Math.hypot(dx,dy,dz)||1,d=Math.min(L,300);x=ox+dx/L*d;z=oz+dz/L*d;fy=oy+dy/L*d-hv;}
+ else fy=heroSupport(x,z,p.y+1.5,1.2);
+ x=clamp(x,-HMAX,HMAX);z=clamp(z,-HMAX,HMAX);
+ /* mirou na parede: recua em direção a quem mirou até sair do prédio */
+ {const hx=ox-x,hz=oz-z,hl=Math.hypot(hx,hz)||1,ux=hx/hl,uz=hz/hl;
+  for(let i=0;i<30&&heroWall(x,z,fy,1.2);i++){x+=ux*2;z+=uz*2;if(!sky)fy=heroSupport(x,z,p.y+1.5,1.2);}}
+ fy=Math.max(fy,heroSupport(x,z,fy+1.2,1.2));if(FLY.ceil)fy=Math.min(fy,FLY.ceil);
+ const ny=fy+hv,dX=x-ox,dY=ny-oy,dZ=z-oz;if(Math.hypot(dX,dY,dZ)<4)return false;
+ /* saída */
+ jumpBurst(ox,oy,oz,ofy,false);jumpScar(ox,oy,oz);sCrackle(camDist(ox,oy,oz));
+ /* chegada: corpo e câmera vão juntos, num quadro só */
+ HERO.x=x;HERO.z=z;MV.fy=fy;MV.vy=0;MV.air=0;MV.climb=null;HERO.y=ny;MV.py=ny;moveCam(dX,dY,dZ);
+ if(Math.hypot(dX,dZ)>0.5)HERO.face=Math.atan2(dX,dZ);
+ HY.px=x;HY.pz=z;HY.lx=null;HY.lz=null;HY.trail.length=0;FLY.px=x;FLY.py=ny;FLY.pz=z;FRB.pts.length=FRL.pts.length=FRR.pts.length=0;
+ if(FLY.on){FLY.vx*=0.4;FLY.vz*=0.4;FLY.vy=0;}
+ jumpBurst(x,ny,z,fy,true);jumpResid();sJump(camDist(x,ny,z),true);
+ G.shake=Math.max(G.shake,0.1);buzz&&buzz(18);JP.jumps++;JP.n++;
+ return true;}
+/* chegou ainda carregado: raiozinhos no corpo por meio segundo */
+function jumpResid(){act('jresid',1,{nx:0,upd(dt){if(this.t>0.55)return false;this.nx-=dt;while(this.nx<=0){this.nx+=rr(0.035,0.07);const k=1-this.t/0.55,a=R()*TAU,sx=HERO.x+rr(-0.5,0.5),sy=HERO.y+rr(0.3,3.2),sz=HERO.z+rr(-0.5,0.5),L=rr(0.6,1.8)*(0.5+k);
+ bolt(sx,sy,sz,sx+Math.cos(a)*L,sy+rr(-1,1)*L,sz+Math.sin(a)*L,{n:4,w:0.12+0.14*k,col:JCOL,life:0.06,amp:0.4});if(R()<0.4)jumpSparks(sx,sy-1,sz,1,8*k);}return true;}});}
+function jumpDown(p){JP.t=0;JP.n=0;jumpTo(p,aimSky);}
+/* segurando: salta de novo a cada 0,35 s para onde a mira estiver */
+function jumpStep(dt,p){JP.t+=dt;if(JP.t<0.35)return;if(jumpTo(p,aimSky))JP.t=0;}
+function jumpUp(){if(JP.n>=4)banner('SALTO EM SEQUÊNCIA x'+JP.n,1);}
+/* T: salta para onde o mouse aponta, com qualquer poder na mão */
+addEventListener('mousemove',e=>{JP.mx=e.clientX;JP.my=e.clientY;},{passive:true});
+addEventListener('keydown',e=>{const tg=(e.target&&e.target.tagName)||'';if(tg==='INPUT'||tg==='TEXTAREA'||!G.started||G.paused||e.code!=='KeyT'||e.repeat||firing||JP.mx==null)return;
+ aimAt(JP.mx,JP.my);if(aimOK||aimSky)jumpTo(AIM.clone(),aimSky);e.preventDefault();});
 /* ================= Física da água: empuxo, arrasto, respingos, ondulações, afundar e boiar ================= */
 /* caixas rápidas das águas (lago, lagoas e mar): evitam chamar waterAt para o que está longe de qualquer água */
 let WBOX=null;
