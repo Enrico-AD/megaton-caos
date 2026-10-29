@@ -77,17 +77,19 @@ button{font:inherit;color:inherit}
 @keyframes blink{50%{opacity:.25}}
 
 /* barras de vida dos titãs */
-.bosses{top:50px;left:50%;transform:translateX(-50%);width:min(420px,44%);display:grid;gap:6px;z-index:3}
-.boss{background:var(--card);color:var(--ink);border-radius:12px;padding:6px 11px 8px;font-size:12px;box-shadow:0 4px 16px rgba(20,24,50,.25)}
+.bosses{top:50px;left:50%;transform:translateX(-50%);width:min(300px,32%);display:grid;gap:3px;z-index:3;pointer-events:none}
+.boss{background:rgba(16,20,36,.38);color:#fff;border-radius:8px;padding:2px 8px 4px;font-size:11px;transition:opacity .5s}
+.boss.fade{opacity:0}
 .boss div{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-.boss b{font-family:var(--display);font-weight:600;font-size:13.5px}
-.boss span{font-family:var(--mono);font-weight:700;color:var(--muted);font-size:11.5px}
-.boss .hp{display:block;height:9px;border-radius:5px;background:var(--wash);overflow:hidden;margin-top:4px}
+.boss b{font-family:var(--display);font-weight:600;font-size:11.5px;text-shadow:0 1px 2px rgba(0,0,0,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.boss span{white-space:nowrap}
+.boss span{font-family:var(--mono);font-weight:700;color:rgba(255,255,255,.75);font-size:10px}
+.boss .hp{display:block;height:4px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;margin-top:2px}
 .boss .hp i{display:block;height:100%;width:100%;border-radius:5px;background:linear-gradient(90deg,var(--danger),var(--accent));transition:width .25s}
 .boss.ally .hp i{background:linear-gradient(90deg,#e8b630,var(--accent2))}
 .boss.hero .hp i{background:linear-gradient(90deg,#1f6fff,#53e3ff)}
-.boss.hero b{color:#2a6be0}
-.boss.rage b{color:var(--danger)}
+.boss.hero b{color:#9cc8ff}
+.boss.rage b{color:#ff8a7a}
 /* arsenal */
 .dock{left:0;right:0;bottom:0;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:6px;padding:0 10px 10px;z-index:3}
 .tabs{pointer-events:auto;display:flex;gap:4px;padding:3px;border-radius:12px;background:rgba(20,26,43,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);max-width:100%;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
@@ -236,9 +238,9 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
   .winfo .d{display:none}
   .tabs button{padding:4px 8px;font-size:12px}
   .tabs button b{display:none}
-  .bosses{top:128px;left:10px;right:auto;transform:none;width:min(240px,60%)}
-  .boss{padding:4px 9px 6px}
-  .boss b{font-size:12px}
+  .bosses{top:128px;left:10px;right:auto;transform:none;width:min(170px,38%)}
+  .boss{padding:2px 7px 3px}
+  .boss b{font-size:10.5px}
   .boss span{display:none}
   .wb{width:54px}
   .weap{grid-template-columns:repeat(20,54px)}
@@ -275,7 +277,8 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
   .winfo .d,.winfo .lv{display:none}
   .winfo b{font-size:12.5px}
   .toasts{top:calc(54px + var(--bossH,0px));bottom:auto;left:50%;right:auto;transform:translateX(-50%);width:min(300px,40%);justify-items:center}
-  .bosses{top:54px;left:50%;right:auto;transform:translateX(-50%);width:min(340px,38%)}
+  .bosses{top:54px;left:50%;right:auto;transform:translateX(-50%);width:min(240px,28%)}
+  .boss span{display:none}
   .score b{font-size:19px}
   #rankNext{display:none}
 }
@@ -2937,10 +2940,12 @@ function updHUD(){$('#score').textContent=fmt(G.score);const cb=$('#combo');if(G
  if(G.bDown>=1)ach('primeiro');if(G.bDown>=100)ach('cem');if(pct>=50)ach('metade');if(pct>=90)ach('tudo');if(G.flung>=200)ach('voo');if(G.mult>=10)ach('combo');if(G.eDown>=30)ach('policia');if((G.zomTotal||0)>=100)ach('zumbi');updBosses();}
 const bossEl=$('#bosses');const BOSSV=new Map();
 function updBosses(){const all=titans.filter(T=>!T.dead).concat(HEROES.filter(heroLive));for(const[T,el]of BOSSV)if(!all.includes(T)){el.remove();BOSSV.delete(T);}
- const live=all.slice().sort((a,b)=>Math.hypot(a.x-HERO.x,a.z-HERO.z)-Math.hypot(b.x-HERO.x,b.z-HERO.z)).slice(0,MOB?2:3);for(const[T,el]of BOSSV)el.style.display=live.includes(T)?'':'none';
+ const live=all.slice().sort((a,b)=>Math.hypot(a.x-HERO.x,a.z-HERO.z)-Math.hypot(b.x-HERO.x,b.z-HERO.z)).slice(0,MOB?2:3);for(const[T,el]of BOSSV)el.style.display=live.includes(T)?'':'none';let vis=0;
  for(const T of live){let el=BOSSV.get(T);if(!el){el=document.createElement('div');el.className='boss'+(T.ally?' ally':'')+(T.hero?' hero':'');el.innerHTML='<div><b></b><span></span></div><i class="hp"><i></i></i>';el.querySelector('b').textContent=T.name||(T.ally?'Seu titã':'Titã');bossEl.appendChild(el);BOSSV.set(T,el);}
-  const k=clamp(T.hp/T.max);el.querySelector('.hp i').style.width=(k*100).toFixed(1)+'%';el.querySelector('span').textContent=fmt(Math.max(0,T.hp))+' / '+fmt(T.max);el.classList.toggle('rage',!!T.rage);}
- stage.style.setProperty('--bossH',live.length&&window.innerWidth>=720?(bossEl.offsetHeight+6)+'px':'0px');}
+  const k=clamp(T.hp/T.max);el.querySelector('.hp i').style.width=(k*100).toFixed(1)+'%';el.querySelector('span').textContent=fmt(Math.max(0,T.hp))+' / '+fmt(T.max);el.classList.toggle('rage',!!T.rage);
+  /* a barra some sozinha: aparece quando o personagem leva dano (por 4 s) ou está bem perto de você */
+  if(el._hp!==T.hp){el._hp=T.hp;el._t=G.t;}const on=G.t-(el._t||-99)<4||Math.hypot(T.x-HERO.x,T.z-HERO.z)<70;el.style.display=on?'':'none';if(on)vis++;}
+ stage.style.setProperty('--bossH',vis&&window.innerWidth>=720?(bossEl.offsetHeight+6)+'px':'0px');}
 const popEl=$('#pops');const STGSZ={w:0,h:0};/* tamanho do palco guardado no resize: ler o layout a cada quadro custa caro */
 function stepPops(dt){let rect=null;for(const[k,b]of BUCK){b.t-=dt;if(b.t>0)continue;BUCK.delete(k);if(b.pts<15||popEl.children.length>6)continue;
   v4.set(b.x,b.y,b.z).project(camera);if(v4.z>1||Math.abs(v4.x)>1.05||Math.abs(v4.y)>1.05)continue;if(!rect)rect={width:STGSZ.w||stage.clientWidth,height:STGSZ.h||stage.clientHeight};const el=document.createElement('div');el.className='pop'+(b.pts>=2000?' huge':b.pts>=300?' big':'');el.textContent='+'+fmt(b.pts);
