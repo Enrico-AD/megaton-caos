@@ -3182,8 +3182,8 @@ function stepHero(dt,rdt){
  camera.getWorldDirection(fwd);fwd.y=0;fwd.normalize();rgt.crossVectors(fwd,UP);let mvx=0,mvz=0,amp=0;
  if(G.started&&!G.paused){if(keys.w||keys.arrowup){mvx+=fwd.x;mvz+=fwd.z;}if(keys.s||keys.arrowdown){mvx-=fwd.x;mvz-=fwd.z;}if(keys.d||keys.arrowright){mvx+=rgt.x;mvz+=rgt.z;}if(keys.a||keys.arrowleft){mvx-=rgt.x;mvz-=rgt.z;}if(mvx||mvz)amp=1;
   const jl=joyAxis(JOY.L,0.14,1);if(jl){mvx+=fwd.x*-jl.y+rgt.x*jl.x;mvz+=fwd.z*-jl.y+rgt.z*jl.x;amp=Math.max(amp,0.25+0.75*jl.t);}
-  /* câmera pelo joystick direito: gira só o quanto o dedo anda; dedo parado, câmera parada */
-  if(JOY.R.on&&(JOY.R.ddx||JOY.R.ddy)){const h=Math.max(1,stage.clientHeight),sv=SENS.v[SENS.i];orbitCam(-JOY.R.ddx/h*Math.PI*1.3*sv,-JOY.R.ddy/h*Math.PI*0.9*sv);controls.autoRotate=false;}JOY.R.ddx=JOY.R.ddy=0;}
+  /* câmera pelo joystick direito: zona morta menor, curva mais rápida, sensibilidade do menu e aceleração quando o dedo fica na borda */
+  const jr=joyAxis(JOY.R,0.07,1.2);if(jr){JOY.R.edge=jr.t>0.85?(JOY.R.edge||0)+rdt:0;const boost=1+Math.min(0.8,Math.max(0,(JOY.R.edge||0)-0.3)*1.6);const sv=SENS.v[SENS.i]*boost;orbitCam(-jr.x*3.4*sv*rdt,-jr.y*2.2*sv*rdt);controls.autoRotate=false;}else JOY.R.edge=0;}
  const ml=Math.hypot(mvx,mvz);HY.mv=ml>1e-4&&amp>0;
  let sp=0;if(HY.mv){const cd=camera.position.distanceTo(controls.target);sp=clamp(28+cd*0.32,46,210)*(keys.shift?2.2:1)*amp*(1+HY.run*HY.spk);HERO.face=Math.atan2(mvx,mvz);}
  if(keys.q||keys.e){const a=(keys.q?1:-1)*rdt*1.3;const off=v1.copy(camera.position).sub(controls.target);off.applyAxisAngle(UP,a);camera.position.copy(controls.target).add(off);}
