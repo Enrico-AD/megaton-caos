@@ -346,7 +346,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
   <div><h2>Como jogar</h2><p>São nove: o laser, que sobe do nível 1 ao 6, três nucleares (Nuclear, Mininuclear e Nuclear tripla) e três poderes. Na Terra você segura para arrancar um bloco do chão e solta para arremessar. Na Terra você escolhe o tamanho, de uma pedra a um pedaço de avenida. Na Água você junta uma massa que flutua e escolhe a forma (esfera, lanças, chicote, onda ou vórtice), e com R ela vira gelo. Os Raios saem da sua mão e pulam de metal em metal. O Fogo lança bolas que incendeiam, e a Telecinese levanta tudo perto da mira para você arremessar. No Teletransporte você toca onde quer aparecer e surge lá num estalo, com raios e faíscas (no computador, a tecla T salta para onde o mouse aponta, com qualquer poder). As estrelas no alto mostram o nível de procurado: clique nelas para escolher de 0 a 5. Quanto mais você destrói sem parar, mais sobe a nota de estilo (de D a SSS), que multiplica os pontos. O titã tem um ponto fraco brilhando no peito, e acertar a cabeça dele enquanto carrega o raio o deixa atordoado. O botão Pulo (ou Espaço) é o super pulo: segure para carregar e solte; no ar, aperte de novo para o pisão. Nada tem recarga.</p></div>
   <div><h2>A cidade reage</h2><p>Chegue perto das pessoas e elas acenam, comemoram e tiram foto. Ataque e elas fogem. Depois vêm polícia, helicópteros e tanques. Com 3 estrelas chega a Vanguarda, os heróis da cidade, para lutar contra você, o vilão: Faísca (supervelocidade, sobe pelas paredes e faz tornado), Bastião (armadura voadora com mísseis e canhão), Muralha (gigante de pedra que salta e arremessa carros), Aurora (luz, cura e escudo nos prédios) e Nevasca (gelo). Com 4 estrelas vêm três heróis e monstros; com 5, a equipe inteira e monstros cada vez maiores. Herói derrotado cai, some e volta depois, mais forte. Dá para pegar um herói com a telecinese e jogar contra um prédio. Você não morre: os golpes só empurram e chacoalham.</p></div>
   <div><h2>Para quebrar</h2><p>O trem elevado descarrila, a montanha-russa quebra e o carrinho sai voando, o carrossel e a torre de queda tombam, a roda-gigante sai rolando, a torre de TV e os guindastes tombam, postos e tanques de combustível explodem em cadeia e hidrantes viram chafarizes.</p></div>
-  <div><h2>O mapa</h2><p>Tudo num mapa só, sem carregamento, e a cidade dobrou de tamanho. No centro ficam as torres; a nordeste, o distrito financeiro, com arranha-céus de mais de 200 m; a noroeste, o Parque Central; ao sul, o Centro Histórico com a igreja; a sudeste, o parque de diversões; a sudoeste, as fábricas; e na costa, o porto de contêineres com três guindastes. A leste da cidade fica o mar, com a Ilha do Farol, a Ilha das Torres (ligada à costa norte por uma ponte pênsil) e a Ilha das Palmeiras. No fundo do mar está Atlântida, cinco cúpulas de vidro: entre pelo túnel da praia ou mergulhe voando (<kbd>C</kbd> desce na água). No céu flutuam duas cidades aéreas. Tudo isso também cai: a ponte, o vidro das cúpulas e as cidades aéreas.</p></div>
+  <div><h2>O mapa</h2><p>Tudo num mapa só, sem carregamento, e a cidade dobrou de tamanho. No centro ficam as torres; a nordeste, o distrito financeiro, com arranha-céus de mais de 200 m; a noroeste, o Parque Central; ao sul, o Centro Histórico com a igreja; a sudeste, o parque de diversões; a sudoeste, as fábricas; e na costa, o porto de contêineres com três guindastes. A leste da cidade fica o mar, com a Ilha do Farol, a Ilha das Torres (ligada à costa norte por uma ponte pênsil) e a Ilha das Palmeiras. Voando dá para mergulhar no mar (<kbd>C</kbd> desce na água). No céu flutuam duas cidades aéreas. Tudo isso também cai: a ponte e as cidades aéreas.</p></div>
   <div><h2>Controles</h2><p><kbd>WASD</kbd> anda · <kbd>Q</kbd>/<kbd>E</kbd> giram · <kbd>1</kbd>–<kbd>9</kbd> escolhem a arma, <kbd>Q</kbd>/<kbd>E</kbd> mudam o tamanho ou a forma do poder, <kbd>R</kbd> troca água e gelo · tocar no laser de novo sobe o nível · <kbd>H</kbd> liga e desliga a hipervelocidade e <kbd>+</kbd>/<kbd>−</kbd> trocam entre alta, muito alta e luz (o tempo para) · <kbd>F</kbd> voa: <kbd>Espaço</kbd> sobe, <kbd>C</kbd> desce e olhar para cima ou para baixo também sobe e desce; <kbd>+</kbd>/<kbd>−</kbd> trocam entre normal, rápido (asas de anjo) e luz · <kbd>G</kbd> guarda o poder · <kbd>Esc</kbd> pausa. No celular: o joystick da esquerda anda, o da direita vira a câmera, um toque na cidade ataca e dois dedos dão zoom. O raio amarelo acima do joystick é a hipervelocidade: o primeiro toque liga e abre o medidor (Alta sobe prédios, Muito alta atravessa explodindo, Luz para o tempo), o segundo fecha o medidor e o terceiro desliga. A asa logo acima é o voo e funciona do mesmo jeito; voando, ▲ e ▼ sobem e descem. O botão de tela cheia fica ao lado do Som e no menu.</p></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -772,13 +772,14 @@ const ISLS=[{I:ISL,ph:0.7,f:(c,x,z,d)=>{let ih=2.4+66*Math.pow(c,1.6)+nFbm(x/60,
  {I:IPA,ph:4.1,f:(c,x,z)=>2.4+26*Math.pow(c,1.8)+nFbm(x/70,z/70,2)*3}];
 /* Atlântida: cinco cúpulas no fundo do mar ligadas por túneis de vidro; um túnel sai da praia da cidade e outro vai até a Ilha das Palmeiras */
 const ATL={x:SHORE+650*SCW,z:380*SCW,fy:-84};
-const ADOMES=[{x:ATL.x,z:ATL.z,r:78*SCW,c:1},{x:ATL.x-180*SCW,z:ATL.z-170*SCW,r:52*SCW},{x:ATL.x+185*SCW,z:ATL.z-160*SCW,r:56*SCW},{x:ATL.x-185*SCW,z:ATL.z+170*SCW,r:56*SCW},{x:ATL.x+180*SCW,z:ATL.z+165*SCW,r:52*SCW}];
+const ATL_ON=false;/* Atlântida submersa (cúpulas e túneis) desligada: o Enrico pediu para tirar */
+const ADOMES0=[{x:ATL.x,z:ATL.z,r:78*SCW,c:1},{x:ATL.x-180*SCW,z:ATL.z-170*SCW,r:52*SCW},{x:ATL.x+185*SCW,z:ATL.z-160*SCW,r:56*SCW},{x:ATL.x-185*SCW,z:ATL.z+170*SCW,r:56*SCW},{x:ATL.x+180*SCW,z:ATL.z+165*SCW,r:52*SCW}];const ADOMES=ATL_ON?ADOMES0:[];
 /* ponte pênsil da costa norte até a Ilha das Torres; duas cidades aéreas */
 const BRIDGE={z:ITW.z,w:26};
 const AERO=[{x:SHORE+780*SCW,z:-980*SCW,y:640,r:185*SCW},{x:-1500*SCW,z:PS+640*SCW,y:600,r:165*SCW}];
 /* valas sob os túneis onde eles sobem para a praia (o relevo não engole o tubo) */
 const TRENCHES=[];
-const TUNS=(function(){const fy=ATL.fy,d0=ADOMES[0],zS=1500*SCW;let bx=d0.x+60;for(;bx<IPA.x;bx+=4)if(worldH0(bx,zS)>1.4)break;
+const TUNS=(function(){if(!ATL_ON)return [];const fy=ATL.fy,d0=ADOMES[0],zS=1500*SCW;let bx=d0.x+60;for(;bx<IPA.x;bx+=4)if(worldH0(bx,zS)>1.4)break;
  const T=[];
  /* praia da cidade -> cúpula central (entra pelo oeste) */
  T.push({pts:[[SHORE+18*SCW,ATL.z,1.2],[PS+30*SCW,ATL.z,1.2],[d0.x-d0.r*0.93,ATL.z,fy]],a:'praia',b:0});
@@ -3447,7 +3448,7 @@ function heroMove(dt,rdt,dirx,dirz,sp){
  if(!FLY.on&&!MV.climb&&MV.wet&&HERO.y-MV.fy<8){const w=waterAt(HERO.x,HERO.z);if(w!=null)waterFx(rdt,dirx,dirz,sp,w,MV.hv<1.5);}
  /* câmera: anda junto (altura entra inteira), e corrige devagar o que sobrar */
  const ly=G.lookY||0,fx=controls.target.x,fy=controls.target.y-MV.camLY,fz=controls.target.z;
- camera.position.y+=dyh;const k=clamp(rdt*5),ddx=(HERO.x-fx)*k,ddz=(HERO.z-fz)*k,ddy=(HERO.y+3-(fy+dyh))*k;
+ camera.position.y+=dyh;const k=JCAM.on?0:clamp(rdt*5),ddx=(HERO.x-fx)*k,ddz=(HERO.z-fz)*k,ddy=(HERO.y+3-(fy+dyh))*k;
  camera.position.x+=ddx;camera.position.y+=ddy;camera.position.z+=ddz;controls.target.set(fx+ddx,fy+dyh+ddy+ly,fz+ddz);MV.camLY=ly;
  /* depois de um efeito de cinema (Destino Final) a câmera volta ao zoom que você tinha */
  if(MV.camBack){const off=v1.copy(camera.position).sub(controls.target),L=off.length()||1,nl=lerp(L,MV.camBack,clamp(rdt*1.6));off.multiplyScalar(nl/L);camera.position.copy(controls.target).add(off);if(Math.abs(nl-MV.camBack)<1)MV.camBack=0;}}
@@ -4113,7 +4114,7 @@ for(const T of TUNS){for(const end of['a','b']){const lab=T[end];if(typeof lab!=
   const sg=mpSign('ATLÂNTIDA',lab==='praia'?'túnel submarino · cidade no fundo do mar':'túnel para Atlântida',18,4.5);sg.position.set(out*1.45,ph+5.4,0);sg.rotation.y=out<0?-Math.PI/2:Math.PI/2;grp.add(sg);
   scene.add(grp);TUB_ST.push(grp);}}
 /* boias marcando Atlântida na superfície */
-const BUOYS=(function(){const L=[],g=[];gpart(g,CY(1.2,1.6,2.2,10),0,0.4,0,[0.95,0.42,0.2]);gpart(g,CY(0.18,0.18,4,5),0,3.2,0,[0.8,0.8,0.82]);gpart(g,new THREE.SphereGeometry(0.55,8,6),0,5.4,0,[2.4,2.1,1.2]);gpart(g,BX(0.08,1.2,1.6),0,4.4,0.85,[0.95,0.95,0.98]);
+const BUOYS=(function(){const L=[],g=[];if(!ATL_ON)return L;gpart(g,CY(1.2,1.6,2.2,10),0,0.4,0,[0.95,0.42,0.2]);gpart(g,CY(0.18,0.18,4,5),0,3.2,0,[0.8,0.8,0.82]);gpart(g,new THREE.SphereGeometry(0.55,8,6),0,5.4,0,[2.4,2.1,1.2]);gpart(g,BX(0.08,1.2,1.6),0,4.4,0.85,[0.95,0.95,0.98]);
  const geo=merge(g),mat=glowify(vcMat({roughness:0.5}),1.5);const C=ADOMES[0];for(let k=0;k<(MOB?3:5);k++){const a=k/(MOB?3:5)*TAU+0.4,d=k===0?0:C.r*0.9;const m=new THREE.Mesh(geo,mat);m.position.set(C.x+Math.cos(a)*d,0,C.z+Math.sin(a)*d);scene.add(m);L.push({m,ph:R()*TAU});}return L;})();
 
 /* ================= Atlântida: cúpulas de vidro com armação, piso, jardim, luzes e um sol artificial ================= */
@@ -4156,7 +4157,7 @@ const KELP=(function(){const n=MOB?110:320,g=[];for(const r of[0,Math.PI/2]){con
 /* corais e pedras perto das cúpulas e dos túneis */
 const CORAL=(function(){const n=MOB?80:220;const me=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0),flatStd({roughness:0.9}),n);me.frustumCulled=false;me.visible=false;scene.add(me);
  const CC=[[0.95,0.42,0.55],[1,0.56,0.26],[0.62,0.4,0.86],[0.96,0.86,0.36],[0.3,0.76,0.7],[0.46,0.46,0.5],[0.4,0.4,0.43]];let k=0;
- for(let t=0;t<n*8&&k<n;t++){const D=pick(ADOMES);const a=R()*TAU,d=D.r+rr(4,120*SCW);const x=D.x+Math.cos(a)*d,z=D.z+Math.sin(a)*d;const h=KELP.okAt(x,z);if(h==null)continue;
+ for(let t=0;t<n*8&&k<n;t++){const D=pick(ADOMES0);const a=R()*TAU,d=D.r+rr(4,120*SCW);const x=D.x+Math.cos(a)*d,z=D.z+Math.sin(a)*d;const h=KELP.okAt(x,z);if(h==null)continue;
   const c=pick(CC),s=rr(0.8,3.4)*(c[0]===c[1]?1.6:1);dummy.position.set(x,h-s*0.2,z);dummy.rotation.set(R()*3,R()*3,R()*3);dummy.scale.set(s*rr(0.7,1.3),s*rr(0.5,1.1),s*rr(0.7,1.3));dummy.updateMatrix();me.setMatrixAt(k,dummy.matrix);me.setColorAt(k,tmpC.setRGB(c[0],c[1],c[2]));k++;}
  for(;k<n;k++){me.setMatrixAt(k,ZM);me.setColorAt(k,tmpC.setRGB(1,1,1));}me.instanceMatrix.needsUpdate=true;if(me.instanceColor)me.instanceColor.needsUpdate=true;return{me};})();
 /* cardumes: cada peixe segue o centro do cardume numa volta larga; o rabo balança no shader */
@@ -4165,7 +4166,7 @@ const FISH=(function(){const nS=MOB?5:9,per=MOB?12:20,g=[];const body=new THREE.
  const mat=flatStd({vertexColors:true,roughness:0.35,metalness:0.25});mat.onBeforeCompile=sh=>{sh.uniforms.uTime=GU.uTime;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime;').replace('#include <begin_vertex>','#include <begin_vertex>\nfloat fph=instanceMatrix[3].x*0.21+instanceMatrix[3].z*0.17;transformed.z+=sin(uTime*9.0+fph)*0.32*smoothstep(0.2,-1.25,position.x);');};
  const FC=[[0.86,0.9,0.95],[1,0.6,0.2],[1,0.88,0.3],[0.36,0.6,1],[0.95,0.46,0.62],[0.5,0.95,0.85]];
  const me=new THREE.InstancedMesh(merge(g),mat,nS*per);me.frustumCulled=false;me.visible=false;scene.add(me);me.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
- const S=[],F=[];for(let i=0;i<nS;i++){const D=ADOMES[i%ADOMES.length];const s={cx:D.x+rr(-60,60)*SCW,cz:D.z+rr(-60,60)*SCW,R:rr(80,240)*SCW,y:rr(-74,-16),w:(R()<0.5?-1:1)*rr(0.05,0.11),a:R()*TAU,bob:R()*TAU,sz:rr(1,2.2),sp:rr(6,10),scare:0,px:0,py:0,pz:0};S.push(s);const c=pick(FC);
+ const S=[],F=[];for(let i=0;i<nS;i++){const D=ADOMES0[i%ADOMES0.length];const s={cx:D.x+rr(-60,60)*SCW,cz:D.z+rr(-60,60)*SCW,R:rr(80,240)*SCW,y:rr(-74,-16),w:(R()<0.5?-1:1)*rr(0.05,0.11),a:R()*TAU,bob:R()*TAU,sz:rr(1,2.2),sp:rr(6,10),scare:0,px:0,py:0,pz:0};S.push(s);const c=pick(FC);
   for(let k=0;k<per;k++){const j=F.length;F.push({s,ox:rr(-1,1)*s.sp,oy:rr(-0.5,0.5)*s.sp*0.6,oz:rr(-1,1)*s.sp,ph:R()*TAU,sc:rr(0.75,1.3)*s.sz});me.setColorAt(j,tmpC.setRGB(c[0]*rr(0.85,1.1),c[1]*rr(0.85,1.1),c[2]*rr(0.85,1.1)));}}
  if(me.instanceColor)me.instanceColor.needsUpdate=true;return{me,S,F};})();
 function fishStep(dt){const t=G.t;for(const s of FISH.S){s.a+=s.w*dt;s.px=s.cx+Math.cos(s.a)*s.R;s.pz=s.cz+Math.sin(s.a)*s.R;s.py=s.y+Math.sin(t*0.3+s.bob)*4;
@@ -4292,7 +4293,7 @@ function mapRender(){mapCam();perfView();const cp=camera.position;
  if(under){const inV=mapIn(cp.x,cp.y,cp.z);UW.inV=inV;scene.fog.color.copy(inV?UW.fogIn:UW.fogC);scene.background=scene.fog.color;scene.fog.near=inV?24:3;scene.fog.far=inV?(MOB?480:640):(MOB?250:330);
   const base=ERAV.sunI*(1-0.62*G.dark)*(1-0.15*G.red)*(1-0.62*(G.doom||0));sunL.intensity=base*0.5;hemi.intensity=ERAV.hemiI*0.9;
   const ys=w,L=UWR.L,me=UWR.me;for(let i=0;i<L.length;i++){const q=L[i];q.a+=q.sp*(G.rdt||0.016);const px=cp.x+Math.cos(q.a)*q.d,pz=cp.z+Math.sin(q.a)*q.d;dummy.position.set(px,ys,pz);dummy.rotation.set(0,Math.atan2(cp.x-px,cp.z-pz),0);dummy.scale.set(q.w,q.h,1);dummy.updateMatrix();me.setMatrixAt(i,dummy.matrix);}me.instanceMatrix.needsUpdate=true;
-  if(UW.firstAt&&Math.hypot(cp.x-ATL.x,cp.z-ATL.z)<360*SCW){UW.firstAt=false;banner('ATLÂNTIDA',1.6);}}
+  if(ATL_ON&&UW.firstAt&&Math.hypot(cp.x-ATL.x,cp.z-ATL.z)<360*SCW){UW.firstAt=false;banner('ATLÂNTIDA',1.6);}}
  /* longe demais: nem manda para a placa de vídeo */
  const fa=(MOB?4400:5600);const dA=Math.hypot(cp.x-ATL.x,cp.z-ATL.z);const showA=under&&dA<1200;
  for(const D of ADOMES){D.base.visible=showA;if(D.st===0){D.glass.visible=showA;D.frame.visible=showA;}}
@@ -4326,7 +4327,7 @@ MINI_HOOK=(c,mx,mz,s)=>{if(BRG.ok){c.strokeStyle=BRG.down?'rgba(120,90,80,.7)':'
  for(const T of TUNS){c.strokeStyle=T.flood?'rgba(40,90,140,.85)':'#9ff0ff';c.lineWidth=2;c.beginPath();T.pts.forEach((p,i)=>{if(i)c.lineTo(mx(p[0]),mz(p[1]));else c.moveTo(mx(p[0]),mz(p[1]));});c.stroke();}
  for(const D of ADOMES){c.strokeStyle=D.st===0?'#c9f6ff':'rgba(60,90,120,.9)';c.fillStyle=D.st===0?'rgba(120,220,255,.35)':'rgba(40,60,90,.35)';c.lineWidth=1.5;c.beginPath();c.arc(mx(D.x),mz(D.z),Math.max(2.5,D.r*s),0,TAU);c.fill();c.stroke();}
  for(const I of AEROI)if(I.st===0||I.st===1||I.st===3){c.strokeStyle='#b58cff';c.fillStyle='rgba(181,140,255,.35)';c.lineWidth=1.6;c.beginPath();c.arc(mx(I.x),mz(I.z),Math.max(3,I.r*s),0,TAU);c.fill();c.stroke();}};
-ACH.push(['ponte','Ponte abaixo','Derrube a ponte pênsil'],['atlantida','Atlântida alagada','Quebre a grande cúpula do fundo do mar'],['aerea','Cidade das nuvens','Derrube uma cidade aérea'],['mergulho','Mergulhador','Mergulhe até o fundo do mar perto de Atlântida']);renderAch();
+ACH.push(['ponte','Ponte abaixo','Derrube a ponte pênsil'],...(ATL_ON?[['atlantida','Atlântida alagada','Quebre a grande cúpula do fundo do mar']]:[]),['aerea','Cidade das nuvens','Derrube uma cidade aérea'],['mergulho','Mergulhador','Mergulhe até o fundo do mar']);renderAch();
 MAPH={sup:mapSup,wall:mapWall,inside:mapIn,hu:false};
 window.__caos.W={MOB,SHORE,PS,SCW,OE,SEA_X,ITW,IPA,ATL,ADOMES,TUNS,AERO,BRIDGE};
 window.__caos.MAP={TUB,BRG,ADOMES,AEROI,UW,FISH,KELP,mapIn,brgY,tubBreak,domeBreak,brgCollapse,towerKill,tubLoc,MPH};
@@ -4668,7 +4669,7 @@ function titanWeak(T,p){if(T.ally||T.dead)return 1;corePos(T,_cp);const dc=_cp.d
 /* ================= Mira no celular: um pouco acima do dedo, com assistência ================= */
 const AOFS=58;let AIM_TOUCH=false;
 const reticle=document.createElement('div');reticle.className='reticle';stage.appendChild(reticle);
-function touchPtr(e){AIM_TOUCH=e.pointerType==='touch';return {x:e.clientX,y:e.clientY-(AIM_TOUCH?AOFS:0),fx:e.clientX,fy:e.clientY};}
+function touchPtr(e){AIM_TOUCH=e.pointerType==='touch';const w=WEAP[G.w],at=w&&(w.id==='jump'||w.cat==='ally'||/nuke/.test(w.id));return {x:e.clientX,y:e.clientY-(AIM_TOUCH&&!at?AOFS:0),fx:e.clientX,fy:e.clientY};}
 const _aaP=new THREE.Vector3();
 /* procura alvos grandes perto da mira, na tela; puxa a mira para o mais próximo */
 function aimAssist(cx,cy){if(!AIM_TOUCH)return;const r=renderer.domElement.getBoundingClientRect();let best=null,bd=46*46;
@@ -4872,6 +4873,7 @@ function stormUp(p){if(ST.t<1.5)return;const x=p.x,z=p.z;banner('DESCARGA MÁXIM
    Toque/clique: um salto. Segure: vai saltando em sequência para onde a mira aponta. No céu: aparece no ar (até 300 m) e cai, a não ser que esteja voando.
    O lugar de onde você saiu fica com a "cicatriz" do salto, faiscando por um ou dois segundos. Tecla T: salta para onde o mouse aponta, com qualquer poder. ================= */
 const JP={t:0,n:0,mx:null,my:null,jumps:0};
+const JCAM={x:0,y:0,z:0,w:0,on:false};
 const JCOL=[0.55,0.9,2.7],JCOL2=[1.3,1.6,2.5];
 function jumpSparks(x,y,z,n,sp){for(let i=0;i<n;i++){const a=R()*TAU,e=rr(-0.35,1),v=rr(0.35,1)*sp;
  const o=rr(0.4,1.4);fireP(x+Math.cos(a)*o,y+rr(-1,1.2),z+Math.sin(a)*o,{vx:Math.cos(a)*Math.cos(e)*v,vy:Math.sin(e)*v+rr(2,7),vz:Math.sin(a)*Math.cos(e)*v,s:rr(0.12,0.3),life:rr(0.3,0.8),drag:1.1,up:-40,c0:[1.05,1.35,2.2],c1:[0.2,0.45,1.6]});}}
@@ -4899,20 +4901,24 @@ function jumpScar(x,y,z){act('jscar',MOB?3:6,{nx:0,dur:1.7,upd(dt){const k=1-thi
  if(this.t<0.05||frameN%5===0)ball(x,y+1.6,z,0.4+0.5*k,0x4f7fe0,0.08);
  return true;}});}
 /* o salto em si: posição, câmera e efeitos nos dois lados */
-function jumpTo(p,sky){if(!G.started||!p)return false;
- const ox=HERO.x,oy=HERO.y,oz=HERO.z,ofy=MV.fy,hv=MV.hv;let x=p.x,z=p.z,fy;
+/* onde você vai parar: telhado se mirou no telhado, chão na frente se mirou na parede, no ar se mirou no céu */
+function jumpLand(p,sky){const ox=HERO.x,oy=HERO.y,oz=HERO.z,hv=MV.hv;let x=p.x,z=p.z,fy;
  if(sky){const dx=p.x-ox,dy=p.y-oy,dz=p.z-oz,L=Math.hypot(dx,dy,dz)||1,d=Math.min(L,300);x=ox+dx/L*d;z=oz+dz/L*d;fy=oy+dy/L*d-hv;}
  else fy=heroSupport(x,z,p.y+1.5,1.2);
  x=clamp(x,-HMAX,HMAX);z=clamp(z,-HMAX,HMAX);
- /* mirou na parede: recua em direção a quem mirou até sair do prédio */
  {const hx=ox-x,hz=oz-z,hl=Math.hypot(hx,hz)||1,ux=hx/hl,uz=hz/hl;
   for(let i=0;i<30&&heroWall(x,z,fy,1.2);i++){x+=ux*2;z+=uz*2;if(!sky)fy=heroSupport(x,z,p.y+1.5,1.2);}}
  fy=Math.max(fy,heroSupport(x,z,fy+1.2,1.2));if(FLY.ceil)fy=Math.min(fy,FLY.ceil);
+ return {x,z,fy};}
+function jumpTo(p,sky){if(!G.started||!p)return false;
+ const ox=HERO.x,oy=HERO.y,oz=HERO.z,ofy=MV.fy,hv=MV.hv;const L0=jumpLand(p,sky),x=L0.x,z=L0.z,fy=L0.fy;
  const ny=fy+hv,dX=x-ox,dY=ny-oy,dZ=z-oz;if(Math.hypot(dX,dY,dZ)<4)return false;
  /* saída */
  jumpBurst(ox,oy,oz,ofy,false);jumpScar(ox,oy,oz);sCrackle(camDist(ox,oy,oz));
  /* chegada: corpo e câmera vão juntos, num quadro só */
- HERO.x=x;HERO.z=z;MV.fy=fy;MV.vy=0;MV.air=0;MV.climb=null;HERO.y=ny;MV.py=ny;moveCam(dX,dY,dZ);
+ HERO.x=x;HERO.z=z;MV.fy=fy;MV.vy=0;MV.air=0;MV.climb=null;HERO.y=ny;MV.py=ny;
+ /* a câmera fica um instante para você se ver sumir e depois desliza até onde você apareceu */
+ JCAM.x+=dX;JCAM.y+=dY;JCAM.z+=dZ;if(!JCAM.on)JCAM.w=0.22;JCAM.on=true;
  if(Math.hypot(dX,dZ)>0.5)HERO.face=Math.atan2(dX,dZ);
  HY.px=x;HY.pz=z;HY.lx=null;HY.lz=null;HY.trail.length=0;FLY.px=x;FLY.py=ny;FLY.pz=z;FRB.pts.length=FRL.pts.length=FRR.pts.length=0;
  if(FLY.on){FLY.vx*=0.4;FLY.vz*=0.4;FLY.vy=0;}
@@ -4926,6 +4932,21 @@ function jumpDown(p){JP.t=0;JP.n=0;jumpTo(p,aimSky);}
 /* segurando: salta de novo a cada 0,35 s para onde a mira estiver */
 function jumpStep(dt,p){JP.t+=dt;if(JP.t<0.35)return;if(jumpTo(p,aimSky))JP.t=0;}
 function jumpUp(){if(JP.n>=4)banner('SALTO EM SEQUÊNCIA x'+JP.n,1);}
+STEP_HOOKS.push(function jumpCam(dt){if(!JCAM.on)return;if(JCAM.w>0){JCAM.w-=dt;return;}
+ const k=1-Math.exp(-dt*6),dx=JCAM.x*k,dy=JCAM.y*k,dz=JCAM.z*k;moveCam(dx,dy,dz);JCAM.x-=dx;JCAM.y-=dy;JCAM.z-=dz;
+ if(Math.hypot(JCAM.x,JCAM.y,JCAM.z)<0.05){moveCam(JCAM.x,JCAM.y,JCAM.z);JCAM.x=JCAM.y=JCAM.z=0;JCAM.on=false;}});
+/* anel azul: com o mouse e o Teletransporte na mão, mostra onde você vai parar */
+const JRING=(function(){const g=new THREE.Group();
+ const mk=(a,b,o)=>{const m=new THREE.Mesh(new THREE.RingGeometry(a,b,48).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x6fb2ff,transparent:true,opacity:o,depthTest:false,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=20;g.add(m);return m;};
+ const out=mk(1.5,2.3,0.95),inn=mk(0.3,0.65,0.85);g.visible=false;scene.add(g);return {g,out,inn,n:0};})();
+STEP_HOOKS.push(function jumpRing(dt){const R0=JRING,w=WEAP[G.w];
+ if(!G.started||G.paused||!w||w.id!=='jump'||AIM_TOUCH||JP.mx==null||(firing&&JP.n>0)){R0.g.visible=false;return;}
+ if((R0.n++)%2===0){const sv=AIM.clone(),ok=aimOK,sk=aimSky,kk=AIMK;aimAt(JP.mx,JP.my);
+  if(aimOK||aimSky){const L=jumpLand(AIM,aimSky);R0.g.position.set(L.x,L.fy+0.3,L.z);R0.g.visible=Math.hypot(L.x-HERO.x,L.fy+MV.hv-HERO.y,L.z-HERO.z)>=4;}else R0.g.visible=false;
+  AIM.copy(sv);aimOK=ok;aimSky=sk;AIMK=kk;}
+ const pu=1+0.12*Math.sin(G.t*7);R0.out.scale.set(pu,1,pu);R0.g.scale.setScalar(clamp(camDist(R0.g.position.x,R0.g.position.y,R0.g.position.z)/38,1,9));});
+RESET_HOOKS.push(()=>{JCAM.x=JCAM.y=JCAM.z=JCAM.w=0;JCAM.on=false;JRING.g.visible=false;});
+window.__caos.JCAM=JCAM;window.__caos.JRING=JRING;window.__caos.jumpTo=jumpTo;
 /* T: salta para onde o mouse aponta, com qualquer poder na mão */
 addEventListener('mousemove',e=>{JP.mx=e.clientX;JP.my=e.clientY;},{passive:true});
 addEventListener('keydown',e=>{const tg=(e.target&&e.target.tagName)||'';if(tg==='INPUT'||tg==='TEXTAREA'||!G.started||G.paused||e.code!=='KeyT'||e.repeat||firing||JP.mx==null)return;
