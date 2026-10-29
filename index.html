@@ -3045,7 +3045,7 @@ function fsToggle(){const d=document,de=d.documentElement;
 if(TOUCH){const k=document.querySelector('.keys');if(k)k.textContent='Joystick da esquerda anda · joystick da direita vira a câmera · toque na cidade para atacar · dois dedos dão zoom · o raio amarelo liga a hipervelocidade (alta ou muito alta) · as abas trocam o grupo de armas';}
 let modelsDone=0,modelsOk=0;const MODELS=['robot','soldier'];
 /* ================= Controles e mira ================= */
-const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.1;controls.minDistance=14;controls.maxDistance=1400;controls.maxPolarAngle=Math.PI*0.47;controls.enablePan=false;
+const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=false;controls.dampingFactor=0.1;/* sem inércia: soltou o mouse, a câmera para onde está */controls.minDistance=14;controls.maxDistance=1400;controls.maxPolarAngle=Math.PI*0.47;controls.enablePan=false;
 controls.mouseButtons={LEFT:null,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};controls.touches={ONE:null,TWO:null};/* toque: gestos próprios (joysticks + pinça), o OrbitControls r128 contaria os dedos dos joysticks */controls.autoRotate=true;controls.autoRotateSpeed=0.35;
 camera.position.set(150,105,250);controls.target.set(0,8,30);
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();const AIM=new THREE.Vector3();let aimOK=false,aimSky=false;
@@ -3081,12 +3081,12 @@ window.addEventListener('keydown',e=>{const tag=(e.target&&e.target.tagName)||''
 window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.key==='Shift')keys.shift=false;});
 window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false;JOY.L.reset();JOY.R.reset();if(firing)holdEnd();G.down=false;firing=false;});
 /* joysticks de toque, como no Minecraft: o da esquerda anda, o da direita vira a cabeça (câmera) sem disparar nada */
-const JOY={L:{x:0,y:0,id:null,on:false,reset(){}},R:{x:0,y:0,id:null,on:false,reset(){}}};
+const JOY={L:{x:0,y:0,id:null,on:false,ddx:0,ddy:0,lx:null,ly:null,reset(){}},R:{x:0,y:0,id:null,on:false,ddx:0,ddy:0,lx:null,ly:null,reset(){}}};
 function bindJoy(el,J){if(!el)return;const knob=el.querySelector('i');let cx=0,cy=0,rad=1;
- const upd=e=>{let dx=e.clientX-cx,dy=e.clientY-cy;const d=Math.hypot(dx,dy);if(d>rad){dx*=rad/d;dy*=rad/d;}J.x=dx/rad;J.y=dy/rad;knob.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px)';};
- J.reset=()=>{J.id=null;J.on=false;J.x=J.y=0;el.classList.remove('on');knob.style.transform='';};
+ const upd=e=>{if(J.lx!=null){J.ddx+=e.clientX-J.lx;J.ddy+=e.clientY-J.ly;}J.lx=e.clientX;J.ly=e.clientY;let dx=e.clientX-cx,dy=e.clientY-cy;const d=Math.hypot(dx,dy);if(d>rad){dx*=rad/d;dy*=rad/d;}J.x=dx/rad;J.y=dy/rad;knob.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px)';};
+ J.reset=()=>{J.id=null;J.on=false;J.x=J.y=0;J.lx=J.ly=null;J.ddx=J.ddy=0;el.classList.remove('on');knob.style.transform='';};
  const end=e=>{if(J.id===e.pointerId)J.reset();};
- el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(J.id!==null)return;audio();const r=el.getBoundingClientRect();cx=e.clientX;cy=e.clientY;rad=Math.max(20,r.width*0.38);J.id=e.pointerId;J.on=true;el.classList.add('on');try{el.setPointerCapture(e.pointerId);}catch(err){}upd(e);});
+ el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(J.id!==null)return;audio();const r=el.getBoundingClientRect();cx=e.clientX;cy=e.clientY;rad=Math.max(20,r.width*0.38);J.id=e.pointerId;J.on=true;J.lx=J.ly=null;J.ddx=J.ddy=0;el.classList.add('on');try{el.setPointerCapture(e.pointerId);}catch(err){}upd(e);});
  el.addEventListener('pointermove',e=>{if(J.id===e.pointerId){e.preventDefault();upd(e);}});
  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,end));
  el.addEventListener('contextmenu',e=>e.preventDefault());}
@@ -3177,8 +3177,8 @@ function stepHero(dt,rdt){
  camera.getWorldDirection(fwd);fwd.y=0;fwd.normalize();rgt.crossVectors(fwd,UP);let mvx=0,mvz=0,amp=0;
  if(G.started&&!G.paused){if(keys.w||keys.arrowup){mvx+=fwd.x;mvz+=fwd.z;}if(keys.s||keys.arrowdown){mvx-=fwd.x;mvz-=fwd.z;}if(keys.d||keys.arrowright){mvx+=rgt.x;mvz+=rgt.z;}if(keys.a||keys.arrowleft){mvx-=rgt.x;mvz-=rgt.z;}if(mvx||mvz)amp=1;
   const jl=joyAxis(JOY.L,0.14,1);if(jl){mvx+=fwd.x*-jl.y+rgt.x*jl.x;mvz+=fwd.z*-jl.y+rgt.z*jl.x;amp=Math.max(amp,0.25+0.75*jl.t);}
-  /* câmera pelo joystick direito: zona morta menor, curva mais rápida, sensibilidade do menu e aceleração quando o dedo fica na borda */
-  const jr=joyAxis(JOY.R,0.07,1.2);if(jr){JOY.R.edge=jr.t>0.85?(JOY.R.edge||0)+rdt:0;const boost=1+Math.min(0.8,Math.max(0,(JOY.R.edge||0)-0.3)*1.6);const sv=SENS.v[SENS.i]*boost;orbitCam(-jr.x*3.4*sv*rdt,-jr.y*2.2*sv*rdt);controls.autoRotate=false;}else JOY.R.edge=0;}
+  /* câmera pelo joystick direito: gira só o quanto o dedo anda; dedo parado, câmera parada */
+  if(JOY.R.on&&(JOY.R.ddx||JOY.R.ddy)){const h=Math.max(1,stage.clientHeight),sv=SENS.v[SENS.i];orbitCam(-JOY.R.ddx/h*Math.PI*1.3*sv,-JOY.R.ddy/h*Math.PI*0.9*sv);controls.autoRotate=false;}JOY.R.ddx=JOY.R.ddy=0;}
  const ml=Math.hypot(mvx,mvz);HY.mv=ml>1e-4&&amp>0;
  let sp=0;if(HY.mv){const cd=camera.position.distanceTo(controls.target);sp=clamp(28+cd*0.32,46,210)*(keys.shift?2.2:1)*amp*(1+HY.run*HY.spk);HERO.face=Math.atan2(mvx,mvz);}
  if(keys.q||keys.e){const a=(keys.q?1:-1)*rdt*1.3;const off=v1.copy(camera.position).sub(controls.target);off.applyAxisAngle(UP,a);camera.position.copy(controls.target).add(off);}
