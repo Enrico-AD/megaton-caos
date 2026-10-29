@@ -85,6 +85,8 @@ button{font:inherit;color:inherit}
 .boss .hp{display:block;height:9px;border-radius:5px;background:var(--wash);overflow:hidden;margin-top:4px}
 .boss .hp i{display:block;height:100%;width:100%;border-radius:5px;background:linear-gradient(90deg,var(--danger),var(--accent));transition:width .25s}
 .boss.ally .hp i{background:linear-gradient(90deg,#e8b630,var(--accent2))}
+.boss.hero .hp i{background:linear-gradient(90deg,#1f6fff,#53e3ff)}
+.boss.hero b{color:#2a6be0}
 .boss.rage b{color:var(--danger)}
 /* arsenal */
 .dock{left:0;right:0;bottom:0;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:6px;padding:0 10px 10px;z-index:3}
@@ -342,7 +344,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
 
 <div class="help">
   <div><h2>Como jogar</h2><p>São nove: o laser, que sobe do nível 1 ao 6, três nucleares (Nuclear, Mininuclear e Nuclear tripla) e três poderes. Na Terra você segura para arrancar um bloco do chão e solta para arremessar. Na Terra você escolhe o tamanho, de uma pedra a um pedaço de avenida. Na Água você junta uma massa que flutua e escolhe a forma (esfera, lanças, chicote, onda ou vórtice), e com R ela vira gelo. Os Raios saem da sua mão e pulam de metal em metal. O Fogo lança bolas que incendeiam, e a Telecinese levanta tudo perto da mira para você arremessar. No Teletransporte você toca onde quer aparecer e surge lá num estalo, com raios e faíscas (no computador, a tecla T salta para onde o mouse aponta, com qualquer poder). As estrelas no alto mostram o nível de procurado: clique nelas para escolher de 0 a 5. Quanto mais você destrói sem parar, mais sobe a nota de estilo (de D a SSS), que multiplica os pontos. O titã tem um ponto fraco brilhando no peito, e acertar a cabeça dele enquanto carrega o raio o deixa atordoado. O botão Pulo (ou Espaço) é o super pulo: segure para carregar e solte; no ar, aperte de novo para o pisão. Nada tem recarga.</p></div>
-  <div><h2>A cidade reage</h2><p>Chegue perto das pessoas e elas acenam, comemoram e tiram foto. Ataque e elas fogem. Depois vêm polícia, helicópteros, tanques e um titã que sai do mar.</p></div>
+  <div><h2>A cidade reage</h2><p>Chegue perto das pessoas e elas acenam, comemoram e tiram foto. Ataque e elas fogem. Depois vêm polícia, helicópteros e tanques. Com 3 estrelas chega a Vanguarda, os heróis da cidade, para lutar contra você, o vilão: Faísca (supervelocidade, sobe pelas paredes e faz tornado), Bastião (armadura voadora com mísseis e canhão), Muralha (gigante de pedra que salta e arremessa carros), Aurora (luz, cura e escudo nos prédios) e Nevasca (gelo). Com 4 estrelas vêm três heróis e monstros; com 5, a equipe inteira e monstros cada vez maiores. Herói derrotado cai, some e volta depois, mais forte. Dá para pegar um herói com a telecinese e jogar contra um prédio. Você não morre: os golpes só empurram e chacoalham.</p></div>
   <div><h2>Para quebrar</h2><p>O trem elevado descarrila, a montanha-russa quebra e o carrinho sai voando, o carrossel e a torre de queda tombam, a roda-gigante sai rolando, a torre de TV e os guindastes tombam, postos e tanques de combustível explodem em cadeia e hidrantes viram chafarizes.</p></div>
   <div><h2>O mapa</h2><p>Tudo num mapa só, sem carregamento, e a cidade dobrou de tamanho. No centro ficam as torres; a nordeste, o distrito financeiro, com arranha-céus de mais de 200 m; a noroeste, o Parque Central; ao sul, o Centro Histórico com a igreja; a sudeste, o parque de diversões; a sudoeste, as fábricas; e na costa, o porto de contêineres com três guindastes. A leste da cidade fica o mar, com a Ilha do Farol, a Ilha das Torres (ligada à costa norte por uma ponte pênsil) e a Ilha das Palmeiras. No fundo do mar está Atlântida, cinco cúpulas de vidro: entre pelo túnel da praia ou mergulhe voando (<kbd>C</kbd> desce na água). No céu flutuam duas cidades aéreas. Tudo isso também cai: a ponte, o vidro das cúpulas e as cidades aéreas.</p></div>
   <div><h2>Controles</h2><p><kbd>WASD</kbd> anda · <kbd>Q</kbd>/<kbd>E</kbd> giram · <kbd>1</kbd>–<kbd>9</kbd> escolhem a arma, <kbd>Q</kbd>/<kbd>E</kbd> mudam o tamanho ou a forma do poder, <kbd>R</kbd> troca água e gelo · tocar no laser de novo sobe o nível · <kbd>H</kbd> liga e desliga a hipervelocidade e <kbd>+</kbd>/<kbd>−</kbd> trocam entre alta, muito alta e luz (o tempo para) · <kbd>F</kbd> voa: <kbd>Espaço</kbd> sobe, <kbd>C</kbd> desce e olhar para cima ou para baixo também sobe e desce; <kbd>+</kbd>/<kbd>−</kbd> trocam entre normal, rápido (asas de anjo) e luz · <kbd>G</kbd> guarda o poder · <kbd>Esc</kbd> pausa. No celular: o joystick da esquerda anda, o da direita vira a câmera, um toque na cidade ataca e dois dedos dão zoom. O raio amarelo acima do joystick é a hipervelocidade: o primeiro toque liga e abre o medidor (Alta sobe prédios, Muito alta atravessa explodindo, Luz para o tempo), o segundo fecha o medidor e o terceiro desliga. A asa logo acima é o voo e funciona do mesmo jeito; voando, ▲ e ▼ sobem e descem. O botão de tela cheia fica ao lado do Som e no menu.</p></div>
@@ -428,7 +430,7 @@ const G={t:0,started:false,paused:false,w:0,hand:false,lv:1,grp:0,score:0,best:+
  rank:0,down:false,rep:0,used:new Set(store.get('used',[])),ach:new Set(store.get('ach',[])),lastAim:new THREE.Vector3(0,0,0),shadowEvery:3,shadowDirty:true,bh:null,dust:140,
  zomN:0,fans:0,domN:0,domT:0,emp:0,heliDown:0};
 const HERO={x:0,z:40,y:5,shield:0,face:0};
-const people=[],cops=[],orcs=[],titans=[],cars=[],pcars=[],boats=[],tanks=[],helis=[],PROPS=[];
+const people=[],cops=[],orcs=[],titans=[],cars=[],pcars=[],boats=[],tanks=[],helis=[],PROPS=[],HEROES=[];
 let ready=false,frameN=0;
 /* ================= Mundo: terreno deformável em blocos ================= */
 const CELL=70,HALF=MOB?770:1190,CELLS=Math.round(HALF*2/CELL),SEA_X=HALF+170,SHORE=SEA_X+40;
@@ -1619,7 +1621,7 @@ function fireball(x,y,z,r){for(let k=0;k<(MOB?8:14);k++){const a=R()*TAU,s=rr(0,
  for(let k=0;k<(MOB?6:10);k++)smokeP(x+rr(-r,r)*0.3,y+r*0.8,z+rr(-r,r)*0.3,{s:r*rr(0.35,0.55),life:rr(6,10),vy:rr(r*0.3,r*0.7),up:r*0.12,drag:0.8,grow:1.5,hot:1,c0:[0.16,0.13,0.12],c1:[0.45,0.43,0.42]});
  flashLight(x,y+r,z,24,r*14,1.2,0xff9040);}
 function boomLater(b){const x=b.x,z=b.z,y=(b.gy||0)+3,r=b.boom,gas=b.a==='gas';act('boom',0,{upd(){if(this.t<0.18)return true;explode(x,y,z,r,r*13,{crater:r*0.09});fireball(x,y,z,r);addChaos(r);if(R()<0.6)banner(gas?'POSTO PELOS ARES!':'TANQUE EXPLODIU!',1.1);return false;}});}
-function collapse(b,fx,fz,o){if(b.st===1||b.st===2)return;o=o||{};if(b.st===3){b.st=4;b.vy=6;return;}const was=b.st;const ice=b.frz>0||o.ice;
+function collapse(b,fx,fz,o){if(b.st===1||b.st===2)return;if(b.shT>G.t&&b.st===0){heroShieldHit(b,900);if(b.shT>G.t)return;}o=o||{};if(b.st===3){b.st=4;b.vy=6;return;}const was=b.st;const ice=b.frz>0||o.ice;
  b.st=1;b.ct=0;b.cs=o.fast?0.22:rr(1.2,1.8);b.wob=0;b.vy=0;b.fire=0;
  if(was===0&&b.fixY==null)b.gy=gh(b.x,b.z);if(!o.keepTilt){b.tx=(b.tx||0)+rr(-0.1,0.1);b.tz=(b.tz||0)+rr(-0.1,0.1);}if(o.fast)b.sq=1.18;
  destroyB(b);
@@ -1633,7 +1635,7 @@ function rubbleB(b,col){b.st=2;b.hidden=true;bSet(b);b.rry=R()*6;rubbleSet(b);co
 /* derreter, afundar, tombar, arremessar */
 function meltB(b){if(b.st!==0)return;destroyB(b);b.st=6;b.mt=0;b.fire=0;}
 function sinkB(b,cx,cz,T){if(b.st!==0&&b.st!==1)return;destroyB(b);b.st=9;b.sk=0;b.skT=T||rr(2.6,4);b.fire=0;const a=Math.atan2(cz-b.z,cx-b.x);b.stx=Math.sin(a)*0.45;b.stz=-Math.cos(a)*0.45;}
-function throwB(b,vx,vy,vz){b.st=8;b.vx=vx;b.vy=vy;b.vz=vz;b.rtx=rr(-1.5,1.5);b.rtz=rr(-1.5,1.5);b.fire=0;}
+function throwB(b,vx,vy,vz){b.shT=0;b.st=8;b.vx=vx;b.vy=vy;b.vz=vz;b.rtx=rr(-1.5,1.5);b.rtz=rr(-1.5,1.5);b.fire=0;}
 function toppleB(b,dx,dz,w0){if(b.st!==0)return false;destroyB(b);b.st=10;b.ta=0.02;b.tw=w0||0.2;b.tdx=dx;b.tdz=dz;b.thw=(Math.abs(dx)>0.5?b.w:b.d)/2;b.thit=false;b.fire=0;return true;}
 function rayHitB(ex,ez,dx,dz,o){const hw=o.w/2+1,hd=o.d/2+1;let t0=-1e9,t1=1e9;
  if(Math.abs(dx)<1e-6){if(Math.abs(ex-o.x)>hw)return -1;}else{let a=(o.x-hw-ex)/dx,b=(o.x+hw-ex)/dx;if(a>b){const t=a;a=b;b=t;}t0=Math.max(t0,a);t1=Math.min(t1,b);}
@@ -1694,7 +1696,7 @@ function consume(o){o.ctl=null;o.st=4;o.goneT=0;score(12,o.x,o.y,o.z);if(o.veh){
 /* movimento controlado por tornado, buraco negro, antigravidade, ímã e raio trator */
 const funnelR=h=>5+h*0.3+h*h*0.0012;
 function ctlMove(o,dt){const c=o.ctl;
- if(c.k==='tk')return tkMove(o,c,dt);if(c.k==='vx')return vxMove(o,c,dt);
+ if(c.k==='hh'){const H=c.H;if(!H||H.st!=='fight'||!H.act||H.act.c!==o){o.ctl=null;return 1;}o.x=c.x;o.y=c.y;o.z=c.z;o.vx=o.vy=o.vz=0;return 0;}if(c.k==='tk')return tkMove(o,c,dt);if(c.k==='vx')return vxMove(o,c,dt);
  if(c.k==='orb'){const T=c.T;if(!T.alive){o.ctl=null;return 1;}
   c.a+=c.w*dt;c.h+=c.lift*dt;const tr=funnelR(c.h)*c.f;c.r+=(tr-c.r)*clamp(dt*1.6);
   const sway=Math.sin(c.h*0.03+T.t*1.3)*c.h*0.12;const nx=T.x+Math.cos(c.a)*c.r+sway,nz=T.z+Math.sin(c.a)*c.r;const ny=T.gy+c.h;
@@ -1727,7 +1729,7 @@ function explode(x,y,z,r,pw,o){o=o||{};const P=PAL[o.pal||'fire'];const dist=cam
 function applyBlast(x,y,z,r,pw,o){o=o||{};let pan=0;const fl=o.fling||1;const skip=o.skip;
  if(!o.noB)for(const b of B){const st=b.st;if(st!==0&&st!==3)continue;const sh=b.shr||1;const bx=b.x+(b.px||0),bz=b.z+(b.pz||0);const dx=Math.max(Math.abs(x-bx)-b.w/2*sh,0),dz=Math.max(Math.abs(z-bz)-b.d/2*sh,0);if(dx>r||dz>r)continue;
   const base=b.gy+(b.yo||0),top=base+b.H*sh;const dy=y>top?y-top:y<base-2?base-2-y:0;const d=Math.hypot(dx,dz,dy);if(d>=r)continue;const f=1-d/r;
-  b.hp-=pw*f/b.res*(b.frz>0?3:1);if(o.fire!==false&&!(b.frz>0)){b.burn=Math.min(1,(b.burn||0)+f*0.5);bColor(b);}
+  if(b.shT>G.t){heroShieldHit(b,pw*f);continue;}b.hp-=pw*f/b.res*(b.frz>0?3:1);if(o.fire!==false&&!(b.frz>0)){b.burn=Math.min(1,(b.burn||0)+f*0.5);bColor(b);}
   if(b.hp<=0){if(o.topple&&R()<0.7&&toppleAway(b,o.topple.x,o.topple.z))continue;v3.set(bx-x,0,bz-z).normalize().multiplyScalar(6*fl);collapse(b,v3.x,v3.z,{fling:fl,cap:o.cap});}else if(o.fire!==false&&R()<f)ignite(b);}
  const r13=r*1.3;for(let i=0;i<TREES.length;i++){const t=TREES[i];if(t.gone)continue;if(t.fixY!=null&&Math.abs(t.gy-y)>r13)continue;const dx=t.x-x,dz=t.z-z;if(dx>r13||dx<-r13||dz>r13||dz<-r13)continue;const d=Math.hypot(dx,dz);if(d>r13)continue;const f=1-d/r13;
   if(f>0.6)treeKill(i);else{const a=Math.atan2(dz,dx);t.fx=Math.sin(a)*f*2.2;t.fz=-Math.cos(a)*f*2.2;if(f>0.3)t.bare=true;treeSet(i);}if(o.fire!==false)treeBurn(i);}
@@ -1795,7 +1797,9 @@ const MATFIT=new Map();function fitMat(m,sk){if(!m||!!m.skinning===sk)return m;c
 function titanSync(T){if(!T.syncL){T.syncL=[];T.root.traverse(o=>{if(o.isMesh){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms)if(m.userData&&m.userData.src)T.syncL.push(m);}});}for(const m of T.syncL){const s=m.userData.src;m.color.copy(s.color);if(m.emissive&&s.emissive)m.emissive.copy(s.emissive);m.metalness=s.metalness;m.roughness=s.roughness;}}
 function fixSkin(root){root.traverse(o=>{if(o.isMesh){if(Array.isArray(o.material))o.material=o.material.map(m=>fitMat(m,!!o.isSkinnedMesh));else o.material=fitMat(o.material,!!o.isSkinnedMesh);}});}
 function makeChar(kind){const A=ASSETS[kind];const root=THREE.SkeletonUtils.clone(A.scene);root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;}});
- const mixer=new THREE.AnimationMixer(root);const acts={};A.animations.forEach(c=>{acts[c.name]=mixer.clipAction(c);});const wrap=new THREE.Group();wrap.add(root);scene.add(wrap);return{wrap,root,mixer,acts,cur:null};}
+ const mixer=new THREE.AnimationMixer(root);const acts={};A.animations.forEach(c=>{acts[c.name]=mixer.clipAction(c);});const wrap=new THREE.Group();
+ /* o soldado vem olhando para -Z; meia-volta para olhar para +Z, como o resto do jogo espera (senão corre e voa de costas) */
+ if(kind==='soldier'){const f=new THREE.Group();f.rotation.y=Math.PI;f.add(root);wrap.add(f);}else wrap.add(root);scene.add(wrap);return{wrap,root,mixer,acts,cur:null};}
 function mixStep(o,dt,d){o.macc=(o.macc||0)+dt;const every=d<90?1:d<200?2:3;if(((frameN+(o.mph||(o.mph=1+((R()*3)|0))))%every)===0){o.mixer.update(o.macc);o.macc=0;}}
 function play(ch,name,fade,once,ts){const a=ch.acts[name];if(!a)return;if(ch.cur===a){if(ts)a.timeScale=ts;return;}a.reset();a.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat);a.clampWhenFinished=!!once;a.timeScale=ts||1;a.play();if(ch.cur)ch.cur.crossFadeTo(a,fade==null?0.25:fade,false);ch.cur=a;}
 function headBox(root,head){root.updateMatrixWorld(true);const box=new THREE.Box3();head.traverse(o=>{if(o.isMesh){if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));}});const inv=new THREE.Matrix4().copy(root.matrixWorld).invert();return box.applyMatrix4(inv);}
@@ -2449,7 +2453,7 @@ BLAST_HOOKS.push((x,y,z,r,pw,o)=>{const F=FUN;if(Math.abs(x-F.cx)>r+160||Math.ab
  if(F.st===0){for(let k=0;k<F.CARS.length;k++){const c=F.at(F.s-k*3.3);if(Math.hypot(x-c.p.x,y-c.p.y,z-c.p.z)<r+2&&pw>25){funDerail();break;}}}});
 RESET_HOOKS.push(()=>{const F=FUN;for(const sg of F.segs){sg.st=0;sg.hp=260;sg.m.position.copy(sg.c);sg.m.quaternion.identity();}F.st=0;F.s=0;F.v=6;F.toast=0;for(const m of F.CARS)m.visible=true;});
 function statueFromModel(){const L=LMS.find(l=>l.kind==='statue');if(!L||L.fig||!ASSETS.soldier)return;const ch=makeChar('soldier');scene.remove(ch.wrap);const gold=new THREE.MeshStandardMaterial({color:0xe6b347,roughness:0.28,metalness:0.75,skinning:true});
- ch.root.traverse(o=>{if(o.isMesh)o.material=gold;});fixSkin(ch.root);play(ch,'Idle',0);ch.mixer.update(0.3);ch.root.scale.setScalar(SO_SC*5.2);ch.wrap.position.y=5.5;ch.wrap.rotation.y=0.25;L.g.add(ch.wrap);L.fig=ch;}
+ ch.root.traverse(o=>{if(o.isMesh)o.material=gold;});fixSkin(ch.root);play(ch,'Idle',0);ch.mixer.update(0.3);ch.root.scale.setScalar(SO_SC*5.2);ch.wrap.position.y=5.5;ch.wrap.rotation.y=0.25+Math.PI;L.g.add(ch.wrap);L.fig=ch;}
 function lmSetRot(L){const ax=v1.set(L.dz,0,-L.dx).normalize();L.g.quaternion.setFromAxisAngle(ax,L.a).multiply(L.q0);}
 function lmTopple(L,fx,fz){if(L.st!==0||!L.g.visible)return;let dx=L.x-fx,dz=L.z-fz;const d=Math.hypot(dx,dz);if(d<0.5){const a=R()*TAU;dx=Math.cos(a);dz=Math.sin(a);}else{dx/=d;dz/=d;}L.dx=dx;L.dz=dz;L.st=1;L.a=0.01;L.w=0.15;
  score(L.kind==='tv'?1500:L.kind==='statue'?400:700,L.x,(L.gb||0)+L.H*0.6,L.z);addChaos(40);banner(L.nm||(L.kind==='tv'?'A TORRE DE TV CAIU!':L.kind==='statue'?'A ESTÁTUA CAIU!':L.kind==='turbine'?'TURBINA ABAIXO!':L.kind==='mill'?'MOINHO ABAIXO!':'GUINDASTE TOMBANDO!'),1.6);sCreak(camDist(L.x,L.H/2,L.z));}
@@ -2694,7 +2698,7 @@ for(let i=0;i<7;i++){const m=new THREE.Mesh(new THREE.TorusGeometry(1,0.07,6,40)
 LZM.glow.material.opacity=0.22;LZM.black.renderOrder=5;
 const LZE={pool:[],im:null,acc:0,wn:0,n:0,lastT:-9};
 function laserOff(){LZM.outer.visible=LZM.core.visible=LZM.black.visible=LZM.glow.visible=false;LZM.rings.forEach(r=>r.visible=false);}
-function laserStep(dt){const L=LZ[G.lv]||LZ[1];const S6=!!L.sup,V5=G.lv===5;const sx=HERO.x,sy=HERO.y+3.4,sz=HERO.z;const tx=AIM.x,ty=AIM.y,tz=AIM.z;const jit=1+Math.sin(G.t*55)*0.18;
+function laserStep(dt){const L=LZ[G.lv]||LZ[1];const S6=!!L.sup,V5=G.lv===5;const sx=HERO.x,sy=HERO.y+3.4,sz=HERO.z;const tx=AIM.x,ty=AIM.y,tz=AIM.z;if(HEROES.length)heroLaser(L,sx,sy,sz,tx,ty,tz,dt);const jit=1+Math.sin(G.t*55)*0.18;
  aimBeam(LZM.outer,sx,sy,sz,tx,ty,tz);LZM.outer.scale.x=LZM.outer.scale.y=L.w*jit*(V5?0.78:1);if(S6)LZM.outer.material.color.setHSL((G.t*0.45+0.62)%1,1,0.72);else LZM.outer.material.color.set(L.c);LZM.outer.material.opacity=V5?0.6:S6?0.78:0.95;
  if(G.lv<5){aimBeam(LZM.core,sx,sy,sz,tx,ty,tz);LZM.core.scale.x=LZM.core.scale.y=L.w*0.36;LZM.core.material.color.set(L.core);LZM.black.visible=LZM.glow.visible=false;LZM.rings.forEach(r=>r.visible=false);}
  else{const len=Math.hypot(tx-sx,ty-sy,tz-sz);
@@ -2931,9 +2935,9 @@ function updHUD(){$('#score').textContent=fmt(G.score);const cb=$('#combo');if(G
  const ph=$('#phase');ph.className='phase'+(G.phase?' p'+G.phase:'');$('#phaseT').textContent=ERAV.txt.phases[G.phase]||ERAV.txt.phases[0];
  if(G.bDown>=1)ach('primeiro');if(G.bDown>=100)ach('cem');if(pct>=50)ach('metade');if(pct>=90)ach('tudo');if(G.flung>=200)ach('voo');if(G.mult>=10)ach('combo');if(G.eDown>=30)ach('policia');if((G.zomTotal||0)>=100)ach('zumbi');updBosses();}
 const bossEl=$('#bosses');const BOSSV=new Map();
-function updBosses(){const all=titans.filter(T=>!T.dead);for(const[T,el]of BOSSV)if(!all.includes(T)){el.remove();BOSSV.delete(T);}
+function updBosses(){const all=titans.filter(T=>!T.dead).concat(HEROES.filter(heroLive));for(const[T,el]of BOSSV)if(!all.includes(T)){el.remove();BOSSV.delete(T);}
  const live=all.slice().sort((a,b)=>Math.hypot(a.x-HERO.x,a.z-HERO.z)-Math.hypot(b.x-HERO.x,b.z-HERO.z)).slice(0,MOB?2:3);for(const[T,el]of BOSSV)el.style.display=live.includes(T)?'':'none';
- for(const T of live){let el=BOSSV.get(T);if(!el){el=document.createElement('div');el.className='boss'+(T.ally?' ally':'');el.innerHTML='<div><b></b><span></span></div><i class="hp"><i></i></i>';el.querySelector('b').textContent=T.name||(T.ally?'Seu titã':'Titã');bossEl.appendChild(el);BOSSV.set(T,el);}
+ for(const T of live){let el=BOSSV.get(T);if(!el){el=document.createElement('div');el.className='boss'+(T.ally?' ally':'')+(T.hero?' hero':'');el.innerHTML='<div><b></b><span></span></div><i class="hp"><i></i></i>';el.querySelector('b').textContent=T.name||(T.ally?'Seu titã':'Titã');bossEl.appendChild(el);BOSSV.set(T,el);}
   const k=clamp(T.hp/T.max);el.querySelector('.hp i').style.width=(k*100).toFixed(1)+'%';el.querySelector('span').textContent=fmt(Math.max(0,T.hp))+' / '+fmt(T.max);el.classList.toggle('rage',!!T.rage);}
  stage.style.setProperty('--bossH',live.length&&window.innerWidth>=720?(bossEl.offsetHeight+6)+'px':'0px');}
 const popEl=$('#pops');const STGSZ={w:0,h:0};/* tamanho do palco guardado no resize: ler o layout a cada quadro custa caro */
@@ -2991,7 +2995,7 @@ function drawMini(){const c=mctx;c.save();c.clearRect(0,0,300,300);
  for(const c2 of cops)if(c2.st<2)dot(c2.x,c2.z,2.5,'#2a6bff');for(const c2 of pcars)if(!c2.dead&&c2.st<2)dot(c2.x,c2.z,3.5,'#2a6bff');
  for(const t of tanks)if(!t.dead&&t.st<2){c.fillStyle='#4d5a32';c.fillRect(mx(t.x)-3.5,mz(t.z)-3.5,7,7);}
  for(const h of helis)if(h.st===0)dot(h.x,h.z,3.6,h.army?'#6b7a3c':'#f2f4ff');
- for(const T2 of titans)if(!T2.dead)dot(T2.x,T2.z,8,T2.ally?'#f2c14e':'#c0262c');
+ for(const T2 of titans)if(!T2.dead)dot(T2.x,T2.z,8,T2.ally?'#f2c14e':'#c0262c');for(const H2 of HEROES)if(heroLive(H2))dot(H2.x,H2.z,6,H2.D.css);
  /* céu: ilhas e o próximo anel de luz */
  for(const I of SKYI)if(I.st===0||I.st===3){c.strokeStyle='rgba(60,120,50,.9)';c.fillStyle='rgba(120,190,90,.55)';c.lineWidth=1.5;c.beginPath();c.arc(mx(I.x),mz(I.z),Math.max(3,I.r/(MW*2)*300),0,TAU);c.fill();c.stroke();}
  if(FLY.on&&SKYR.L.length){const q=SKYR.L[SKYR.next].c;c.strokeStyle='#ffc94a';c.lineWidth=2.2;c.beginPath();c.arc(clamp(mx(q.x),4,296),clamp(mz(q.z),4,296),4.5,0,TAU);c.stroke();}
@@ -3008,7 +3012,7 @@ function drawMiniWorld(c){MW=WMW;MWX=WMX;MWZ=0;
  for(const b of B){if(!b.reg||b.st===2||b.st===1||b.hidden||b.reg==='mar')continue;const t=b.tint;c.fillStyle='rgb('+Math.round(t[0]*170)+','+Math.round(t[1]*170)+','+Math.round(t[2]*170)+')';c.fillRect(mx(b.x)-1,mz(b.z)-1,2.2,2.2);}
  if(MINI_HOOK)try{MINI_HOOK(c,mx,mz,300/(MW*2));}catch(e){}
  for(const I of SKYI)if(!I.aero&&(I.st===0||I.st===3)){c.strokeStyle='rgba(60,120,50,.9)';c.fillStyle='rgba(120,190,90,.55)';c.lineWidth=1.2;c.beginPath();c.arc(mx(I.x),mz(I.z),Math.max(2.5,I.r/(MW*2)*300),0,TAU);c.fill();c.stroke();}
- for(const T2 of titans)if(!T2.dead){c.fillStyle=T2.ally?'#f2c14e':'#c0262c';c.beginPath();c.arc(clamp(mx(T2.x),3,297),clamp(mz(T2.z),3,297),5,0,TAU);c.fill();}
+ for(const T2 of titans)if(!T2.dead){c.fillStyle=T2.ally?'#f2c14e':'#c0262c';c.beginPath();c.arc(clamp(mx(T2.x),3,297),clamp(mz(T2.z),3,297),5,0,TAU);c.fill();}for(const H2 of HEROES)if(heroLive(H2)){c.fillStyle=H2.D.css;c.beginPath();c.arc(clamp(mx(H2.x),3,297),clamp(mz(H2.z),3,297),4,0,TAU);c.fill();}
  miniHero(c);}
 
 /* menu, som, qualidade, tela cheia */
@@ -4669,7 +4673,7 @@ const _aaP=new THREE.Vector3();
 /* procura alvos grandes perto da mira, na tela; puxa a mira para o mais próximo */
 function aimAssist(cx,cy){if(!AIM_TOUCH)return;const r=renderer.domElement.getBoundingClientRect();let best=null,bd=46*46;
  const tryP=(x,y,z,k,rad)=>{_aaP.set(x,y,z).project(camera);if(_aaP.z>1)return;const sx=(_aaP.x*0.5+0.5)*r.width+r.left,sy=(-_aaP.y*0.5+0.5)*r.height+r.top;const d=(sx-cx)**2+(sy-cy)**2;const lim=(rad||1)*bd;if(d<lim&&d/(rad||1)<(best?best.d:1e9)){best={x,y,z,k,d:d/(rad||1)};}};
- for(const T of titans){if(T.dead||T.ally)continue;corePos(T,_cp);tryP(_cp.x,_cp.y,_cp.z,1,2.2);}
+ for(const T of titans){if(T.dead||T.ally)continue;corePos(T,_cp);tryP(_cp.x,_cp.y,_cp.z,1,2.2);}for(const H of HEROES)if(heroLive(H)&&H.st!=='tk'){heroCenter(H,_cp);tryP(_cp.x,_cp.y,_cp.z,1,1.6);}
  for(const h of helis)if(h.st===0)tryP(h.x,h.y,h.z,1,1);
  for(const c of tanks)if(!c.dead&&c.st<2)tryP(c.x,c.y+2,c.z,2,1);
  if(best){AIM.set(best.x,best.y,best.z);aimOK=true;AIMK=best.k;}}
@@ -4781,7 +4785,7 @@ function rockStep(dt){for(let i=EA.rocks.length-1;i>=0;i--){const r=EA.rocks[i];
    if(R()<dt*20)rkSmoke(r.x,r.y,r.z,{s:r.s*0.35,life:0.8,up:0.5,grow:1.5,c0:[0.55,0.47,0.38],c1:[0.8,0.75,0.68]});
    if(maybeWet(r.x,r.z)){const w=waterAt(r.x,r.z);if(w!=null&&r.y<w&&w>gS(r.x,r.z)+r.s*0.8){rockSplash(r,w);r.m.position.set(r.x,r.y,r.z);continue;}}
    let hitT=null;for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-r.x,(_cp.y-T.sc*0.15)-r.y,_cp.z-r.z)<T.sc*0.32+r.s){hitT=T;break;}}
-   let hit=!!hitT||r.y<gS(r.x,r.z)+r.s*0.5;if(!hit&&r.y<300){for(const b of B){if(b.st!==0)continue;if(Math.abs(r.x-b.x)<b.w/2+r.s*0.6&&Math.abs(r.z-b.z)<b.d/2+r.s*0.6&&r.y<b.gy+b.H+r.s*0.4){hit=true;break;}}}
+   let hit=!!hitT||heroHitP(r.x,r.y,r.z,r.s,900+r.s*r.s*40,'earth',r.vx,r.vz)||r.y<gS(r.x,r.z)+r.s*0.5;if(!hit&&r.y<300){for(const b of B){if(b.st!==0)continue;if(Math.abs(r.x-b.x)<b.w/2+r.s*0.6&&Math.abs(r.z-b.z)<b.d/2+r.s*0.6&&r.y<b.gy+b.H+r.s*0.4){hit=true;break;}}}
    if(hit||r.t>6){rockImpact(r,hitT);continue;}}
   else if(r.st==='sink'){r.vy+=(-7-r.vy)*clamp(dt*1.8);const k=Math.exp(-2.2*dt);r.vx*=k;r.vz*=k;r.x+=r.vx*dt;r.y+=r.vy*dt;r.z+=r.vz*dt;r.m.rotation.x+=dt*0.3*r.ax;
    if(R()<dt*(8+r.s))fireP(r.x+rr(-1,1)*r.s*0.5,r.y+r.s*0.6,r.z+rr(-1,1)*r.s*0.5,{vx:rr(-0.5,0.5),vy:rr(2,5),vz:rr(-0.5,0.5),up:16,drag:1,s:rr(0.4,1.1),life:rr(0.6,1.2),gl:0.3,c0:[0.9,0.97,1],c1:[0.7,0.88,1]});
@@ -4954,7 +4958,8 @@ function flameTouch(P,first){const x=P.x,z=P.z,R0=P.r;
   if(d<R0){fling(p,dx,dz,rr(5,9),rr(5,9));fireP(p.x,p.y+1,p.z,{s:1.1,life:0.45,vy:3});}
   else if(!q&&p.st===0&&!p.zom&&!p.seat&&!(p.frz>0)&&!p.goo){p.st=1;p.fear=rr(6,10);p.fan=0;p.flee={x:dx,z:dz};}}}
  for(const arr of VEH_ARRS)for(const c of arr){if(c.st===4||c.ctl)continue;const dx=c.x-x,dz=c.z-z;if(dx>R0+2.5||dx<-R0-2.5||dz>R0+2.5||dz<-R0-2.5)continue;if(Math.abs(c.y-P.y)>5)continue;carIgnite(c);}
- for(const T of titans){if(T.dead||T.ally)continue;if(Math.hypot(T.x-x,T.z-z)<R0+T.sc*0.3)titanDamage(T,first?30:12,{cap:0.03,el:'fire'});}}
+ for(const T of titans){if(T.dead||T.ally)continue;if(Math.hypot(T.x-x,T.z-z)<R0+T.sc*0.3)titanDamage(T,first?30:12,{cap:0.03,el:'fire'});}
+ for(const H of HEROES){if(!heroLive(H)||H.st==='tk')continue;if(Math.abs(H.fy-P.y)<4&&Math.hypot(H.x-x,H.z-z)<R0+0.4*H.W)heroDmg(H,first?260:90,{cap:0.04,el:'fire'});}}
 /* modo Rastro do poder Fogo */
 function ftDown(p){FT.on=true;FT.lx=null;FT.n=0;sWhoosh(0.5,0.25,300,900);ftAdd(p);}
 function ftAdd(p){if(aimSky)return;const x=p.x,y=p.y,z=p.z;
@@ -5330,6 +5335,7 @@ function fbStep(dt){for(let i=FB.list.length-1;i>=0;i--){const b=FB.list[i];b.t+
     /* sol grande atravessa: derrete o prédio e segue */
     if(b.s>=10&&b.plow<6){meltB(B0);explode(B0.x,Math.min(b.y,B0.gy+B0.H*0.6),B0.z,12,240,{});b.plow++;b.s*=0.96;continue;}hit=true;break;}}
   if(!hit)for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-b.x,_cp.y-T.sc*0.1-b.y,_cp.z-b.z)<T.sc*0.3+b.s*0.6){titanDamage(T,600+b.s*b.s*45,{aim:1,p:new THREE.Vector3(b.x,b.y,b.z),cap:b.s>=10?0.35:0.12,el:'fire'});hit=true;break;}}
+  if(!hit&&heroHitP(b.x,b.y,b.z,b.s*0.6,500+b.s*b.s*40,'fire',b.vx,b.vz))hit=true;
   if(hit){fbBoom(b,w);fbFree(b.g);FB.list.splice(i,1);}}}
 function fbFree(g){scene.remove(g);for(const m of[g.userData.fl,g.userData.fl2]){m.material.dispose();m.geometry.dispose();}}
 function fbBoom(b,w){const s=b.s,r=8+s*3.8,pw=500+s*s*95,cd=camDist(b.x,b.y,b.z);
@@ -5378,7 +5384,7 @@ function waterStep(dt,p){if(!WB.blob||!WB.blob.visible)waterDown(p);WB.t+=dt;if(
  /* varrer: a massa empurra e arrasta o que atravessa; apaga fogo; molha e enferruja titãs */
  if(sp>10&&frameN%3===0){const n=sp||1,bx=WB.x-WB.vx/n*r*0.4,bz=WB.z-WB.vz/n*r*0.4,by=Math.max(gh(WB.x,WB.z),WB.y-r*0.6);applyBlast(bx,by,bz,r*1.15,r*r*6*Math.min(2,sp/40)+80,{fire:false,fling:1.3,el:PW.ice?'ice':'water'});douse(WB.x,WB.z,r+8);if(PW.ice)freezeAt(WB.x,WB.z,r*1.2,5);
   if(WB.y-r<gh(WB.x,WB.z)+2)wbHitFx(WB.x,gh(WB.x,WB.z),WB.z,r*0.5);
-  for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-WB.x,_cp.y-WB.y,_cp.z-WB.z)<T.sc*0.35+r){titanDamage(T,r*r*2+60,{el:PW.ice?'ice':'water',cap:0.03});T.x+=WB.vx/n*Math.min(6,sp*0.05);T.z+=WB.vz/n*Math.min(6,sp*0.05);T.stg=Math.max(T.stg||0,0.3);}}}
+  for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-WB.x,_cp.y-WB.y,_cp.z-WB.z)<T.sc*0.35+r){titanDamage(T,r*r*2+60,{el:PW.ice?'ice':'water',cap:0.03});T.x+=WB.vx/n*Math.min(6,sp*0.05);T.z+=WB.vz/n*Math.min(6,sp*0.05);T.stg=Math.max(T.stg||0,0.3);}}heroHitP(WB.x,WB.y,WB.z,r,r*r*2+60,PW.ice?'ice':'water',WB.vx,WB.vz,0.03);}
  if(PW.ice)loopSet('wind',0.08+Math.min(0.15,WB.vol/600));}
 function wbHitFx(x,y,z,r){for(let k=0;k<(MOB?3:6);k++){const a=R()*TAU;fireP(x,y+0.5,z,{vx:Math.cos(a)*rr(4,14),vy:rr(5,14),vz:Math.sin(a)*rr(4,14),up:-26,drag:0.6,s:rr(0.5,1.2),life:rr(0.5,0.9),gl:0.3,c0:PW.ice?[0.95,0.98,1]:[0.9,0.97,1],c1:PW.ice?[0.7,0.85,1]:[0.3,0.65,1]});}if(R()<0.4)sSplashM(camDist(x,y,z),0.3);}
 function douse(x,z,r){for(let i=FLM.length-1;i>=0;i--){const P=FLM[i];if(Math.hypot(P.x-x,P.z-z)<r+P.r){FLM.splice(i,1);smokeP(P.x,P.y+1,P.z,{s:2.5,life:1.6,vy:4,up:1.5,c0:[0.9,0.92,0.95],c1:[1,1,1]});}}if(FLM_I>FLM.length)FLM_I=0;
@@ -5408,6 +5414,7 @@ function wbShotStep(dt){for(let i=WB.spears.length-1;i>=0;i--){const o=WB.spears
   const g=gh(o.x,o.z),w=maybeWet(o.x,o.z)?waterAt(o.x,o.z):null;let hit=o.y<g+o.r*0.3||o.t>5;if(w!=null&&o.y<w)hit=true;let hb=null;
   const cr=o.kind==='mass'?o.r*0.55:o.r;if(!hit)for(const b of B){if(b.st!==0)continue;if(Math.abs(o.x-b.x)<b.w/2+cr&&Math.abs(o.z-b.z)<b.d/2+cr&&o.y-cr<b.gy+b.H){hit=true;hb=b;break;}}
   let hT=null;if(!hit)for(const T of titans){if(T.dead||T.ally||T.tkh)continue;corePos(T,_cp);if(Math.hypot(_cp.x-o.x,_cp.y-T.sc*0.1-o.y,_cp.z-o.z)<T.sc*0.3+o.r){hit=true;hT=T;break;}}
+  if(!hit&&heroHitP(o.x,o.y,o.z,o.r,o.kind==='mass'?o.r*o.r*30+400:o.r*o.r*60+500,o.ice?'ice':'water',o.vx,o.vz))hit=true;
   if(!hit)continue;wbImpact(o,w,hT);
   if(o.kind==='spear'&&o.ice&&w==null){o.stuck=8;o.y=Math.max(o.y,g+1);o.m.position.set(o.x,o.y,o.z);}else{scene.remove(o.m);WB.spears.splice(i,1);}}}
 function wbImpact(o,w,hT){const big=o.kind==='orb'||o.kind==='mass',r=big?o.r*2.4:o.r*3.2,pw=big?o.r*o.r*(o.ice?260:140):(o.ice?420:200);const hv=Math.hypot(o.vx,o.vz)||1;
@@ -5584,7 +5591,7 @@ wantEl.addEventListener('pointerdown',e=>e.stopPropagation());
 wantEl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;let l=+b.dataset.l;if(l>0&&l===WANT.lv)l--;wantSet(l,true);});
 function wantSet(l,manual){WANT.lv=l;WANT.manual=!!manual;WANT.heat=WANT.T[l]+(l?5:0);WANT.quiet=0;WANT.pT=WANT.hT=WANT.aT=WANT.tT=0.5;if(l===0){WANT.calmT=0;}else if(G.started)banner(['','POLÍCIA A CAMINHO','REFORÇOS DA POLÍCIA','BLOQUEIOS E EXÉRCITO','EXÉRCITO PESADO','RESPOSTA MÁXIMA'][l],1.4);G.chaos=Math.max(G.chaos,WANT.T[l]);wantUI();sChime();}
 function wantUI(){if(WANT.shown===WANT.lv)return;WANT.shown=WANT.lv;wantEl.querySelectorAll('.ws').forEach(b=>{const on=+b.dataset.l<=WANT.lv;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});wantEl.classList.toggle('hot',WANT.lv>=4);}
-function heroSeen(){/* alguma unidade perto do herói consegue vê-lo (embaixo d'água, longe ou parado escondido, não) */if(MPH.under)return false;for(const c of cops)if(c.st<2&&Math.hypot(c.x-HERO.x,c.z-HERO.z)<140)return true;for(const t of tanks)if(!t.dead&&t.st<2&&Math.hypot(t.x-HERO.x,t.z-HERO.z)<200)return true;for(const h of helis)if(h.st===0&&Math.hypot(h.x-HERO.x,h.z-HERO.z)<260)return true;return false;}
+function heroSeen(){/* alguma unidade perto do herói consegue vê-lo (embaixo d'água, longe ou parado escondido, não) */if(MPH.under)return false;for(const H of HEROES)if(heroLive(H)&&Math.hypot(H.x-HERO.x,H.z-HERO.z)<260)return true;for(const c of cops)if(c.st<2&&Math.hypot(c.x-HERO.x,c.z-HERO.z)<140)return true;for(const t of tanks)if(!t.dead&&t.st<2&&Math.hypot(t.x-HERO.x,t.z-HERO.z)<200)return true;for(const h of helis)if(h.st===0&&Math.hypot(h.x-HERO.x,h.z-HERO.z)<260)return true;return false;}
 /* substitui as fases antigas: o nível manda quantas e quais forças vêm, e de quanto em quanto tempo */
 function stepPhases(dt){if(!G.started)return;const prev=WANT.lv;
  if(WANT.heat>WANT.T[1]*0.5)WANT.quiet+=dt;
@@ -5617,6 +5624,290 @@ RESET_HOOKS.push(()=>{WANT.lv=0;WANT.heat=0;WANT.manual=false;WANT.quiet=0;WANT.
  '.wanted svg{width:22px;height:22px;fill:rgba(255,255,255,.18);stroke:rgba(255,255,255,.75);stroke-width:1.4;transition:transform .15s}.wanted .ws.on svg{fill:#ffd166;stroke:#fff3c4}.wanted .ws:hover svg{transform:scale(1.15)}'+
  '.wanted.hot .ws.on svg{animation:wBl .6s infinite alternate}@keyframes wBl{to{fill:#ff5d5d}}@media (pointer:coarse){.wanted svg{width:24px;height:24px}}';
  document.head.appendChild(st);}
+/* ================= A Vanguarda: os heróis da cidade contra você, o vilão =================
+   Cinco heróis originais, cada um com poderes próprios, chegam conforme as estrelas de procurado:
+   com 3 estrelas vem um, com 4 vêm três e com 5 a equipe inteira. Eles atacam você (você não morre: os golpes
+   empurram, chacoalham e acendem o seu escudo), protegem a cidade (escudo nos prédios, apagam fogo, curam uns aos outros)
+   e levam dano dos seus poderes: explosões, laser, raios, pedras, fogo, água, telecinese (dá para pegar um herói e
+   jogar contra um prédio) e trombadas no voo rápido ou na hipervelocidade.
+   Derrotado, o herói cai, some num clarão e volta mais tarde, mais forte. */
+const HDEF={
+ faisca:{nm:'Faísca',role:'velocista',hp:26000,sc:1.12,fly:0,col:0xe4f6f2,vis:0x12e0cf,glow:[0.3,1.7,1.55],em:0x06201c,met:0.25,rough:0.35,css:'#1fd2c2',line:'FAÍSCA: PARA AÍ, VILÃO!'},
+ bastiao:{nm:'Bastião',role:'armadura voadora',hp:40000,sc:1.3,fly:1,col:0x7a8592,vis:0xff9330,glow:[1.9,0.85,0.22],em:0x03050a,met:0.6,rough:0.3,css:'#ff8a2a',line:'BASTIÃO: ALVO TRAVADO.'},
+ muralha:{nm:'Muralha',role:'gigante de pedra',hp:72000,sc:3.2,fly:0,col:0x8f8b82,vis:0xff6a2a,glow:[1.9,0.7,0.28],em:0x0a0400,met:0.05,rough:0.95,flat:1,css:'#b58a5a',line:'MURALHA: CHEGA DE ESTRAGO!'},
+ aurora:{nm:'Aurora',role:'luz',hp:32000,sc:1.15,fly:1,col:0xf4f1fb,vis:0xb46bff,glow:[1.0,0.55,1.9],em:0x120a20,met:0.2,rough:0.3,css:'#a96bff',line:'AURORA: ESTA CIDADE ESTÁ PROTEGIDA.'},
+ nevasca:{nm:'Nevasca',role:'gelo',hp:30000,sc:1.12,fly:1,col:0xd3ebff,vis:0xc8f4ff,glow:[0.7,1.45,2.0],em:0x061a2a,met:0.15,rough:0.2,css:'#5cbcff',line:'NEVASCA: HORA DE ESFRIAR AS COISAS.'}};
+const HORDER=['faisca','bastiao','muralha','aurora','nevasca'];
+const HV={first:true,cool:{},lv:{},beaten:new Set(),spT:4,sv:{x:0,z:0,t:0},dom:[],spk:[],cars:[],zapSkip:null,mon:0};
+const _hv=new THREE.Vector3(),_hv2=new THREE.Vector3(),_hc=new THREE.Color();
+/* ---------- corpo: o mesmo modelo do seu personagem, com cores, viseira e peças próprias de cada herói ---------- */
+function heroAcc(ch,bn,geo,mat,off){const b=findBone(ch.root,n=>n===bn);if(!b)return null;b.getWorldPosition(_hv);ch.root.worldToLocal(_hv);const s=SO_SC||1;if(off)_hv.add(_hv2.copy(off).divideScalar(s));
+ const m=new THREE.Mesh(geo,mat);attachAt(b,ch.root,m,_hv.clone());m.scale.multiplyScalar(1/s);m.castShadow=true;ch.own.push(geo);return m;}
+function makeHeroBody(k){const D=HDEF[k];const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+ const suit=new THREE.MeshStandardMaterial({color:D.col,roughness:D.rough,metalness:D.met,emissive:D.em,skinning:true,flatShading:!!D.flat});
+ const vis=new THREE.MeshBasicMaterial({color:D.vis,toneMapped:false,skinning:true});
+ const glow=new THREE.MeshBasicMaterial({color:new THREE.Color(D.glow[0],D.glow[1],D.glow[2]),toneMapped:false});
+ const acc=new THREE.MeshStandardMaterial({color:k==='muralha'?0xb07a3a:k==='bastiao'?0x30353d:k==='aurora'?0xe6dcff:k==='nevasca'?0xeaf8ff:0x173a38,roughness:k==='muralha'?0.5:0.35,metalness:k==='muralha'?0.7:k==='bastiao'?0.8:0.3,flatShading:k==='muralha'});
+ const mats=[suit,vis,glow,acc];let ch;
+ if(ASSETS.soldier){ch=makeChar('soldier');ch.own=[];ch.root.scale.setScalar(SO_SC);ch.root.traverse(o=>{if(o.isMesh)o.material=/visor/i.test(o.name)?vis:suit;});fixSkin(ch.root);
+  /* peças presas aos ossos na pose em T; no espaço do modelo a frente é -Z e o braço esquerdo vai para -X */
+  play(ch,'TPose',0);ch.mixer.update(0.016);ch.wrap.updateMatrixWorld(true);
+  const LR=[['Left',-1],['Right',1]];
+  if(k==='faisca'){for(const[s,sx]of LR){heroAcc(ch,'mixamorig'+s+'ForeArm',BX(0.28,0.045,0.05),glow,V(sx*0.13,0.05,-0.02));heroAcc(ch,'mixamorig'+s+'Arm',BX(0.26,0.04,0.05),glow,V(sx*0.13,0.06,-0.02));
+    heroAcc(ch,'mixamorig'+s+'UpLeg',BX(0.045,0.34,0.05),glow,V(sx*0.02,-0.2,-0.08));heroAcc(ch,'mixamorig'+s+'Leg',BX(0.045,0.34,0.05),glow,V(0,-0.2,-0.07));heroAcc(ch,'mixamorig'+s+'Foot',BX(0.13,0.1,0.25),acc,V(0,-0.03,-0.06));}
+   heroAcc(ch,'mixamorigHips',BX(0.38,0.06,0.26),glow,V(0,0.1,0));}
+  else if(k==='bastiao'){for(const[s,sx]of LR){heroAcc(ch,'mixamorig'+s+'Arm',BX(0.2,0.1,0.24),acc,V(sx*0.06,0.07,0));heroAcc(ch,'mixamorig'+s+'ForeArm',CY(0.075,0.075,0.3,8).rotateZ(Math.PI/2),acc,V(sx*0.14,0,0));
+    heroAcc(ch,'mixamorig'+s+'ForeArm',CY(0.05,0.05,0.025,8).rotateZ(Math.PI/2),glow,V(sx*0.3,0,0));heroAcc(ch,'mixamorigSpine2',CY(0.08,0.1,0.4,8),acc,V(sx*0.12,-0.05,0.19));
+    heroAcc(ch,'mixamorigSpine2',CY(0.065,0.085,0.03,8),glow,V(sx*0.12,-0.27,0.19));heroAcc(ch,'mixamorigSpine2',BX(0.04,0.16,0.03),glow,V(sx*0.07,0.03,-0.15));
+    heroAcc(ch,'mixamorig'+s+'Leg',BX(0.13,0.3,0.15),acc,V(0,-0.2,-0.02));}}
+  else if(k==='muralha'){const stone=new THREE.MeshStandardMaterial({color:D.col,roughness:0.95,metalness:0.05,flatShading:true});mats.push(stone);
+   for(const[s,sx]of LR){heroAcc(ch,'mixamorig'+s+'Arm',new THREE.IcosahedronGeometry(0.17,0),stone,V(sx*0.04,0.1,0));heroAcc(ch,'mixamorig'+s+'ForeArm',CY(0.095,0.085,0.22,7).rotateZ(Math.PI/2),acc,V(sx*0.13,0,0));
+    heroAcc(ch,'mixamorig'+s+'Leg',new THREE.IcosahedronGeometry(0.11,0),stone,V(0,0,-0.06));}
+   heroAcc(ch,'mixamorigSpine2',new THREE.IcosahedronGeometry(0.2,0),stone,V(0,0.04,0.17));heroAcc(ch,'mixamorigSpine1',new THREE.IcosahedronGeometry(0.15,0),stone,V(0.09,0,0.15));heroAcc(ch,'mixamorigSpine',new THREE.IcosahedronGeometry(0.13,0),stone,V(-0.08,0,0.14));}
+  else if(k==='aurora'){ch.halo=heroAcc(ch,'mixamorigSpine2',new THREE.TorusGeometry(0.3,0.02,6,40),glow,V(0,0.3,0.2));
+   for(const[s,sx]of LR){heroAcc(ch,'mixamorig'+s+'Hand',new THREE.SphereGeometry(0.065,10,8),glow,V(sx*0.07,0,0));heroAcc(ch,'mixamorig'+s+'ForeArm',CY(0.06,0.055,0.16,8).rotateZ(Math.PI/2),acc,V(sx*0.17,0,0));}}
+  else{const ice=new THREE.MeshStandardMaterial({color:0xd2f3ff,roughness:0.08,metalness:0.1,transparent:true,opacity:0.86,emissive:0x0b3550});mats.push(ice);
+   for(const[s,sx]of LR){for(let j=0;j<3;j++)heroAcc(ch,'mixamorig'+s+'Shoulder',new THREE.ConeGeometry(0.06,0.44-j*0.08,5).rotateZ(-sx*(0.3+j*0.28)),ice,V(sx*(0.07+j*0.06),0.14+j*0.015,0.03));
+    for(let j=0;j<2;j++)heroAcc(ch,'mixamorigSpine2',new THREE.ConeGeometry(0.05,0.4-j*0.1,5).rotateX(0.55).rotateZ(-sx*0.25),ice,V(sx*(0.06+j*0.09),0.12-j*0.05,0.14));
+    heroAcc(ch,'mixamorig'+s+'ForeArm',CY(0.07,0.06,0.2,6).rotateZ(Math.PI/2),ice,V(sx*0.15,0,0));}
+   for(let j=-1;j<=1;j++)heroAcc(ch,'mixamorigHead',new THREE.ConeGeometry(0.03,0.16-Math.abs(j)*0.05,5).rotateZ(-j*0.4),ice,V(j*0.06,0.22-Math.abs(j)*0.03,-0.02));}
+  play(ch,'Idle',0);}
+ else{const wrap=new THREE.Group();const sm=new THREE.MeshStandardMaterial({color:D.col,roughness:D.rough,metalness:D.met,emissive:D.em});mats.push(sm);
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.34,1.3,10),sm);body.position.y=1.15;const head=new THREE.Mesh(new THREE.SphereGeometry(0.32,12,8),sm);head.position.y=2.05;
+  const vb=new THREE.MeshBasicMaterial({color:D.vis,toneMapped:false});mats.push(vb);const vm=new THREE.Mesh(new THREE.BoxGeometry(0.46,0.1,0.18),vb);vm.position.set(0,2.07,0.24);wrap.add(body,head,vm);scene.add(wrap);
+  ch={wrap,root:wrap,mixer:{update(){}},acts:{},cur:null,own:[body.geometry,head.geometry,vm.geometry]};suit.emissive=sm.emissive;}
+ for(const m of mats)ch.own.push(m);ch.wrap.rotation.order='YXZ';ch.wrap.scale.setScalar(1.3*D.sc);ch.wrap.traverse(o=>{if(o.isMesh)o.castShadow=true;});ch.M={suit};return ch;}
+/* ---------- chão, telhados e paredes do ponto de vista de um herói ---------- */
+function heroGround(x,z){let g=gh(x,z);const w=maybeWet(x,z)?waterAt(x,z):null;if(w!=null&&w>g)g=w;return g;}
+/* o mais alto embaixo de (x,z) que dá para pisar subindo até "step" acima dos pés */
+function heroSup(x,z,fy,step){let s=heroGround(x,z);if(!BGRID)bgridBuild();const L=BGRID.get(Math.floor(x/40)*100003+Math.floor(z/40));
+ if(L)for(const b of L){if(b.st!==0||b.hidden||b.glass)continue;const sh=b.shr||1,bx=b.x+(b.px||0),bz=b.z+(b.pz||0);if(Math.abs(x-bx)>b.w/2*sh||Math.abs(z-bz)>b.d/2*sh)continue;const t=bTop(b);if(t<=fy+step&&t>s)s=t;}return s;}
+const heroTop=(x,z)=>heroSup(x,z,1e7,0);
+function heroCenter(H,o){return o.set(H.x,H.fy+1.05*H.W,H.z);}
+function heroLive(H){return H.st==='fight'||H.st==='in'||H.st==='tk';}
+/* ---------- golpe em você: empurra pouco, chacoalha e acende o escudo (você não morre e nunca fica preso ou lento) ---------- */
+function heroStruck(H,k,nx,nz,shove){const x=HERO.x,y=HERO.y+1.6,z=HERO.z;const n=Math.max(1,Math.round(k*3));for(let i=0;i<n;i++)heroHit();
+ ball(x,y,z,1+k*2.4,H?H.D.css:0xffffff,0.2);if(k>0.15)G.shake=Math.max(G.shake,0.05+k*0.3);if(k>0.5)hitstop(0.04);sPunch(camDist(x,y,z)*0.6);buzz(k>0.6?[40,20,60]:20);
+ if(shove){const d=Math.hypot(nx,nz)||1;if(FLY.on){FLY.kx+=nx/d*shove*8;FLY.kz+=nz/d*shove*8;FLY.ky+=shove*1.5;}else{HV.sv.x=nx/d*shove*1.2;HV.sv.z=nz/d*shove*1.2;HV.sv.t=0.25;}}}
+/* empurrão no chão: alguns metros para trás em 0,25 s, sem atravessar paredes */
+STEP_HOOKS.push(dt=>{const S=HV.sv;if(S.t<=0||FLY.on){S.t=0;return;}S.t-=dt;const k=Math.min(1,dt/0.25),nx=HERO.x+S.x*k,nz=HERO.z+S.z*k;if(heroWall(nx,nz,MV.fy,1.5)){S.t=0;return;}const dx=nx-HERO.x,dz=nz-HERO.z;HERO.x=nx;HERO.z=nz;moveCam(dx,0,dz);});
+/* ---------- dano nos heróis: cada um tem pontos fortes e fracos ---------- */
+const HEL={faisca:{blast:1.25,storm:1.2,tk:1.3},bastiao:{storm:2.2,laser:0.8,fire:0.6,water:1.2},muralha:{tk:1.5,earth:1.4,water:1.3,fire:0.5,laser:0.7,storm:0.4},aurora:{laser:0.6,tk:1.3,earth:1.2},nevasca:{fire:1.9,laser:1.3,ice:0.2,water:0.4,tk:1.2}};
+function heroDmg(H,a,o){if(!heroLive(H)||!(a>0))return 0;o=o||{};let m=(HEL[H.k]||{})[o.el];if(m==null)m=1;a*=m;if(H.shT>0)a*=0.3;a=Math.min(a,H.max*(o.cap||0.5));
+ H.hp-=a;H.hitT=0.12;H.lastHit=G.t;if(H.hp<=0)heroDown(H);return a;}
+function heroDown(H){if(H.st==='down'||H.st==='out')return;if(H.act&&H.act.c&&H.act.c.ctl&&H.act.c.ctl.H===H)flingCar(H.act.c,0.01,0,0.5,2);
+ H.hp=0;H.st='down';H.t=0;H.vy=H.D.fly?-4:Math.min(H.vy,0);H.act=null;H.lp=null;H.wall=0;H.stun=0;H.tkg=0;if(H.beam)H.beam.visible=H.beamC.visible=false;
+ const x=H.x,y=H.fy+H.W,z=H.z;banner(H.D.nm.toUpperCase()+' CAIU!',1.8);score(Math.round(2500*(HV.lv[H.k]||1)),x,y+4,z);addChaos(40);G.eDown++;hitstop(0.08);sBoom(20,camDist(x,y,z));flashLight(x,y,z,6,80,0.3,0xffffff);
+ for(let k=0;k<(MOB?10:20);k++)fireP(x,y,z,{vx:rr(-14,14),vy:rr(-2,16),vz:rr(-14,14),s:rr(0.3,0.7),life:rr(0.3,0.7),drag:2.2,gl:3,c0:[1,1,1],c1:H.D.glow});
+ HV.beaten.add(H.k);ach('heroi');if(HV.beaten.size>=HORDER.length)ach('vanguarda');}
+/* ---------- chegada ---------- */
+function heroSpawn(k,px,pz){const D=HDEF[k];const ch=makeHeroBody(k);const lv=HV.lv[k]||1;const a=R()*TAU,hx=HERO.x,hz=HERO.z,W=1.3*D.sc;
+ const H={k,D,ch,W,name:D.nm+' · '+D.role,hero:true,ally:false,dead:false,rage:false,x:clamp(px!=null?px:hx+Math.cos(a)*260,-HMAX,HMAX),z:clamp(pz!=null?pz:hz+Math.sin(a)*260,-HMAX,HMAX),fy:0,vx:0,vy:0,vz:0,face:a+Math.PI,ang:a,
+  hp:Math.round(D.hp*lv),max:Math.round(D.hp*lv),st:'in',t:0,cd:{a:rr(2,4),b:rr(5,8),c:rr(3,6)},act:null,hitT:0,shT:0,stun:0,trT:0,wall:0,ramT:0,lp:null,tkg:0,lastHit:-99};
+ H.fy=heroTop(H.x,H.z);if(D.fly)H.fy=Math.max(H.fy,HERO.y)+(k==='nevasca'?40:150);
+ if(k==='muralha'){const x1=clamp(hx+Math.cos(a)*16,-HMAX,HMAX),z1=clamp(hz+Math.sin(a)*16,-HMAX,HMAX);H.lp={x0:H.x,z0:H.z,y0:H.fy,x1,z1,y1:heroTop(x1,z1),t:0,T:3.2,h:170};}
+ if(D.fly){H.beam=beamMesh(k==='nevasca'?0x8fdcff:k==='aurora'?0xc690ff:0xff7a1a,0.75);H.beamC=beamMesh(k==='bastiao'?0xffd49a:0xf2fbff,0.28);}
+ HEROES.push(H);ch.wrap.position.set(H.x,H.fy,H.z);banner(D.line,2.2);sWhoosh(0.8,0.3,200,1200);
+ if(HV.first){HV.first=false;toast('A Vanguarda chegou!','Os heróis da cidade vieram atrás de você, o vilão. Derrube-os com explosões, laser, raios, pedras ou a telecinese.');}
+ return H;}
+function heroRemove(H){scene.remove(H.ch.wrap);if(H.beam){scene.remove(H.beam);scene.remove(H.beamC);H.beam.geometry.dispose();H.beamC.geometry.dispose();H.beam.material.dispose();H.beamC.material.dispose();}
+ for(const o of H.ch.own||[])if(o&&o.dispose)o.dispose();const i=HEROES.indexOf(H);if(i>=0)HEROES.splice(i,1);}
+/* ---------- quantos heróis vêm: 3 estrelas, um; 4, três; 5, os cinco (no celular, menos) ---------- */
+function heroWant(){const L=WANT.lv;return L<3?0:L===3?1:L===4?(MOB?2:3):(MOB?3:5);}
+function heroDirector(dt){const want=heroWant();let live=0;for(const H of HEROES)if(H.st!=='out'&&H.st!=='leave'&&H.st!=='down')live++;
+ for(const k in HV.cool)if(HV.cool[k]>0)HV.cool[k]-=dt;
+ /* estrelas caíram: os que sobram vão embora */
+ if(live>want)for(const H of HEROES){if(live<=want)break;if(H.st==='fight'||H.st==='in'){H.st='leave';H.t=0;H.vy=4;if(H.beam)H.beam.visible=H.beamC.visible=false;live--;}}
+ HV.spT-=dt;if(HV.spT<=0&&live<want&&HERO.y<1400){HV.spT=rr(7,12);const k=HORDER.find(k=>!HEROES.some(H=>H.k===k)&&!(HV.cool[k]>0));if(k)heroSpawn(k);}}
+/* ---------- movimento ---------- */
+function heroAim(H,o){o.x=HERO.x;o.y=HERO.y+1.6;o.z=HERO.z;o.dh=Math.hypot(o.x-H.x,o.z-H.z);o.d3=Math.hypot(o.dh,o.y-H.fy-H.W);return o;}
+const _ha={x:0,y:0,z:0,dh:0,d3:0};
+function heroFace(H,tx,tz,dt,k){const a=Math.atan2(tx-H.x,tz-H.z);let d=a-H.face;d=Math.atan2(Math.sin(d),Math.cos(d));H.face+=d*clamp(dt*(k||8));}
+function heroTrail(H,dt,n){H.trT-=dt;if(H.trT>0)return;H.trT=0.03;const c=H.D.glow,W=H.W;for(let i=0;i<(n||1);i++)fireP(H.x+rr(-0.3,0.3)*W,H.fy+rr(0.3,1.8)*W,H.z+rr(-0.3,0.3)*W,{vx:-H.vx*0.05,vy:rr(-0.5,0.5),vz:-H.vz*0.05,s:rr(0.2,0.4)*W,life:rr(0.25,0.45),drag:3,gl:2.5,c0:[1,1,1],c1:c});}
+/* voo: vai até um ponto com aceleração suave e sobe por cima dos prédios do caminho */
+function heroFlyTo(H,tx,ty,tz,sp,dt){const ax=H.x+H.vx*0.7,az=H.z+H.vz*0.7;ty=Math.max(ty,heroTop(ax,az)+6,heroTop(H.x,H.z)+4);
+ const dx=tx-H.x,dy=ty-H.fy,dz=tz-H.z,d=Math.hypot(dx,dy,dz)||1;const v=Math.min(sp,d*2.2);const k=clamp(dt*3);
+ H.vx+=(dx/d*v-H.vx)*k;H.vy+=(dy/d*v-H.vy)*k;H.vz+=(dz/d*v-H.vz)*k;
+ H.x=clamp(H.x+H.vx*dt,-HMAX,HMAX);H.fy+=H.vy*dt;H.z=clamp(H.z+H.vz*dt,-HMAX,HMAX);
+ const b=bAt(H.x,H.z,H.fy+1,1.2);if(b){const t=bTop(b)+2;H.fy=Math.min(t,H.fy+Math.max(40,Math.abs(H.vy))*dt*2);if(H.vy<0)H.vy=0;}
+ const g=heroGround(H.x,H.z)+1.5;if(H.fy<g){H.fy=g;if(H.vy<0)H.vy=0;}}
+/* corrida no chão: devolve 'wall' quando a Faísca sobe pela parede e 'blk' quando um prédio barra o caminho */
+function heroRun(H,tx,tz,sp,dt){const dx=tx-H.x,dz=tz-H.z,d=Math.hypot(dx,dz)||1;const v=Math.min(sp,d*3);const k=clamp(dt*5);H.vx+=(dx/d*v-H.vx)*k;H.vz+=(dz/d*v-H.vz)*k;
+ const nx=clamp(H.x+H.vx*dt,-HMAX,HMAX),nz=clamp(H.z+H.vz*dt,-HMAX,HMAX);let res=0;
+ const wb=bAt(nx,nz,H.fy+1.2,0.3);
+ if(wb){if(H.k==='faisca'&&sp>20){H.fy=Math.min(bTop(wb)+0.05,H.fy+Math.max(40,sp*0.8)*dt);H.wall=0.15;H.vy=0;H.face=Math.atan2(H.vx,H.vz);return 'wall';}H.vx*=-0.2;H.vz*=-0.2;res='blk';}
+ else{H.x=nx;H.z=nz;}
+ const sup=heroSup(H.x,H.z,H.fy,1.6);
+ if(H.fy>sup+0.3){H.vy-=40*dt;H.fy=Math.max(sup,H.fy+H.vy*dt);if(H.fy<=sup){if(H.vy<-25)heroLand(H,clamp(-H.vy/60,0.3,1));H.vy=0;}}else{H.fy=sup;H.vy=0;}
+ return res;}
+function heroLand(H,k){const x=H.x,z=H.z,g=H.fy,W=H.W,w2=Math.min(W,2.2);ring(x,z,4*W*k,0.4,0xe6ddd0,g+0.5);for(let i=0;i<(MOB?2:4);i++)smokeP(x+rr(-2,2)*W,g+0.8,z+rr(-2,2)*W,{s:rr(1.2,2)*w2*k,life:0.9,vy:rr(1,4),grow:1.5,c0:[0.75,0.72,0.66],c1:[0.88,0.86,0.82]});sStomp(camDist(x,g,z)*(1.4-k*0.5));}
+/* ---------- passo de um herói ---------- */
+function heroStep(H,dt){H.t+=dt;if(H.hitT>0)H.hitT-=dt;if(H.shT>0)H.shT-=dt;if(H.wall>0)H.wall-=dt;const D=H.D;
+ if(H.st==='out')return;
+ if(H.st==='tk'){/* preso na telecinese: quem mexe é ela; se soltou sem arremessar, volta a lutar */
+  if(!(TKN.on&&TKN.big&&TKN.big.o===H)&&!TKF.some(f=>f.o===H)){H.st='fight';H.tkg=0;H.ch.wrap.rotation.set(0,H.face,0);}else{play(H.ch,'TPose',0.2);mixStep(H.ch,dt,0);return;}}
+ if(H.st==='down'){const g=heroSup(H.x,H.z,H.fy,1);if(H.fy>g+0.05){H.vy-=34*dt;H.fy=Math.max(g,H.fy+H.vy*dt);}else{H.fy=g;H.vy=0;}
+  if(H.t>4.5){const x=H.x,y=H.fy+1,z=H.z;flashLight(x,y,z,6,60,0.4,0xffffff);ball(x,y,z,3*H.W,0xffffff,0.3);for(let k=0;k<12;k++)fireP(x,y,z,{vx:rr(-6,6),vy:rr(4,18),vz:rr(-6,6),s:0.5,life:0.5,gl:3,c0:[1,1,1],c1:D.glow});
+   H.st='out';HV.cool[H.k]=rr(50,70);HV.lv[H.k]=Math.min(2.5,(HV.lv[H.k]||1)+0.25);toast(D.nm+' recuou','Volta mais tarde, e mais forte.');heroRemove(H);return;}
+  heroPose(H,dt);return;}
+ if(H.st==='leave'){H.vy=Math.min(H.vy+40*dt,90);H.fy+=H.vy*dt;heroTrail(H,dt,2);if(H.t>3){H.st='out';heroRemove(H);return;}heroPose(H,dt);return;}
+ const A=heroAim(H,_ha),tx=A.x,ty=A.y,tz=A.z,dh=A.dh,d3=A.d3;
+ if(H.stun>0){H.stun-=dt;if(D.fly){H.vx*=0.92;H.vz*=0.92;H.vy=H.vy*0.92-4*dt;H.x+=H.vx*dt;H.z+=H.vz*dt;H.fy=Math.max(heroTop(H.x,H.z)+1.5,H.fy+H.vy*dt);}else heroRun(H,H.x,H.z,0,dt);
+  if(R()<dt*12)fireP(H.x+rr(-0.5,0.5)*H.W,H.fy+rr(0.5,2)*H.W,H.z+rr(-0.5,0.5)*H.W,{vx:rr(-3,3),vy:rr(1,4),vz:rr(-3,3),s:0.35,life:0.3,gl:4,c0:[1,1,1],c1:[0.6,0.7,1]});heroPose(H,dt);return;}
+ if(H.st==='in'){
+  if(H.k==='faisca'){heroRun(H,tx,tz,120,dt);heroTrail(H,dt,3);if(dh<26)H.st='fight';}
+  else if(H.k==='muralha'){if(H.lp)heroLeapStep(H,dt);else H.st='fight';}
+  else{const a=H.ang;heroFlyTo(H,tx+Math.cos(a)*55,ty+(H.k==='nevasca'?10:28),tz+Math.sin(a)*55,95,dt);heroTrail(H,dt,2);if(H.k==='nevasca')heroIceTrail(H,dt);if(d3<95)H.st='fight';}
+  if(!H.lp&&H.wall<=0)heroFace(H,H.x+H.vx,H.z+H.vz,dt,5);heroPose(H,dt);return;}
+ for(const k in H.cd)H.cd[k]-=dt;
+ if(H.k==='faisca')faiscaAI(H,dt,tx,ty,tz,dh);else if(H.k==='bastiao')bastiaoAI(H,dt,tx,ty,tz,dh,d3);else if(H.k==='muralha')muralhaAI(H,dt,tx,ty,tz,dh);else if(H.k==='aurora')auroraAI(H,dt,tx,ty,tz,dh,d3);else nevascaAI(H,dt,tx,ty,tz,dh,d3);
+ heroPose(H,dt);}
+/* pose: corre, voa inclinado, sobe parede, cai, pisca quando apanha */
+function heroPose(H,dt){const Wr=H.ch.wrap,cp=camera.position,d=Math.hypot(H.x-cp.x,H.fy-cp.y,H.z-cp.z);Wr.visible=d<(MOB?900:1500);if(!Wr.visible)return;
+ const fl=H.D.fly&&H.st!=='down',hs=Math.hypot(H.vx,H.vz);Wr.position.set(H.x,H.fy+(fl?Math.sin(G.t*2.2+H.ang)*0.35:0),H.z);
+ let rx=0,an='Idle',ts=1;
+ if(H.st==='down'){rx=Math.min(1.5,H.t*2.5);an='TPose';}
+ else if(H.stun>0){rx=0.2;an='TPose';}
+ else if(H.wall>0){rx=-1.35;an='Run';ts=2.6;}
+ else if(fl){rx=clamp(hs/80)*1.2;an=hs>28?'TPose':'Idle';}
+ else if(H.lp){rx=0.25;}
+ else if(hs>2){if(H.k==='muralha'){an='Walk';ts=clamp(hs/(1.4*H.W),0.6,2.2);}else{an='Run';ts=clamp(hs/(4*H.W),0.8,3);}if(hs>40)rx=0.3;}
+ Wr.rotation.set(rx,H.face,0);play(H.ch,an,0.15,false,ts);mixStep(H.ch,dt,d);
+ const M=H.ch.M;if(M&&M.suit.emissive){M.suit.emissive.setHex(H.D.em);const e=H.hitT>0?0.7:H.shT>0?0.3+0.15*Math.sin(G.t*20):H.stun>0?0.35:0;if(e>0)M.suit.emissive.lerp(_hc.setRGB(1,1,1),e);}
+ if(H.ch.halo)H.ch.halo.rotation.z+=dt*1.5;}
+/* ---------- Faísca: corre em volta, rajada de socos, tornado (que apaga o fogo) e salto até você ---------- */
+function faiscaAI(H,dt,tx,ty,tz,dh){const A=H.act,dy=HERO.y-H.fy,reach=Math.abs(dy)<4;
+ if(A&&A.k==='combo'){A.t+=dt;heroRun(H,tx-Math.sin(H.face)*2.2,tz-Math.cos(H.face)*2.2,95,dt);heroTrail(H,dt,2);if(H.wall<=0)heroFace(H,tx,tz,dt,20);
+  if(dh<6&&reach&&A.t-A.last>0.12&&A.n<7){A.last=A.t;A.n++;heroStruck(H,0.18,tx-H.x,tz-H.z,A.n===7?3:0);for(let k=0;k<4;k++)fireP(tx+rr(-1,1),ty+rr(-0.5,1),tz+rr(-1,1),{vx:rr(-8,8),vy:rr(-2,8),vz:rr(-8,8),s:0.35,life:0.25,gl:3,c0:[1,1,1],c1:H.D.glow});}
+  if(A.n>=7||A.t>2.4){H.act=null;H.cd.a=rr(2.5,4);H.ang=Math.atan2(H.z-tz,H.x-tx);}return;}
+ if(A&&A.k==='torn'){A.t+=dt;H.ang+=dt*7;heroRun(H,tx+Math.cos(H.ang)*10,tz+Math.sin(H.ang)*10,130,dt);heroTrail(H,dt,3);if(H.wall<=0)heroFace(H,H.x+H.vx,H.z+H.vz,dt,20);
+  const g=gh(tx,tz);for(let k=0;k<(MOB?1:3);k++){const a=R()*TAU,r=rr(3,12);smokeP(tx+Math.cos(a)*r,g+rr(1,26),tz+Math.sin(a)*r,{s:rr(1.4,2.6),life:0.7,vx:-Math.sin(a)*24,vz:Math.cos(a)*24,vy:rr(4,10),drag:1,grow:1.3,c0:[0.82,0.84,0.86],c1:[0.95,0.96,0.97]});}
+  if(A.t-A.last>0.4){A.last=A.t;if(reach&&dh<16)heroStruck(H,0.14,0,0,0);douse(tx,tz,30);applyBlast(tx,g+1,tz,13,40,{fire:false,fling:0.8,noB:true,hero:1});}
+  if(A.t>2.6){H.act=null;H.cd.b=rr(10,14);}return;}
+ if(A&&A.k==='jump'){A.t+=dt;H.vy-=40*dt;H.x=clamp(H.x+H.vx*dt,-HMAX,HMAX);H.z=clamp(H.z+H.vz*dt,-HMAX,HMAX);H.fy+=H.vy*dt;heroTrail(H,dt,2);heroFace(H,tx,tz,dt,12);
+  if(!A.hit&&Math.hypot(tx-H.x,ty-H.fy-H.W,tz-H.z)<4.5){A.hit=1;heroStruck(H,0.45,tx-H.x,tz-H.z,3);H.vx*=-0.3;H.vz*=-0.3;}
+  const s=heroSup(H.x,H.z,H.fy,0.5);if(H.fy<=s&&H.vy<0){H.fy=s;if(H.vy<-25)heroLand(H,0.6);H.vy=0;H.act=null;H.cd.c=rr(3,5);}else if(A.t>5)H.act=null;return;}
+ /* em volta, rápido, trocando de ritmo; longe, corre direto */
+ H.ang+=dt*(1.5+0.5*Math.sin(G.t*0.7+H.lastHit));const far=dh>70;heroRun(H,far?tx:tx+Math.cos(H.ang)*22,far?tz:tz+Math.sin(H.ang)*22,far?110:70,dt);heroTrail(H,dt,1);if(H.wall<=0)heroFace(H,tx,tz,dt,8);
+ if(H.cd.a<=0&&reach&&dh<60)H.act={k:'combo',t:0,n:0,last:0};
+ else if(H.cd.b<=0&&reach&&dh<60)H.act={k:'torn',t:0,last:0};
+ else if(H.cd.c<=0&&dy>3&&dy<110&&dh<70&&H.wall<=0){const h=dy+4,vy=Math.sqrt(2*40*Math.max(4,h)),T=vy/40;H.vy=vy;H.vx=(tx-H.x)/T;H.vz=(tz-H.z)/T;H.act={k:'jump',t:0};sWhoosh(0.5,0.25,500,1500);heroLand(H,0.4);}}
+/* ---------- Bastião: mísseis, canhão de energia e escudo quando apanha muito ---------- */
+function bastiaoAI(H,dt,tx,ty,tz,dh,d3){const A=H.act;H.ang+=dt*0.25;heroFlyTo(H,tx+Math.cos(H.ang)*62,Math.max(heroGround(tx,tz)+20,ty+26),tz+Math.sin(H.ang)*62,60,dt);heroFace(H,tx,tz,dt,6);
+ if(R()<dt*24){const W=H.W;for(const sx of[-1,1])fireP(H.x+Math.cos(H.face)*sx*0.12*W-Math.sin(H.face)*0.2*W,H.fy+0.75*W,H.z-Math.sin(H.face)*sx*0.12*W-Math.cos(H.face)*0.2*W,{vx:0,vy:-rr(10,18),vz:0,s:rr(0.3,0.5),life:0.22,gl:3,c0:[1,0.95,0.7],c1:[1,0.45,0.1]});}
+ if(H.hp<H.max*0.5&&!(H.shT>0)&&H.cd.c<=0){H.shT=4;H.cd.c=rr(16,22);ball(H.x,H.fy+H.W,H.z,4*H.W,0xffb050,0.6);banner('BASTIÃO: ESCUDO NO MÁXIMO!',1);}
+ if(A&&A.k==='beam'){A.t+=dt;const W=H.W,cx=H.x+Math.sin(H.face)*0.25*W,cy=H.fy+1.3*W,cz=H.z+Math.cos(H.face)*0.25*W;aimBeam(H.beam,cx,cy,cz,tx,ty,tz);aimBeam(H.beamC,cx,cy,cz,tx,ty,tz);
+  if(A.t-A.last>0.25){A.last=A.t;heroStruck(H,0.22,tx-H.x,tz-H.z,A.t>1.3?4:0);fireP(tx,ty,tz,{vx:rr(-6,6),vy:rr(2,10),vz:rr(-6,6),s:1,life:0.3,gl:3,c0:[1,0.9,0.6],c1:[1,0.4,0.1]});}
+  if(A.t>1.6){H.beam.visible=H.beamC.visible=false;H.act=null;H.cd.b=rr(8,11);}return;}
+ if(H.cd.a<=0&&d3<300){H.cd.a=rr(6,8);for(let i=0;i<(MOB?4:6);i++)HPJ.push({H,x:H.x,y:H.fy+1.6*H.W,z:H.z,vx:Math.sin(H.face+rr(-1.2,1.2))*30,vy:rr(10,24),vz:Math.cos(H.face+rr(-1.2,1.2))*30,t:-i*0.12,m:null});sWhoosh(0.6,0.2,400,1600);}
+ else if(H.cd.b<=0&&d3<220){H.act={k:'beam',t:0,last:0};sZap(0.2);}}
+/* ---------- Muralha: salta pela cidade, esmurra o chão e arremessa carros ---------- */
+function heroLeap(H,tx,ty,tz,dh,air){const a=Math.atan2(H.z-tz,H.x-tx);const x1=clamp(air?tx:tx+Math.cos(a)*14,-HMAX,HMAX),z1=clamp(air?tz:tz+Math.sin(a)*14,-HMAX,HMAX);const y1=air?Math.max(heroTop(x1,z1),HERO.y-1):heroTop(x1,z1);
+ H.lp={x0:H.x,z0:H.z,y0:H.fy,x1,z1,y1,t:0,T:clamp(dh/60,1.2,3.2),h:air?Math.max(16,(y1-H.fy)*0.5+12):clamp(dh*0.45,24,170)};H.cd.c=rr(5,8);H.act=null;sWhoosh(0.9,0.3,150,500);heroLand(H,0.8);}
+function heroLeapStep(H,dt){const L=H.lp;L.t+=dt;const u=clamp(L.t/L.T);H.x=lerp(L.x0,L.x1,u);H.z=lerp(L.z0,L.z1,u);H.fy=lerp(L.y0,L.y1,u)+L.h*4*u*(1-u);H.face=Math.atan2(L.x1-L.x0,L.z1-L.z0);
+ if(u>=1){H.lp=null;H.vx=H.vz=H.vy=0;heroSlam(H,1);}}
+function heroSlam(H,big){const x=H.x,z=H.z,g=H.fy,R0=big?26:17;ring(x,z,R0*1.4,0.6,0xd8c8b0,g+0.6);ring(x,z,R0,0.45,0xffe0b0,g+0.6);if(g<gh(x,z)+1.5)dig(x,z,big?7:5,big?2.2:1.4,0.8);
+ for(let k=0;k<(MOB?8:16);k++){const a=R()*TAU;chunk(x+Math.cos(a)*4,g+1,z+Math.sin(a)*4,Math.cos(a)*rr(8,20),rr(8,18),Math.sin(a)*rr(8,20),rr(0.5,1.3),[0.5,0.47,0.43],{life:rr(4,7)});}
+ for(let k=0;k<(MOB?2:4);k++)smokeP(x+rr(-6,6),g+1,z+rr(-6,6),{s:rr(2,3.5),life:1.1,vy:rr(2,5),grow:1.5,c0:[0.72,0.68,0.6],c1:[0.86,0.83,0.78]});
+ applyBlast(x,g+1,z,R0,big?260:170,{fire:false,fling:1.6,noB:true,hero:1});const dist=camDist(x,g,z);sStomp(dist);sBoom(26,dist);G.shake=Math.max(G.shake,clamp(0.7/(1+dist/160)));
+ if(Math.hypot(HERO.x-x,HERO.z-z)<R0*1.1&&Math.abs(HERO.y-g)<10)heroStruck(H,big?0.8:0.55,HERO.x-x,HERO.z-z,big?6:4);}
+function muralhaAI(H,dt,tx,ty,tz,dh){const A=H.act,dy=HERO.y-H.fy;
+ if(H.lp){heroLeapStep(H,dt);return;}
+ if(A&&A.k==='car'){A.t+=dt;const c=A.c;if(!c||c.st===4||!c.ctl||c.ctl.H!==H){H.act=null;return;}const W=H.W,hx=H.x+Math.sin(H.face)*0.4*W,hz=H.z+Math.cos(H.face)*0.4*W,hy=H.fy+2.4*W;heroFace(H,tx,tz,dt,8);
+  if(A.t<0.8){const k=clamp(dt*6);c.ctl.x=lerp(c.ctl.x,hx,k);c.ctl.y=lerp(c.ctl.y,hy,k);c.ctl.z=lerp(c.ctl.z,hz,k);}
+  else{c.ctl=null;const ddx=tx-c.x,ddz=tz-c.z,dd=Math.hypot(ddx,ddz)||1,T=clamp(dd/55,0.5,1.8);flingCar(c,ddx,ddz,dd/T,(ty-c.y)/T+12*T);HV.cars.push({c,H,t:0});sWhoosh(0.5,0.3,300,900);H.act=null;}return;}
+ heroFace(H,tx,tz,dt,4);
+ if((dh>45||(dy>9&&dh<160))&&H.cd.c<=0){heroLeap(H,tx,ty,tz,dh,dy>9);return;}
+ const r=heroRun(H,tx,tz,dh>10?12:0,dt);if(r==='blk'&&H.cd.c<=0){heroLeap(H,tx,ty,tz,dh,dy>9);return;}
+ if(dh<11&&Math.abs(dy)<7&&H.cd.a<=0){H.cd.a=rr(1.8,2.6);heroSlam(H,0);}
+ else if(H.cd.b<=0){H.cd.b=rr(7,11);let best=null,bd=70;for(const c of cars){if(c.st!==0||c.ctl||c.dead||c.hide)continue;const d=Math.hypot(c.x-H.x,c.z-H.z);if(d<bd){bd=d;best=c;}}
+  if(best){H.act={k:'car',t:0,c:best};best.ctl={k:'hh',H,x:best.x,y:best.y,z:best.z};}}}
+/* carros que a Muralha jogou: acertam você no caminho */
+function heroCars(dt){for(let i=HV.cars.length-1;i>=0;i--){const o=HV.cars[i],c=o.c;o.t+=dt;if(o.t>3||c.st!==2){HV.cars.splice(i,1);continue;}
+  if(Math.hypot(c.x-HERO.x,c.y-HERO.y-1.5,c.z-HERO.z)<4.5){heroStruck(o.H,0.5,c.vx,c.vz,4);explode(c.x,c.y,c.z,6,120,{});HV.cars.splice(i,1);}}}
+/* ---------- Aurora: rajadas de luz, escudo nos prédios e cura ---------- */
+function auroraAI(H,dt,tx,ty,tz,dh,d3){const A=H.act;H.ang-=dt*0.3;heroFlyTo(H,tx+Math.cos(H.ang)*52,Math.max(heroGround(tx,tz)+22,ty+32),tz+Math.sin(H.ang)*52,55,dt);heroFace(H,tx,tz,dt,6);
+ if(R()<dt*10)fireP(H.x+rr(-0.6,0.6)*H.W,H.fy+rr(0,2)*H.W,H.z+rr(-0.6,0.6)*H.W,{vx:0,vy:-rr(2,6),vz:0,s:rr(0.2,0.45),life:0.6,gl:3,c0:[1,1,1],c1:R()<0.5?H.D.glow:[0.5,1.9,1.2]});
+ if(A&&A.k==='bolts'){A.t+=dt;if(A.t-A.last>0.14&&A.n<3){A.last=A.t;A.n++;const W=H.W,hx=H.x+Math.sin(H.face+0.5)*0.4*W,hy=H.fy+1.2*W,hz=H.z+Math.cos(H.face+0.5)*0.4*W;
+   bolt(hx,hy,hz,tx+rr(-1,1),ty+rr(-0.5,0.5),tz+rr(-1,1),{n:9,w:0.45,col:[1.7,1.1,2.8],life:0.14,amp:0.08});heroStruck(H,0.16,tx-H.x,tz-H.z,A.n===3?2:0);sZap(0.08);}
+  if(A.n>=3){H.act=null;H.cd.a=rr(2.2,3.2);}}
+ else if(H.cd.a<=0&&d3<220)H.act={k:'bolts',t:0,n:0,last:-1};
+ if(H.cd.b<=0){H.cd.b=rr(9,13);let best=null,bd=130;for(const b of B){if(b.st!==0||b.reg||b.hidden||b.shT>G.t||b.H<12)continue;const d=Math.hypot(b.x-tx,b.z-tz);if(d<bd){bd=d;best=b;}}
+  if(best){const D0=HV.dom.reduce((a,c)=>c.t<a.t?c:a);if(D0.b&&D0.b!==best)D0.b.shT=0;best.shT=G.t+12;best.shH=3000;D0.b=best;D0.t=12;banner('AURORA PROTEGEU UM PRÉDIO',1);sChime();bolt(H.x,H.fy+H.W,H.z,best.x,best.gy+best.H,best.z,{n:10,w:0.3,col:[1.3,0.9,2.4],life:0.25,amp:0.1});}}
+ if(H.cd.c<=0){H.cd.c=rr(11,15);for(const O of HEROES){if(O===H||O.st!=='fight'||O.hp>O.max*0.7||Math.hypot(O.x-H.x,O.z-H.z)>160)continue;O.hp=Math.min(O.max,O.hp+O.max*0.2);ring(O.x,O.z,4*O.W,0.6,0xc0ffd8,O.fy+0.5);ball(O.x,O.fy+O.W,O.z,2*O.W,0xd8b8ff,0.4);
+   bolt(H.x,H.fy+H.W,H.z,O.x,O.fy+O.W,O.z,{n:10,w:0.25,col:[0.8,2,1.4],life:0.3,amp:0.1});banner('AURORA CUROU '+O.D.nm.toUpperCase(),1);break;}}}
+/* ---------- Nevasca: desliza no ar sobre um rastro de gelo, raio congelante e estacas de gelo ---------- */
+function heroIceTrail(H,dt){if(R()<dt*30)fireP(H.x+rr(-0.8,0.8),H.fy-0.3,H.z+rr(-0.8,0.8),{vx:0,vy:-rr(1,4),vz:0,s:rr(0.4,0.8),life:rr(0.8,1.4),drag:1,gl:1.2,c0:[0.95,1,1],c1:[0.6,0.85,1]});
+ if(frameN%10===0){const g=heroGround(H.x,H.z);if(H.fy-g<30){iceAt(H.x,H.z,6,0.7);douse(H.x,H.z,10);}}}
+function nevascaAI(H,dt,tx,ty,tz,dh,d3){const A=H.act;H.ang+=dt*0.55;const r=40+Math.sin(G.t*0.4)*14;heroFlyTo(H,tx+Math.cos(H.ang)*r,Math.max(heroGround(tx,tz)+6,ty+10+Math.sin(G.t*0.9)*6),tz+Math.sin(H.ang)*r,62,dt);heroIceTrail(H,dt);
+ if(A&&A.k==='beam'){A.t+=dt;heroFace(H,tx,tz,dt,12);const W=H.W,hx=H.x+Math.sin(H.face)*0.4*W,hy=H.fy+1.2*W,hz=H.z+Math.cos(H.face)*0.4*W;aimBeam(H.beam,hx,hy,hz,tx,ty,tz);aimBeam(H.beamC,hx,hy,hz,tx,ty,tz);
+  if(A.t-A.last>0.3){A.last=A.t;heroStruck(H,0.2,tx-H.x,tz-H.z,0);iceAt(tx,tz,12,1);douse(tx,tz,20);freezeAt(tx,tz,10,4);for(let k=0;k<4;k++)fireP(tx+rr(-2,2),ty+rr(-1,1),tz+rr(-2,2),{vx:rr(-5,5),vy:rr(0,6),vz:rr(-5,5),s:0.6,life:0.5,gl:1.5,c0:[1,1,1],c1:[0.6,0.85,1]});}
+  if(A.t>1.3){H.beam.visible=H.beamC.visible=false;H.act=null;H.cd.a=rr(6,8);}return;}
+ heroFace(H,H.x+H.vx,H.z+H.vz,dt,6);
+ if(H.cd.a<=0&&d3<180){H.act={k:'beam',t:0,last:0};sWhoosh(0.8,0.2,2000,600);}
+ else if(H.cd.b<=0&&dh<160&&HERO.y-heroGround(tx,tz)<14){H.cd.b=rr(8,11);const N=MOB?7:12;let n=0;for(const S of HV.spk){if(n>=N)break;if(S.t<1.8)continue;const u=(n+1)/N;S.x=lerp(H.x,tx,u)+rr(-1.5,1.5);S.z=lerp(H.z,tz,u)+rr(-1.5,1.5);S.g=heroGround(S.x,S.z);S.h=rr(7,13);S.t=-n*0.07;S.hit=false;n++;}sStomp(camDist(tx,ty,tz));}}
+function heroSpikes(dt){for(const S of HV.spk){if(S.t>=9){S.m.visible=false;continue;}S.t+=dt;if(S.t<0){S.m.visible=false;continue;}const up=S.t<0.15?S.t/0.15:S.t<1.4?1:Math.max(0,1-(S.t-1.4)/0.3);
+  S.m.visible=up>0.01;S.m.position.set(S.x,S.g-0.5,S.z);S.m.scale.set(1,Math.max(0.01,S.h*up),1);
+  if(!S.hit&&S.t>0.03&&S.t<0.3){if(S.t-dt<=0.03)for(let k=0;k<3;k++)chunk(S.x,S.g+1,S.z,rr(-5,5),rr(5,10),rr(-5,5),rr(0.3,0.6),[0.8,0.93,1],{life:2});
+   if(Math.hypot(HERO.x-S.x,HERO.z-S.z)<4&&HERO.y-S.g<S.h){S.hit=true;heroStruck(null,0.3,0,0,0);if(!FLY.on&&MV.vy<14)MV.vy=14;}}
+  if(S.t>1.75)S.t=9;}}
+/* ---------- mísseis do Bastião (perseguem você; dá para fugir) ---------- */
+const HPJ=[];const HMISG=new THREE.CylinderGeometry(0.22,0.32,2,8).rotateX(Math.PI/2),HMISM=new THREE.MeshStandardMaterial({color:0x3a3f46,metalness:0.7,roughness:0.35,emissive:0x2a1000});
+function heroProj(dt){for(let i=HPJ.length-1;i>=0;i--){const p=HPJ[i];p.t+=dt;if(p.t<0)continue;if(!p.m){p.m=new THREE.Mesh(HMISG,HMISM);p.m.frustumCulled=false;scene.add(p.m);}
+  const tx=HERO.x,ty=HERO.y+1.6,tz=HERO.z,dx=tx-p.x,dy=ty-p.y,dz=tz-p.z,d=Math.hypot(dx,dy,dz)||1;const sp=70+p.t*30,k=clamp(dt*(1.6+p.t*2));
+  p.vx+=(dx/d*sp-p.vx)*k;p.vy+=(dy/d*sp-p.vy)*k;p.vz+=(dz/d*sp-p.vz)*k;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.m.position.set(p.x,p.y,p.z);p.m.lookAt(p.x+p.vx,p.y+p.vy,p.z+p.vz);
+  if(R()<dt*40)fireP(p.x,p.y,p.z,{vx:-p.vx*0.1,vy:-p.vy*0.1,vz:-p.vz*0.1,s:rr(0.5,0.9),life:0.22,gl:2.5,c0:[1,0.9,0.5],c1:[1,0.35,0.05]});if(R()<dt*20)smokeP(p.x,p.y,p.z,{s:1.2,life:1,up:0.3,grow:1.5,c0:[0.62,0.62,0.64],c1:[0.86,0.86,0.88]});
+  if(d<3||p.y<gS(p.x,p.z)+0.5||bAt(p.x,p.z,p.y,0.5)||p.t>6){const x=p.x,y=p.y,z=p.z;scene.remove(p.m);HPJ.splice(i,1);
+   ball(x,y,z,4,0xffc070,0.3);for(let k=0;k<6;k++)fireP(x,y,z,{vx:rr(-12,12),vy:rr(-4,12),vz:rr(-12,12),s:rr(1,2),life:0.4,gl:2,c0:[1,0.9,0.6],c1:[1,0.35,0.05]});smokeP(x,y,z,{s:3,life:1.6,up:1,grow:1.5});sBoom(8,camDist(x,y,z));
+   applyBlast(x,y,z,7,140,{fire:false,fling:0.9,noB:true,hero:1});if(Math.hypot(HERO.x-x,HERO.y+1.6-y,HERO.z-z)<9)heroStruck(p.H,0.25,HERO.x-x,HERO.z-z,2);}}}
+/* ---------- cúpula de escudo da Aurora: o prédio aguenta até a cúpula estourar ---------- */
+for(let i=0;i<(MOB?2:3);i++){const m=new THREE.Mesh(new THREE.SphereGeometry(1,28,18),new THREE.MeshBasicMaterial({color:0xb98cff,transparent:true,opacity:0.18,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));m.visible=false;m.frustumCulled=false;scene.add(m);HV.dom.push({m,b:null,t:0});}
+for(let i=0;i<(MOB?8:14);i++){const m=new THREE.Mesh(new THREE.ConeGeometry(1.4,1,6).translate(0,0.5,0),new THREE.MeshStandardMaterial({color:0xcff0ff,roughness:0.08,metalness:0.1,transparent:true,opacity:0.88,emissive:0x0c3550}));m.visible=false;m.castShadow=true;scene.add(m);HV.spk.push({m,t:9,x:0,z:0,g:0,h:10,hit:false});}
+function heroShieldHit(b,a){b.shH=(b.shH||0)-a;b.shHit=G.t;if(b.shH<=0){b.shT=0;const D0=HV.dom.find(o=>o.b===b);const y=b.gy+b.H*0.5;ball(b.x,y,b.z,Math.max(b.w,b.d)*0.7,0xd8b8ff,0.35);ring(b.x,b.z,Math.max(b.w,b.d)*1.2,0.5,0xc9a0ff);sZap(0.25);if(D0){D0.t=0;D0.m.visible=false;}banner('ESCUDO ESTOURADO!',0.9);}}
+function heroDomes(dt){for(const D0 of HV.dom){if(D0.t<=0||!D0.b){D0.m.visible=false;continue;}D0.t-=dt;const b=D0.b;if(b.st!==0||!(b.shT>G.t)){D0.t=0;D0.m.visible=false;continue;}
+  const s=Math.max(b.w,b.d)*0.8+4;D0.m.visible=true;D0.m.position.set(b.x+(b.px||0),b.gy+(b.yo||0)+b.H*0.45,b.z+(b.pz||0));D0.m.scale.set(s,b.H*0.62+4,s);const hit=G.t-(b.shHit||-9)<0.15;D0.m.material.opacity=(hit?0.4:0.13)+0.05*Math.sin(G.t*5)*(D0.t>2?1:3);}}
+/* ---------- seus ataques nos heróis ---------- */
+/* laser: acerta quem estiver no caminho do feixe (a Faísca às vezes desvia) */
+function heroLaser(L,sx,sy,sz,tx,ty,tz,dt){const ex=tx-sx,ey=ty-sy,ez=tz-sz,L2=ex*ex+ey*ey+ez*ez||1;
+ for(const H of HEROES){if(!heroLive(H)||H.st==='tk')continue;heroCenter(H,_hv);const px=_hv.x-sx,py=_hv.y-sy,pz=_hv.z-sz,t=clamp((px*ex+py*ey+pz*ez)/L2),qx=px-ex*t,qy=py-ey*t,qz=pz-ez*t,rw=0.7*H.W+L.w*0.6+0.8;
+  if(qx*qx+qy*qy+qz*qz>rw*rw)continue;
+  if(H.k==='faisca'&&!H.act&&!L.sup&&R()<dt*2.5){H.ang+=rr(0.8,1.4)*(R()<0.5?-1:1);heroTrail(H,0.05,6);H.x+=Math.cos(H.ang)*10;H.z+=Math.sin(H.ang)*10;continue;}
+  heroDmg(H,L.pw*3*dt,{el:'laser',cap:L.sup?0.6:0.5});if(R()<dt*25)fireP(_hv.x+rr(-0.5,0.5)*H.W,_hv.y+rr(-0.5,0.5)*H.W,_hv.z+rr(-0.5,0.5)*H.W,{vx:rr(-8,8),vy:rr(2,10),vz:rr(-8,8),s:0.5,life:0.3,gl:3,c0:L.sp,c1:L.sp2});}}
+/* projéteis (pedras, bolas de fogo, água): devolve true se acertou um herói no caminho */
+function heroHitP(x,y,z,r,dmg,el,vx,vz,cap){if(!HEROES.length)return false;let hit=false;
+ for(const H of HEROES){if(!heroLive(H)||H.st==='tk')continue;heroCenter(H,_hv);if(Math.hypot(_hv.x-x,_hv.y-y,_hv.z-z)>0.75*H.W+r)continue;heroDmg(H,dmg,{el,cap:cap||0.35});const s=Math.hypot(vx||0,vz||0)||1;H.vx+=(vx||0)/s*12;H.vz+=(vz||0)/s*12;hit=true;}return hit;}
+function heroesStep(dt){if(!G.started)return;heroDirector(dt);for(let i=HEROES.length-1;i>=0;i--)heroStep(HEROES[i],dt);heroProj(dt);heroSpikes(dt);heroDomes(dt);heroCars(dt);
+ if(!HEROES.length)return;
+ /* voo rápido ou hipervelocidade: você atropela o herói */
+ const fast=(FLY.on&&FLY.P&&FLY.P.pass&&FLY.spd>80)||(HY.on&&HY.run>0.3&&HY.spd>40);
+ if(fast)for(const H of HEROES){if(!heroLive(H)||H.st==='tk'||H.ramT>G.t)continue;heroCenter(H,_hv);if(Math.hypot(_hv.x-HERO.x,_hv.y-HERO.y-1.5,_hv.z-HERO.z)<2.5+0.8*H.W){H.ramT=G.t+0.8;heroDmg(H,H.max*0.18,{el:'blast'});
+   const n=Math.hypot(H.x-HERO.x,H.z-HERO.z)||1;H.vx+=(H.x-HERO.x)/n*40;H.vz+=(H.z-HERO.z)/n*40;H.vy+=12;if(heroLive(H))H.stun=Math.max(H.stun,0.6);ball(_hv.x,_hv.y,_hv.z,3*H.W,0xffffff,0.25);sPunch(0);G.shake=Math.max(G.shake,0.4);hitstop(0.05);}}}
+STEP_HOOKS.push(heroesStep);
+/* explosões e ondas de choque (menos as dos próprios heróis) */
+/* explosão grande (nuclear) pesa mais que a soma de várias pequenas; fogo só conta como fogo nas explosões pequenas */
+BLAST_HOOKS.push((x,y,z,r,pw,o)=>{if(o&&o.hero)return;const mon=HV.mon>0,km=mon?0.1:1;for(const H of HEROES){if(!heroLive(H)||H===HV.zapSkip)continue;heroCenter(H,_hv);const RR=r+0.7*H.W,d=Math.hypot(_hv.x-x,_hv.y-y,_hv.z-z);if(d<RR)heroDmg(H,pw*(1-d/RR)*3*(1+Math.min(pw,4000)/2000)*km,{el:o&&o.el||(o&&o.fire&&pw<800?'fire':'blast'),cap:mon?0.08:0.5});}});
+WAVE_HOOKS.push((x,z,r0,r1,o)=>{if(!(o.pw>0)||o.hero)return;const km=o.mon?0.1:1;for(const H of HEROES){if(!heroLive(H)||H.st==='tk')continue;const d=Math.hypot(H.x-x,H.z-z);if(d>=r0&&d<r1){heroDmg(H,o.pw*(1-d/o.R)*2*km,{el:'blast',cap:o.mon?0.08:0.5});const n=d||1;H.vx+=(H.x-x)/n*30;H.vz+=(H.z-z)/n*30;}}});
+/* os monstros miram em você, não nos heróis: o que eles explodem só pega de raspão num herói */
+{const f=stepTitans;stepTitans=function(dt){HV.mon++;try{return f(dt);}finally{HV.mon--;}};}
+{const f=mpBoom;mpBoom=function(p){HV.mon++;try{return f(p);}finally{HV.mon--;}};}
+{const f=shockwave;shockwave=function(x,z,o){if(HV.mon>0&&o)o.mon=1;return f(x,z,o);};}
+/* a mira (e a ajuda de mira no toque) pega os heróis, até no céu */
+AIM_HOOKS.push(air=>{for(const H of HEROES)if(heroLive(H)&&H.st!=='tk'){heroCenter(H,_hv);air(_hv.x,_hv.y,_hv.z,0.7*H.W+1.2);}});
+/* telecinese: pegue um herói e jogue longe (bate em prédio, derruba o prédio e machuca muito) */
+TK_REG.push({k:'hero',nm:'Herói',list:()=>HEROES,ok:o=>o.st==='fight'||o.st==='in',pos:o=>[o.x,o.fy+1.05*o.W,o.z],rad:o=>0.8*o.W+1.5,sp:150,mass:2,clear:o=>1.2*o.W+6,ring:o=>2*o.W+4,
+ grab:o=>{o.st='tk';o.act=null;o.lp=null;o.wall=0;if(o.beam)o.beam.visible=o.beamC.visible=false;},
+ set:(o,x,y,z)=>{o.x=x;o.z=z;o.fy=y-1.05*o.W;o.vx=o.vz=o.vy=0;},
+ hold:(o,t)=>{const Wr=o.ch.wrap;Wr.position.set(o.x,o.fy,o.z);Wr.rotation.set(Math.sin(t*2.3)*0.3,o.face,Math.sin(t*6)*0.3);if(R()<0.2)fireP(o.x,o.fy+o.W,o.z,{vx:rr(-3,3),vy:rr(-3,3),vz:rr(-3,3),s:0.4,life:0.3,gl:3,c0:[0.95,0.8,1],c1:[0.55,0.3,1]});},
+ fly:(o,dt)=>{const Wr=o.ch.wrap;Wr.rotation.x+=dt*7;Wr.position.set(o.x,o.fy,o.z);},
+ boom:(o,x,y,z,g)=>{o.ch.wrap.rotation.set(0,o.face,0);o.x=x;o.z=z;o.fy=heroTop(x,z);o.st='fight';o.vx=o.vz=o.vy=0;explode(x,Math.max(y,g+1),z,10,320,{crater:0.8});heroDmg(o,o.max*0.35,{el:'tk',cap:0.6});if(o.st==='fight')o.stun=2;banner('ARREMESSO DE HERÓI!',1.2);ach('tkheroi');},dmg:4000});
+/* raios: pulam nos heróis também (a armadura do Bastião dá curto e trava um pouco) */
+{const st0=stormTargets;stormTargets=function(x,z,r,skip){const L=st0(x,z,r,skip);let add=false;for(const H of HEROES){if(!heroLive(H)||H.st==='tk'||(skip&&skip.has(H)))continue;heroCenter(H,_hv);const d=Math.hypot(_hv.x-x,_hv.z-z);if(d<r){L.push({o:H,k:'R',x:_hv.x,y:_hv.y,z:_hv.z,d});add=true;}}
+  if(add){const w=k=>k==='R'?-70:k==='T'?-60:k==='H'?-30:k==='V'?-15:0;L.sort((a,b)=>w(a.k)+a.d-(w(b.k)+b.d));}return L;};}
+{const z0=zap;zap=function(t,big){if(t.k!=='R')return z0(t,big);const H=t.o;heroDmg(H,big?2000:400,{el:'storm'});if(heroLive(H))H.stun=Math.max(H.stun,(big?0.6:0.25)*(H.k==='bastiao'?2.5:1));HV.zapSkip=H;try{return z0(t,big);}finally{HV.zapSkip=null;}};}
+RESET_HOOKS.push(()=>{for(const H of HEROES.slice())heroRemove(H);HEROES.length=0;HV.first=true;HV.cool={};HV.lv={};HV.spT=4;HV.sv.t=0;HV.cars.length=0;for(const p of HPJ)if(p.m)scene.remove(p.m);HPJ.length=0;for(const S of HV.spk){S.t=9;S.m.visible=false;}for(const D0 of HV.dom){D0.t=0;D0.m.visible=false;if(D0.b)D0.b.shT=0;D0.b=null;}});
+ACH.push(['heroi','Vilão de verdade','Derrote um herói da Vanguarda'],['vanguarda','Fim da Vanguarda','Derrote os cinco heróis'],['tkheroi','Arremesso heroico','Jogue um herói longe com a telecinese']);renderAch();
+Object.assign(window.__caos,{HEROES,HV,HDEF,heroSpawn,heroDmg,wantSet,TKN,WANT,heroTop});
+
 /* ================= Ganchos de teste ================= */
 window.__caos.AIM=AIM;window.__caos.FUN=FUN;window.__caos.DIST=DIST;window.__caos.LMS=LMS;window.__caos.pdbg={CRW,VT,tbl:()=>({n:TBL.length,vis:TBL.filter(b=>b.t.visible).length,trees:TBL.reduce((a,b)=>a+(b.t.visible?b.trees.length:0),0),total:TREES.length}),diag:l=>{diagSet(l);},diagAcc:()=>DIAG.acc,setQ:q=>{Q=q;autoQ=false;applyQuality();},ri:()=>({calls:renderer.info.render.calls,tris:Math.round(renderer.info.render.triangles/1000)+'k',geo:renderer.info.memory.geometries,tex:renderer.info.memory.textures}),spawnHeli,DAYN,TKF,helis,boats,PLANES,SKYI,tkFindSpec,ISLS,dig,OE,PS,PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
 })();
