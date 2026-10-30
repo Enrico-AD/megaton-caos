@@ -172,6 +172,11 @@ button{font:inherit;color:inherit}
 .jmb svg{filter:drop-shadow(0 0 4px rgba(140,255,170,.55))}
 .jmb .jc{position:absolute;inset:-6px;border-radius:50%;pointer-events:none;background:conic-gradient(#b6ffc4 calc(var(--c,0)*360deg),transparent 0);-webkit-mask:radial-gradient(closest-side,transparent 82%,#000 85%);mask:radial-gradient(closest-side,transparent 82%,#000 85%)}
 .jmb[aria-pressed="true"]{transform:scale(.92);animation:none;color:#0d2a14;background:radial-gradient(circle at 50% 38%,#ffffff,#d8ffe0 35%,#6fe08a 70%,#2a8a44);box-shadow:0 0 18px 4px rgba(150,255,175,.55),inset 0 0 0 2px #d9ffe0}
+.fmb{left:calc(90px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 98px);background:radial-gradient(circle at 50% 38%,#4a1018,#12060a 72%);color:#ff6a7c}
+.fmb svg{filter:drop-shadow(0 0 4px rgba(255,40,70,.7))}
+.fmb span{font-size:10px}
+.fmb[aria-pressed="true"]{background:radial-gradient(circle at 50% 38%,#ff4a5e,#c0001e 45%,#140006 80%);color:#fff;animation:fmPulse .5s ease-in-out infinite alternate}
+@keyframes fmPulse{from{box-shadow:0 0 0 2px rgba(255,30,60,.5),0 0 12px 3px rgba(255,20,50,.6)}to{box-shadow:0 0 0 4px rgba(255,30,60,.7),0 0 26px 9px rgba(255,20,50,.8)}}
 .fyb svg{width:29px;height:29px;filter:drop-shadow(0 0 4px rgba(150,210,255,.6))}
 .fyb span{font-variant-numeric:tabular-nums}
 .fyb[aria-pressed="true"]{background:radial-gradient(circle at 50% 38%,#ffffff,#e4f4ff 32%,#8fd0ff 64%,#3f8cff);color:#0e1a3a;animation:flyPulse .6s ease-in-out infinite alternate}
@@ -228,7 +233,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
 .help h2{font-family:var(--display);font-size:15px;color:var(--ink-on-bg);margin:0 0 4px;font-weight:600}
 .help p{margin:0;max-width:62ch}
 
-@media (pointer:coarse){.joy{display:block}.wb{width:58px}.hyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px)}.hyb .hk{display:none}.fyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 240px)}.flyud:not([hidden]){display:grid}.jmb{left:auto;right:calc(142px + env(safe-area-inset-right));bottom:calc(var(--dockH,220px) + 22px)}.hymeter{left:calc(113px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px);padding:4px;gap:3px}.hymeter.flymeter{bottom:calc(var(--dockH,220px) + 240px)}.hymeter button{padding:7px 11px 7px 8px;font-size:13px}.hymeter button i{height:17px}}
+@media (pointer:coarse){.fmb{left:calc(111px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 240px)}.joy{display:block}.wb{width:58px}.hyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px)}.hyb .hk{display:none}.fyb{left:calc(41px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 240px)}.flyud:not([hidden]){display:grid}.jmb{left:auto;right:calc(142px + env(safe-area-inset-right));bottom:calc(var(--dockH,220px) + 22px)}.hymeter{left:calc(113px + env(safe-area-inset-left));bottom:calc(var(--dockH,220px) + 166px);padding:4px;gap:3px}.hymeter.flymeter{bottom:calc(var(--dockH,220px) + 240px)}.hymeter button{padding:7px 11px 7px 8px;font-size:13px}.hymeter button i{height:17px}}
 @media (max-width:720px){
   .hud{width:auto;min-width:148px;max-width:54%;padding:8px 11px}
   .hud .rows,.hud .phase{display:none}
@@ -269,6 +274,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
   .joy{bottom:calc(16px + env(safe-area-inset-bottom));width:112px;height:112px}
   .hyb{left:calc(38px + env(safe-area-inset-left));bottom:calc(150px + env(safe-area-inset-bottom));width:54px;height:54px}
   .fyb{left:calc(38px + env(safe-area-inset-left));bottom:calc(210px + env(safe-area-inset-bottom))}
+  .fmb{left:calc(98px + env(safe-area-inset-left));bottom:calc(210px + env(safe-area-inset-bottom));width:54px;height:54px}
   .jmb{left:auto;right:calc(139px + env(safe-area-inset-right));bottom:calc(114px + env(safe-area-inset-bottom))}
   .hymeter,.hymeter.flymeter{left:calc(100px + env(safe-area-inset-left));bottom:calc(140px + env(safe-area-inset-bottom))}
   .flyud{right:calc(139px + env(safe-area-inset-right));bottom:calc(114px + env(safe-area-inset-bottom))}
@@ -317,6 +323,7 @@ kbd{font-family:var(--mono);font-size:11.5px;border:1px solid #4a5170;border-bot
   <div class="ov banner" id="banner"></div>
   <div class="ov toasts" id="toasts"></div>
   <div class="ov pops" id="pops"></div>
+<button class="hyb fmb" id="bForm" type="button" aria-pressed="false" title="Mudar de forma (Y)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 9.5 8.2 3 9l5 4.4L6.6 20 12 16.7 17.4 20 16 13.4 21 9l-6.5-.8z"/></svg><span>Forma 1</span><b class="hk">Y</b></button>
   <button class="hyb" id="bHyper" type="button" aria-pressed="false" title="Hipervelocidade (H)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 1.8 4.2 13.6h6.4l-1.3 8.6 9.6-12.3h-6.6z"/></svg><span>Hiper</span><b class="hk">H</b><b class="hl" id="hyLvB"><i></i></b></button>
   <div class="hymeter" id="hyLv" role="radiogroup" aria-label="Velocidade da hipervelocidade" hidden><button type="button" role="radio" data-l="3" aria-checked="false" title="O tempo para; tudo acontece quando você desliga"><i></i><span>Luz</span></button><button type="button" role="radio" data-l="2" aria-checked="false"><i></i><span>Muito alta</span></button><button type="button" role="radio" data-l="1" aria-checked="false"><i></i><span>Alta</span></button></div>
   <button class="hyb fyb" id="bFly" type="button" aria-pressed="false" title="Voar (F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 20.4C5.6 12.6 11.6 6.4 22 2.8c-.9 2.9-2.8 5-5.6 6.4 1.6.2 3-.1 4.2-.8-1.5 2.6-3.9 4.1-7 4.6 1.5.4 2.9.4 4.1 0-1.9 2.4-4.7 3.6-8.1 3.6 1 .5 2 .7 3 .6-2.6 2.2-6 3.2-10.4 3.2z"/></svg><span id="flyTx">Voar</span><b class="hk">F</b><b class="hl"><i></i></b></button>
@@ -433,6 +440,8 @@ const G={t:0,started:false,paused:false,w:0,hand:false,lv:1,grp:0,score:0,best:+
  rank:0,down:false,rep:0,used:new Set(store.get('used',[])),ach:new Set(store.get('ach',[])),lastAim:new THREE.Vector3(0,0,0),shadowEvery:3,shadowDirty:true,bh:null,dust:140,
  zomN:0,fans:0,domN:0,domT:0,emp:0,heliDown:0};
 const HERO={x:0,z:40,y:5,shield:0,face:0};
+/* forma do jogador: 1 = normal, 2 = gigante preto e vermelho neon com poderes x1000 */
+const PF={n:1,bl:0,mon:()=>false,k:0};
 const people=[],cops=[],orcs=[],titans=[],cars=[],pcars=[],boats=[],tanks=[],helis=[],PROPS=[],HEROES=[];
 let ready=false,frameN=0;
 /* ================= Mundo: terreno deformável em blocos ================= */
@@ -2162,7 +2171,7 @@ function killTitan(T){if(T.dead)return;T.dead=true;T.alive=false;T.hp=0;T.dt=0;i
  if(T.ally){banner((T.name||'SEU ALIADO').toUpperCase()+' CAIU',2);}else{hitstop(0.14);buzz([80,40,220]);G.mDown++;addChaos(250);score(Math.round(T.max/4),T.x,T.sc,T.z);banner(ERAV.txt.titanDown,2);ach('titan');}sRoar(camDist(T.x,30,T.z));}
 /* todo dano em titã passa por aqui: armadura, teto por golpe, cambaleio e fúria */
 const HERO_EL={fire:1,earth:1,water:1,ice:1,storm:1,tk:1,laser:1};
-function titanDamage(T,amt,o){if(!T||T.dead||!(amt>0))return 0;o=o||{};let a=amt*(T.armor||1);if(!T.ally&&HERO_EL[o.el]&&!o.mon){a*=1.8;o.cap=(o.cap==null?0.07:o.cap)*1.5;}a=elemHit(T,a,o);if(!(a>0))return 0;if(o.aim&&o.p)a*=titanWeak(T,o.p);const cap=T.max*(o.cap==null?0.07:o.cap)*Math.min(3,o.wk||1);if(a>cap)a=cap;if(T.state==='rise')a*=0.3;
+function titanDamage(T,amt,o){if(!T||T.dead||!(amt>0))return 0;o=o||{};if(PF.n===2&&!T.ally&&!o.mon&&!PF.mon()){if(!PF.bl)amt*=1000;o=Object.assign({},o,{cap:1});}let a=amt*(T.armor||1);if(!T.ally&&HERO_EL[o.el]&&!o.mon){a*=1.8;o.cap=(o.cap==null?0.07:o.cap)*1.5;}a=elemHit(T,a,o);if(!(a>0))return 0;if(o.aim&&o.p)a*=titanWeak(T,o.p);const cap=T.max*(o.cap==null?0.07:o.cap)*Math.min(3,o.wk||1);if(a>cap)a=cap;if(T.state==='rise')a*=0.3;
  T.hp-=a;T.hit=Math.max(T.hit||0,0.14);T.lastHit=G.t;
  if(!T.ally&&!T.rage&&T.hp>0&&T.hp<T.max*0.4){T.rage=true;T.beamT=Math.min(T.beamT,1.5);if(T.eyeM)T.eyeM.color.set(0xff2a1a);banner(ERAV.txt.rage,1.8);sRoar(camDist(T.x,30,T.z));}
  if(a>T.max*0.04&&T.hp>0&&!(T.stg>0)&&(T.state==='walk'||T.state==='beam')&&!(T.stun>0)){T.stg=0.75;T.beam.visible=T.beamCore.visible=false;T.state='walk';play(T,'No',0.12,true,1.4);}
@@ -2216,10 +2225,10 @@ function stepTitans(dt){const cp=camera.position;for(let i=titans.length-1;i>=0;
 
 /* ================= Herói dourado ================= */
 let hero=null;
-function heroDeco(ch){const aura=new THREE.Mesh(new THREE.SphereGeometry(1.6,20,14),new THREE.MeshBasicMaterial({color:0x7fd8ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));aura.position.y=1.1;ch.wrap.add(aura);ch.aura=aura;
+function heroDeco(ch){const aura=new THREE.Mesh(new THREE.SphereGeometry(1.6,20,14),new THREE.MeshBasicMaterial({color:0x7fd8ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));aura.position.y=1.1;aura.visible=false;/* sem campo de força em volta do jogador */ch.wrap.add(aura);ch.aura=aura;
  const ringM=new THREE.Mesh(new THREE.TorusGeometry(0.9,0.06,6,28).rotateX(Math.PI/2),new THREE.MeshBasicMaterial({color:0x9ff0ff,toneMapped:false}));ringM.position.y=-0.3;ch.wrap.add(ringM);ch.halo=ringM;ch.wrap.scale.setScalar(1.5);}
 function makeHero(){const ch=makeChar('soldier');ch.root.scale.setScalar(SO_SC);const gold=new THREE.MeshStandardMaterial({color:0xffc94a,roughness:0.35,metalness:0.15,emissive:0x3a2600,skinning:true}),visor=new THREE.MeshBasicMaterial({color:0x7ff6ff,toneMapped:false,skinning:true});
- ch.root.traverse(o=>{if(o.isMesh)o.material=/visor/i.test(o.name)?visor:gold;});fixSkin(ch.root);heroDeco(ch);play(ch,'Idle',0);return ch;}
+ ch.root.traverse(o=>{if(o.isMesh)o.material=/visor/i.test(o.name)?visor:gold;});fixSkin(ch.root);heroDeco(ch);ch.M={gold,visor};play(ch,'Idle',0);return ch;}
 function makeHeroFallback(){const wrap=new THREE.Group();const gold=new THREE.MeshStandardMaterial({color:0xffc94a,roughness:0.35,metalness:0.15,emissive:0x3a2600});
  const body=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.32,1.2,10),gold);body.position.y=1.1;const head=new THREE.Mesh(new THREE.SphereGeometry(0.34,14,10),gold);head.position.y=1.95;
  const visor=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.12,0.2),new THREE.MeshBasicMaterial({color:0x7ff6ff,toneMapped:false}));visor.position.set(0,1.98,0.26);
@@ -3332,7 +3341,7 @@ window.__caos.TSP=TSP;window.__caos.tsStart=tsStart;window.__caos.tsEnd=tsEnd;
    - Muito alta e Luz atravessam (quem cuida é a hipervelocidade, explodindo).
    - Sair da beira de um telhado: cai com gravidade (dá para pular de prédio em prédio correndo).
    - A câmera anda junto com o herói nos três eixos: o zoom e o ângulo que você escolheu não mudam sozinhos. */
-const MV={fy:0,vy:0,hv:5,climb:null,py:null,camLY:0,wet:0,wT:0,rT:0,clFx:0,gT:0,air:0,ready:false};
+const MV={fy:0,vy:0,hv:0.3,climb:null,py:null,camLY:0,wet:0,wT:0,rT:0,clFx:0,gT:0,air:0,ready:false};
 const HR=1.15;
 function bTop(b){return (b.gy||0)+(b.yo||0)+b.H*(b.shr||1);}
 /* água: mar a leste, lago na serra e lagoas; buracos na cidade não são água */
@@ -3419,7 +3428,7 @@ function heroMove(dt,rdt,dirx,dirz,sp){
  if(FLY.on){flyMove(rdt,dirx,dirz,sp);MV.hv=lerp(MV.hv,0.3,clamp(rdt*6));}
  else{
  const pass=HY.on&&HY.lv>=2,climbMode=HY.on&&HY.lv===1&&HY.run>0.25,hx0=HERO.x,hz0=HERO.z;
- const hvT=lerp(5,0.3,HY.hov);MV.hv=lerp(MV.hv,hvT,clamp(rdt*6));const step=MV.hv+1.2;
+ const hvT=0.3;/* anda com os pés no chão */MV.hv=lerp(MV.hv,hvT,clamp(rdt*6));const step=MV.hv+1.2;
  if(!pass&&!MV.climb)heroUnstick(MV.fy,step);
  /* andar (em pedaços pequenos: a hipervelocidade não atravessa parede fina) */
  if(MV.climb){const C=MV.climb,b=C.b;
@@ -5719,7 +5728,7 @@ function heroStruck(H,k,nx,nz,shove){const x=HERO.x,y=HERO.y+1.6,z=HERO.z;const 
 STEP_HOOKS.push(dt=>{const S=HV.sv;if(S.t<=0||FLY.on){S.t=0;return;}S.t-=dt;const k=Math.min(1,dt/0.25),nx=HERO.x+S.x*k,nz=HERO.z+S.z*k;if(heroWall(nx,nz,MV.fy,1.5)){S.t=0;return;}const dx=nx-HERO.x,dz=nz-HERO.z;HERO.x=nx;HERO.z=nz;moveCam(dx,0,dz);});
 /* ---------- dano nos heróis: cada um tem pontos fortes e fracos ---------- */
 const HEL={faisca:{blast:1.25,storm:1.2,tk:1.3},bastiao:{storm:2.2,laser:0.8,fire:0.6,water:1.2},muralha:{tk:1.5,earth:1.4,water:1.3,fire:0.5,laser:0.7,storm:0.4},aurora:{laser:0.6,tk:1.3,earth:1.2},nevasca:{fire:1.9,laser:1.3,ice:0.2,water:0.4,tk:1.2}};
-function heroDmg(H,a,o){if(!heroLive(H)||!(a>0))return 0;o=o||{};let m=(HEL[H.k]||{})[o.el];if(m==null)m=1;a*=m;if(H.shT>0)a*=0.3;a=Math.min(a,H.max*(o.cap||0.5));
+function heroDmg(H,a,o){if(!heroLive(H)||!(a>0))return 0;o=o||{};if(PF.n===2&&!PF.mon()){if(!PF.bl)a*=1000;o=Object.assign({},o,{cap:1});}let m=(HEL[H.k]||{})[o.el];if(m==null)m=1;a*=m;if(H.shT>0)a*=0.3;a=Math.min(a,H.max*(o.cap||0.5));
  H.hp-=a;H.hitT=0.12;H.lastHit=G.t;if(H.hp<=0)heroDown(H);return a;}
 function heroDown(H){if(H.st==='down'||H.st==='out')return;if(H.act&&H.act.c&&H.act.c.ctl&&H.act.c.ctl.H===H)flingCar(H.act.c,0.01,0,0.5,2);
  H.hp=0;H.st='down';H.t=0;H.vy=H.D.fly?-4:Math.min(H.vy,0);H.act=null;H.lp=null;H.wall=0;H.stun=0;H.tkg=0;if(H.beam)H.beam.visible=H.beamC.visible=false;
@@ -5758,7 +5767,7 @@ function heroFlyTo(H,tx,ty,tz,sp,dt){const ax=H.x+H.vx*0.7,az=H.z+H.vz*0.7;ty=Ma
  const b=bAt(H.x,H.z,H.fy+1,1.2);if(b){const t=bTop(b)+2;H.fy=Math.min(t,H.fy+Math.max(40,Math.abs(H.vy))*dt*2);if(H.vy<0)H.vy=0;}
  const g=heroGround(H.x,H.z)+1.5;if(H.fy<g){H.fy=g;if(H.vy<0)H.vy=0;}}
 /* corrida no chão: devolve 'wall' quando a Faísca sobe pela parede e 'blk' quando um prédio barra o caminho */
-function heroRun(H,tx,tz,sp,dt){const dx=tx-H.x,dz=tz-H.z,d=Math.hypot(dx,dz)||1;const v=Math.min(sp,d*3);const k=clamp(dt*5);H.vx+=(dx/d*v-H.vx)*k;H.vz+=(dz/d*v-H.vz)*k;
+function heroRun(H,tx,tz,sp,dt){const dx=tx-H.x,dz=tz-H.z,d=Math.hypot(dx,dz)||1;const fa=H.k==='faisca';const v=Math.min(sp,d*(fa?6:3));const k=clamp(dt*(fa?10:5));H.vx+=(dx/d*v-H.vx)*k;H.vz+=(dz/d*v-H.vz)*k;
  const nx=clamp(H.x+H.vx*dt,-HMAX,HMAX),nz=clamp(H.z+H.vz*dt,-HMAX,HMAX);let res=0;
  const wb=bAt(nx,nz,H.fy+1.2,0.3);
  if(wb){if(H.k==='faisca'&&sp>20){H.fy=Math.min(bTop(wb)+0.05,H.fy+Math.max(40,sp*0.8)*dt);H.wall=0.15;H.vy=0;H.face=Math.atan2(H.vx,H.vz);return 'wall';}H.vx*=-0.2;H.vz*=-0.2;res='blk';}
@@ -5797,16 +5806,16 @@ function heroPose(H,dt){const Wr=H.ch.wrap,cp=camera.position,d=Math.hypot(H.x-c
  else if(H.wall>0){rx=-1.35;an='Run';ts=2.6;}
  else if(fl){rx=clamp(hs/80)*1.2;an=hs>28?'TPose':'Idle';}
  else if(H.lp){rx=0.25;}
- else if(hs>2){if(H.k==='muralha'){an='Walk';ts=clamp(hs/(1.4*H.W),0.6,2.2);}else{an='Run';ts=clamp(hs/(4*H.W),0.8,3);}if(hs>40)rx=0.3;}
+ else if(hs>2){if(H.k==='muralha'){an='Walk';ts=clamp(hs/(1.4*H.W),0.6,2.2);}else{an='Run';ts=clamp(hs/(4*H.W),0.8,H.k==='faisca'?6:3);}if(hs>40)rx=0.3;}
  Wr.rotation.set(rx,H.face,0);play(H.ch,an,0.15,false,ts);mixStep(H.ch,dt,d);
  const M=H.ch.M;if(M&&M.suit.emissive){M.suit.emissive.setHex(H.D.em);const e=H.hitT>0?0.7:H.shT>0?0.3+0.15*Math.sin(G.t*20):H.stun>0?0.35:0;if(e>0)M.suit.emissive.lerp(_hc.setRGB(1,1,1),e);}
  if(H.ch.halo)H.ch.halo.rotation.z+=dt*1.5;}
 /* ---------- Faísca: corre em volta, rajada de socos, tornado (que apaga o fogo) e salto até você ---------- */
 function faiscaAI(H,dt,tx,ty,tz,dh){const A=H.act,dy=HERO.y-H.fy,reach=Math.abs(dy)<4;
- if(A&&A.k==='combo'){A.t+=dt;heroRun(H,tx-Math.sin(H.face)*2.2,tz-Math.cos(H.face)*2.2,95,dt);heroTrail(H,dt,2);if(H.wall<=0)heroFace(H,tx,tz,dt,20);
+ if(A&&A.k==='combo'){A.t+=dt;heroRun(H,tx-Math.sin(H.face)*2.2,tz-Math.cos(H.face)*2.2,170,dt);heroTrail(H,dt,2);if(H.wall<=0)heroFace(H,tx,tz,dt,20);
   if(dh<6&&reach&&A.t-A.last>0.12&&A.n<7){A.last=A.t;A.n++;heroStruck(H,0.18,tx-H.x,tz-H.z,A.n===7?3:0);for(let k=0;k<4;k++)fireP(tx+rr(-1,1),ty+rr(-0.5,1),tz+rr(-1,1),{vx:rr(-8,8),vy:rr(-2,8),vz:rr(-8,8),s:0.35,life:0.25,gl:3,c0:[1,1,1],c1:H.D.glow});}
   if(A.n>=7||A.t>2.4){H.act=null;H.cd.a=rr(2.5,4);H.ang=Math.atan2(H.z-tz,H.x-tx);}return;}
- if(A&&A.k==='torn'){A.t+=dt;H.ang+=dt*7;heroRun(H,tx+Math.cos(H.ang)*10,tz+Math.sin(H.ang)*10,130,dt);heroTrail(H,dt,3);if(H.wall<=0)heroFace(H,H.x+H.vx,H.z+H.vz,dt,20);
+ if(A&&A.k==='torn'){A.t+=dt;H.ang+=dt*7;heroRun(H,tx+Math.cos(H.ang)*10,tz+Math.sin(H.ang)*10,210,dt);heroTrail(H,dt,3);if(H.wall<=0)heroFace(H,H.x+H.vx,H.z+H.vz,dt,20);
   const g=gh(tx,tz);for(let k=0;k<(MOB?1:3);k++){const a=R()*TAU,r=rr(3,12);smokeP(tx+Math.cos(a)*r,g+rr(1,26),tz+Math.sin(a)*r,{s:rr(1.4,2.6),life:0.7,vx:-Math.sin(a)*24,vz:Math.cos(a)*24,vy:rr(4,10),drag:1,grow:1.3,c0:[0.82,0.84,0.86],c1:[0.95,0.96,0.97]});}
   if(A.t-A.last>0.4){A.last=A.t;if(reach&&dh<16)heroStruck(H,0.14,0,0,0);douse(tx,tz,30);applyBlast(tx,g+1,tz,13,40,{fire:false,fling:0.8,noB:true,hero:1});}
   if(A.t>2.6){H.act=null;H.cd.b=rr(10,14);}return;}
@@ -5814,7 +5823,7 @@ function faiscaAI(H,dt,tx,ty,tz,dh){const A=H.act,dy=HERO.y-H.fy,reach=Math.abs(
   if(!A.hit&&Math.hypot(tx-H.x,ty-H.fy-H.W,tz-H.z)<4.5){A.hit=1;heroStruck(H,0.45,tx-H.x,tz-H.z,3);H.vx*=-0.3;H.vz*=-0.3;}
   const s=heroSup(H.x,H.z,H.fy,0.5);if(H.fy<=s&&H.vy<0){H.fy=s;if(H.vy<-25)heroLand(H,0.6);H.vy=0;H.act=null;H.cd.c=rr(3,5);}else if(A.t>5)H.act=null;return;}
  /* em volta, rápido, trocando de ritmo; longe, corre direto */
- H.ang+=dt*(1.5+0.5*Math.sin(G.t*0.7+H.lastHit));const far=dh>70;heroRun(H,far?tx:tx+Math.cos(H.ang)*22,far?tz:tz+Math.sin(H.ang)*22,far?110:70,dt);heroTrail(H,dt,1);if(H.wall<=0)heroFace(H,tx,tz,dt,8);
+ H.ang+=dt*(4+1.2*Math.sin(G.t*0.7+H.lastHit));const far=dh>70;heroRun(H,far?tx:tx+Math.cos(H.ang)*26,far?tz:tz+Math.sin(H.ang)*26,far?240:150,dt);heroTrail(H,dt,1);if(H.wall<=0)heroFace(H,tx,tz,dt,8);
  if(H.cd.a<=0&&reach&&dh<60)H.act={k:'combo',t:0,n:0,last:0};
  else if(H.cd.b<=0&&reach&&dh<60)H.act={k:'torn',t:0,last:0};
  else if(H.cd.c<=0&&dy>3&&dy<110&&dh<70&&H.wall<=0){const h=dy+4,vy=Math.sqrt(2*40*Math.max(4,h)),T=vy/40;H.vy=vy;H.vx=(tx-H.x)/T;H.vz=(tz-H.z)/T;H.act={k:'jump',t:0};sWhoosh(0.5,0.25,500,1500);heroLand(H,0.4);}}
@@ -5934,6 +5943,50 @@ RESET_HOOKS.push(()=>{for(const H of HEROES.slice())heroRemove(H);HEROES.length=
 ACH.push(['heroi','Vilão de verdade','Derrote um herói da Vanguarda'],['vanguarda','Fim da Vanguarda','Derrote os cinco heróis'],['tkheroi','Arremesso heroico','Jogue um herói longe com a telecinese']);renderAch();
 Object.assign(window.__caos,{HEROES,HV,HDEF,heroSpawn,heroDmg,wantSet,TKN,WANT,heroTop});
 
+/* ================= Rastro de luz da Faísca ================= */
+const FRIB=[];
+STEP_HOOKS.push(function faiscaRibbon(dt){
+ for(const H of HEROES){if(H.k!=='faisca'||H.rib)continue;const N=MOB?26:44,pos=new Float32Array(N*2*3),col=new Float32Array(N*2*3),idx=[];
+  for(let i=0;i<N-1;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setIndex(idx);
+  const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));m.frustumCulled=false;scene.add(m);
+  H.rib={m,g,pos,col,N,pts:[]};FRIB.push(H);}
+ for(let j=FRIB.length-1;j>=0;j--){const H=FRIB[j],R0=H.rib;
+  if(!HEROES.includes(H)){scene.remove(R0.m);R0.g.dispose();R0.m.material.dispose();FRIB.splice(j,1);continue;}
+  const hs=Math.hypot(H.vx||0,H.vz||0),live=heroLive(H)&&H.st!=='down';const W=H.W||1,cy=H.fy+0.95*W;
+  if(live&&hs>8)R0.pts.unshift(H.x,cy,H.z);else if(R0.pts.length)R0.pts.length=Math.max(0,R0.pts.length-6);
+  if(R0.pts.length>R0.N*3)R0.pts.length=R0.N*3;
+  const n=R0.pts.length/3,c=H.D.glow,P=R0.pos,C=R0.col,hh=0.75*W;
+  for(let i=0;i<R0.N;i++){const k=Math.min(i,Math.max(0,n-1))*3,x=n?R0.pts[k]:H.x,y=n?R0.pts[k+1]:cy,z=n?R0.pts[k+2]:H.z;
+   const f=n>1?Math.pow(Math.max(0,1-i/Math.max(1,n-1)),1.4):0,h=hh*(0.35+0.65*f),o=i*6;
+   P[o]=x;P[o+1]=y+h;P[o+2]=z;P[o+3]=x;P[o+4]=y-h;P[o+5]=z;
+   for(let q=0;q<2;q++){C[o+q*3]=c[0]*f*1.1;C[o+q*3+1]=c[1]*f*1.1;C[o+q*3+2]=c[2]*f*1.1;}}
+  R0.g.attributes.position.needsUpdate=true;R0.g.attributes.color.needsUpdate=true;R0.m.visible=n>1;}});
+/* ================= Forma 2: gigante preto e vermelho neon, poderes x1000 ================= */
+PF.mon=()=>HV.mon>0;
+{const f=applyBlast;applyBlast=function(x,y,z,r,pw,o){if(PF.n===2&&!(o&&(o.hero||o.mon))&&!(HV.mon>0)){pw*=1000;r*=1.35;PF.bl++;try{return f(x,y,z,r,pw,o);}finally{PF.bl--;}}return f(x,y,z,r,pw,o);};}
+{const f=shockwave;shockwave=function(x,z,o){if(PF.n===2&&o&&!o.mon&&!(HV.mon>0)&&o.pw>0)o=Object.assign({},o,{pw:o.pw*1000});return f(x,z,o);};}
+/* linhas de neon vermelho presas no corpo (só aparecem na forma 2) */
+function formNeon(on){if(!hero||!hero.root)return;if(!hero.neon&&on){hero.own=hero.own||[];hero.neon=[];
+  const red=new THREE.MeshBasicMaterial({color:0xff1438,toneMapped:false,skinning:false}),S=(r)=>new THREE.SphereGeometry(r,10,8),V=(x,y,z)=>new THREE.Vector3(x,y,z);
+  const add=(bn,geo,off)=>{const m=heroAcc(hero,bn,geo,red,off);if(m){m.castShadow=false;hero.neon.push(m);}};
+  for(const sd of['Left','Right']){add('mixamorig'+sd+'Hand',S(0.075),null);add('mixamorig'+sd+'ForeArm',S(0.05),null);add('mixamorig'+sd+'Arm',S(0.06),null);add('mixamorig'+sd+'Leg',S(0.06),null);add('mixamorig'+sd+'Foot',S(0.05),null);}
+  add('mixamorigSpine2',new THREE.OctahedronGeometry(0.11,0),V(0,0,0.13));add('mixamorigHead',S(0.05),V(0,0.16,0.06));add('mixamorigSpine',S(0.06),V(0,0,0.12));}
+ if(hero.neon)for(const m of hero.neon)m.visible=on;}
+const PF_C={gold:[0xffc94a,0x3a2600,0.15,0.35],dark:[0x0a0a0d,0x050001,0.55,0.38]};
+function formSet(n){if(!G.started||!hero)return;n=n===2?2:1;if(PF.n===n)return;PF.n=n;const two=n===2;
+ if(hero.M){const c=two?PF_C.dark:PF_C.gold,g=hero.M.gold;g.color.setHex(c[0]);g.emissive.setHex(c[1]);g.metalness=c[2];g.roughness=c[3];hero.M.visor.color.setHex(two?0xff1236:0x7ff6ff);}
+ if(hero.halo)hero.halo.material.color.setHex(two?0xff1a3c:0x9ff0ff);
+ PF.k=0;zoomCam(two?1.3:1/1.3);formNeon(two);
+ const b=$('#bForm');if(b){b.setAttribute('aria-pressed',two?'true':'false');b.querySelector('span').textContent=two?'Forma 2':'Forma 1';}
+ if(two){banner('FORMA 2: PODER x1000',1.8);G.shake=Math.max(G.shake||0,1);for(let k=0;k<(MOB?16:36);k++){const a=R()*TAU,v=rr(10,34);fireP(HERO.x,HERO.y+rr(1,6),HERO.z,{vx:Math.cos(a)*v,vy:rr(2,12),vz:Math.sin(a)*v,s:rr(0.25,0.6),life:rr(0.4,0.8),drag:1.5,gl:3,c0:[1.2,0.05,0.1],c1:[0.35,0,0.02]});}}
+ else banner('FORMA 1',1);}
+/* tamanho e brasas vermelhas enquanto estiver na forma 2 */
+STEP_HOOKS.push(function formStep(dt){if(!hero)return;const tgt=PF.n===2?1:0;PF.k+=(tgt-PF.k)*clamp(dt*4);hero.wrap.scale.setScalar(1.5*(1+1.4*PF.k));
+ if(PF.n===2&&R()<dt*(MOB?6:14))fireP(HERO.x+rr(-1.5,1.5),HERO.y+rr(0.5,7),HERO.z+rr(-1.5,1.5),{vx:rr(-1,1),vy:rr(2,5),vz:rr(-1,1),s:rr(0.12,0.3),life:rr(0.4,0.8),drag:1,gl:3,c0:[1.2,0.05,0.1],c1:[0.35,0,0.02]});});
+RESET_HOOKS.push(()=>{if(PF.n===2)formSet(1);});
+{const b=$('#bForm');if(b){b.addEventListener('click',()=>formSet(PF.n===2?1:2));b.addEventListener('pointerdown',e=>e.stopPropagation());}}
+window.addEventListener('keydown',e=>{if(!G.started||G.paused||e.repeat)return;const tag=(e.target&&e.target.tagName)||'';if(tag==='INPUT'||tag==='TEXTAREA')return;if(e.code==='KeyY'){formSet(PF.n===2?1:2);e.preventDefault();}});
 /* ================= Ganchos de teste ================= */
 window.__caos.AIM=AIM;window.__caos.FUN=FUN;window.__caos.DIST=DIST;window.__caos.LMS=LMS;window.__caos.pdbg={CRW,VT,tbl:()=>({n:TBL.length,vis:TBL.filter(b=>b.t.visible).length,trees:TBL.reduce((a,b)=>a+(b.t.visible?b.trees.length:0),0),total:TREES.length}),diag:l=>{diagSet(l);},diagAcc:()=>DIAG.acc,setQ:q=>{Q=q;autoQ=false;applyQuality();},ri:()=>({calls:renderer.info.render.calls,tris:Math.round(renderer.info.render.triangles/1000)+'k',geo:renderer.info.memory.geometries,tex:renderer.info.memory.textures}),spawnHeli,DAYN,TKF,helis,boats,PLANES,SKYI,tkFindSpec,ISLS,dig,OE,PS,PW,TKN,EA,WB,FB,spawnAlly,spawnTitan,titanDamage,corePos,B,setAim:(x,y,z,sky)=>{AIM.set(x,y,z);aimOK=!sky;aimSky=!!sky;AIMK=sky?0:3;}};window.__caos.wdbg={wPhys,waterAt,maybeWet,SEA_X,EA,FLY,MV,flyToggle,heroPlace,seaY,LAKE,OUT_PONDS:typeof OUT_PONDS!=='undefined'?OUT_PONDS:null,PW,WANT,WB,TKN,FB,wantSet,PLANES};window.__caos.laserStep=laserStep;window.__caos.LZM=LZM;window.__caos.LZE=LZE;
 })();
