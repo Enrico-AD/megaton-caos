@@ -5722,13 +5722,13 @@ function heroCenter(H,o){return o.set(H.x,H.fy+1.05*H.W,H.z);}
 function heroLive(H){return H.st==='fight'||H.st==='in'||H.st==='tk';}
 /* ---------- golpe em você: empurra pouco, chacoalha e acende o escudo (você não morre e nunca fica preso ou lento) ---------- */
 function heroStruck(H,k,nx,nz,shove){const x=HERO.x,y=HERO.y+1.6,z=HERO.z;const n=Math.max(1,Math.round(k*3));for(let i=0;i<n;i++)heroHit();
- ball(x,y,z,1+k*2.4,H?H.D.css:0xffffff,0.2);if(k>0.15)G.shake=Math.max(G.shake,0.05+k*0.3);if(k>0.5)hitstop(0.04);sPunch(camDist(x,y,z)*0.6);buzz(k>0.6?[40,20,60]:20);
- if(shove){const d=Math.hypot(nx,nz)||1;if(FLY.on){FLY.kx+=nx/d*shove*8;FLY.kz+=nz/d*shove*8;FLY.ky+=shove*1.5;}else{HV.sv.x=nx/d*shove*1.2;HV.sv.z=nz/d*shove*1.2;HV.sv.t=0.25;}}}
+ ball(x,y,z,1.5+k*3.6,H?H.D.css:0xffffff,0.24);if(k>0.12)G.shake=Math.max(G.shake,0.08+k*0.45);if(k>0.5)hitstop(0.04);sPunch(camDist(x,y,z)*0.6);buzz(k>0.6?[40,20,60]:20);
+ if(shove){const d=Math.hypot(nx,nz)||1;if(FLY.on){FLY.kx+=nx/d*shove*8;FLY.kz+=nz/d*shove*8;FLY.ky+=shove*1.5;}else{HV.sv.x=nx/d*shove*1.7;HV.sv.z=nz/d*shove*1.7;HV.sv.t=0.25;}}}
 /* empurrão no chão: alguns metros para trás em 0,25 s, sem atravessar paredes */
 STEP_HOOKS.push(dt=>{const S=HV.sv;if(S.t<=0||FLY.on){S.t=0;return;}S.t-=dt;const k=Math.min(1,dt/0.25),nx=HERO.x+S.x*k,nz=HERO.z+S.z*k;if(heroWall(nx,nz,MV.fy,1.5)){S.t=0;return;}const dx=nx-HERO.x,dz=nz-HERO.z;HERO.x=nx;HERO.z=nz;moveCam(dx,0,dz);});
 /* ---------- dano nos heróis: cada um tem pontos fortes e fracos ---------- */
 const HEL={faisca:{blast:1.25,storm:1.2,tk:1.3},bastiao:{storm:2.2,laser:0.8,fire:0.6,water:1.2},muralha:{tk:1.5,earth:1.4,water:1.3,fire:0.5,laser:0.7,storm:0.4},aurora:{laser:0.6,tk:1.3,earth:1.2},nevasca:{fire:1.9,laser:1.3,ice:0.2,water:0.4,tk:1.2}};
-function heroDmg(H,a,o){if(!heroLive(H)||!(a>0))return 0;o=o||{};if(PF.n===2&&!PF.mon()){if(!PF.bl)a*=1000;o=Object.assign({},o,{cap:1});}let m=(HEL[H.k]||{})[o.el];if(m==null)m=1;a*=m;if(H.shT>0)a*=0.3;a=Math.min(a,H.max*(o.cap||0.5));
+function heroDmg(H,a,o){if(!heroLive(H)||!(a>0))return 0;o=o||{};if(PF.n===2&&!PF.mon()){if(!PF.bl)a*=1000;o=Object.assign({},o,{cap:1});}else o=Object.assign({},o,{cap:Math.min(o.cap||0.5,0.2)});let m=(HEL[H.k]||{})[o.el];if(m==null)m=1;a*=m;if(H.shT>0)a*=0.3;a=Math.min(a,H.max*(o.cap||0.5));
  H.hp-=a;H.hitT=0.12;H.lastHit=G.t;if(H.hp<=0)heroDown(H);return a;}
 function heroDown(H){if(H.st==='down'||H.st==='out')return;if(H.act&&H.act.c&&H.act.c.ctl&&H.act.c.ctl.H===H)flingCar(H.act.c,0.01,0,0.5,2);
  H.hp=0;H.st='down';H.t=0;H.vy=H.D.fly?-4:Math.min(H.vy,0);H.act=null;H.lp=null;H.wall=0;H.stun=0;H.tkg=0;if(H.beam)H.beam.visible=H.beamC.visible=false;
@@ -5738,7 +5738,7 @@ function heroDown(H){if(H.st==='down'||H.st==='out')return;if(H.act&&H.act.c&&H.
 /* ---------- chegada ---------- */
 function heroSpawn(k,px,pz){const D=HDEF[k];const ch=makeHeroBody(k);const lv=HV.lv[k]||1;const a=R()*TAU,hx=HERO.x,hz=HERO.z,W=1.3*D.sc;
  const H={k,D,ch,W,name:D.nm+' · '+D.role,hero:true,ally:false,dead:false,rage:false,x:clamp(px!=null?px:hx+Math.cos(a)*260,-HMAX,HMAX),z:clamp(pz!=null?pz:hz+Math.sin(a)*260,-HMAX,HMAX),fy:0,vx:0,vy:0,vz:0,face:a+Math.PI,ang:a,
-  hp:Math.round(D.hp*lv),max:Math.round(D.hp*lv),st:'in',t:0,cd:{a:rr(2,4),b:rr(5,8),c:rr(3,6)},act:null,hitT:0,shT:0,stun:0,trT:0,wall:0,ramT:0,lp:null,tkg:0,lastHit:-99};
+  hp:Math.round(D.hp*lv*2.5),max:Math.round(D.hp*lv*2.5),st:'in',t:0,cd:{a:rr(2,4),b:rr(5,8),c:rr(3,6)},act:null,hitT:0,shT:0,stun:0,trT:0,wall:0,ramT:0,lp:null,tkg:0,lastHit:-99};
  H.fy=heroTop(H.x,H.z);if(D.fly)H.fy=Math.max(H.fy,HERO.y)+(k==='nevasca'?40:150);
  if(k==='muralha'){const x1=clamp(hx+Math.cos(a)*16,-HMAX,HMAX),z1=clamp(hz+Math.sin(a)*16,-HMAX,HMAX);H.lp={x0:H.x,z0:H.z,y0:H.fy,x1,z1,y1:heroTop(x1,z1),t:0,T:3.2,h:170};}
  if(D.fly){H.beam=beamMesh(k==='nevasca'?0x8fdcff:k==='aurora'?0xc690ff:0xff7a1a,0.75);H.beamC=beamMesh(k==='bastiao'?0xffd49a:0xf2fbff,0.28);}
@@ -5748,12 +5748,15 @@ function heroSpawn(k,px,pz){const D=HDEF[k];const ch=makeHeroBody(k);const lv=HV
 function heroRemove(H){scene.remove(H.ch.wrap);if(H.beam){scene.remove(H.beam);scene.remove(H.beamC);H.beam.geometry.dispose();H.beamC.geometry.dispose();H.beam.material.dispose();H.beamC.material.dispose();}
  for(const o of H.ch.own||[])if(o&&o.dispose)o.dispose();const i=HEROES.indexOf(H);if(i>=0)HEROES.splice(i,1);}
 /* ---------- quantos heróis vêm: 3 estrelas, um; 4, três; 5, os cinco (no celular, menos) ---------- */
-function heroWant(){const L=WANT.lv;return L<3?0:L===3?1:L===4?(MOB?2:3):(MOB?3:5);}
+function heroWant(){const L=WANT.lv;return L<3?0:L===3?(MOB?2:3):L===4?(MOB?4:6):(MOB?5:9);}
 function heroDirector(dt){const want=heroWant();let live=0;for(const H of HEROES)if(H.st!=='out'&&H.st!=='leave'&&H.st!=='down')live++;
  for(const k in HV.cool)if(HV.cool[k]>0)HV.cool[k]-=dt;
  /* estrelas caíram: os que sobram vão embora */
  if(live>want)for(const H of HEROES){if(live<=want)break;if(H.st==='fight'||H.st==='in'){H.st='leave';H.t=0;H.vy=4;if(H.beam)H.beam.visible=H.beamC.visible=false;live--;}}
- HV.spT-=dt;if(HV.spT<=0&&live<want&&HERO.y<1400){HV.spT=rr(7,12);const k=HORDER.find(k=>!HEROES.some(H=>H.k===k)&&!(HV.cool[k]>0));if(k)heroSpawn(k);}}
+ HV.spT-=dt;if(HV.spT<=0&&live<want&&HERO.y<1400){HV.spT=rr(3,6);let k=HORDER.find(k=>!HEROES.some(H=>H.k===k)&&!(HV.cool[k]>0));
+  /* já vieram todos: chega uma segunda leva (no máximo 2 de cada) */
+  if(!k){const c=HORDER.filter(k=>HEROES.filter(H=>H.k===k&&H.st!=='out').length<2&&!(HV.cool[k]>0));if(c.length)k=pick(c);}
+  if(k)heroSpawn(k);}}
 /* ---------- movimento ---------- */
 function heroAim(H,o){o.x=HERO.x;o.y=HERO.y+1.6;o.z=HERO.z;o.dh=Math.hypot(o.x-H.x,o.z-H.z);o.d3=Math.hypot(o.dh,o.y-H.fy-H.W);return o;}
 const _ha={x:0,y:0,z:0,dh:0,d3:0};
@@ -5783,7 +5786,7 @@ function heroStep(H,dt){H.t+=dt;if(H.hitT>0)H.hitT-=dt;if(H.shT>0)H.shT-=dt;if(H
   if(!(TKN.on&&TKN.big&&TKN.big.o===H)&&!TKF.some(f=>f.o===H)){H.st='fight';H.tkg=0;H.ch.wrap.rotation.set(0,H.face,0);}else{play(H.ch,'TPose',0.2);mixStep(H.ch,dt,0);return;}}
  if(H.st==='down'){const g=heroSup(H.x,H.z,H.fy,1);if(H.fy>g+0.05){H.vy-=34*dt;H.fy=Math.max(g,H.fy+H.vy*dt);}else{H.fy=g;H.vy=0;}
   if(H.t>4.5){const x=H.x,y=H.fy+1,z=H.z;flashLight(x,y,z,6,60,0.4,0xffffff);ball(x,y,z,3*H.W,0xffffff,0.3);for(let k=0;k<12;k++)fireP(x,y,z,{vx:rr(-6,6),vy:rr(4,18),vz:rr(-6,6),s:0.5,life:0.5,gl:3,c0:[1,1,1],c1:D.glow});
-   H.st='out';HV.cool[H.k]=rr(50,70);HV.lv[H.k]=Math.min(2.5,(HV.lv[H.k]||1)+0.25);toast(D.nm+' recuou','Volta mais tarde, e mais forte.');heroRemove(H);return;}
+   H.st='out';HV.cool[H.k]=rr(14,22);HV.lv[H.k]=Math.min(2.5,(HV.lv[H.k]||1)+0.25);toast(D.nm+' recuou','Volta logo, e mais forte.');heroRemove(H);return;}
   heroPose(H,dt);return;}
  if(H.st==='leave'){H.vy=Math.min(H.vy+40*dt,90);H.fy+=H.vy*dt;heroTrail(H,dt,2);if(H.t>3){H.st='out';heroRemove(H);return;}heroPose(H,dt);return;}
  const A=heroAim(H,_ha),tx=A.x,ty=A.y,tz=A.z,dh=A.dh,d3=A.d3;
@@ -5794,7 +5797,7 @@ function heroStep(H,dt){H.t+=dt;if(H.hitT>0)H.hitT-=dt;if(H.shT>0)H.shT-=dt;if(H
   else if(H.k==='muralha'){if(H.lp)heroLeapStep(H,dt);else H.st='fight';}
   else{const a=H.ang;heroFlyTo(H,tx+Math.cos(a)*55,ty+(H.k==='nevasca'?10:28),tz+Math.sin(a)*55,95,dt);heroTrail(H,dt,2);if(H.k==='nevasca')heroIceTrail(H,dt);if(d3<95)H.st='fight';}
   if(!H.lp&&H.wall<=0)heroFace(H,H.x+H.vx,H.z+H.vz,dt,5);heroPose(H,dt);return;}
- for(const k in H.cd)H.cd[k]-=dt;
+ for(const k in H.cd)H.cd[k]-=dt*1.7;
  if(H.k==='faisca')faiscaAI(H,dt,tx,ty,tz,dh);else if(H.k==='bastiao')bastiaoAI(H,dt,tx,ty,tz,dh,d3);else if(H.k==='muralha')muralhaAI(H,dt,tx,ty,tz,dh);else if(H.k==='aurora')auroraAI(H,dt,tx,ty,tz,dh,d3);else nevascaAI(H,dt,tx,ty,tz,dh,d3);
  heroPose(H,dt);}
 /* pose: corre, voa inclinado, sobe parede, cai, pisca quando apanha */
